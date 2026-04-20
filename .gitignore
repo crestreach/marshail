@@ -1,0 +1,6 @@
+# Local notes / scratch files
+_notes.md
+_*.md
+
+# macOS
+.DS_Store
