@@ -204,6 +204,33 @@ Rules:
   - occasionally step level
 
 
+## Implementation round and implementation cycles
+
+Two cycle scales exist inside the lifecycle — the big one groups three high-level stages that can repeat for parts of the plan, the small one drives the Implement stage itself.
+
+### Implementation round (big)
+
+The Implement, Verify and PR / merge stages are still three separate high-level stages, but they run together as one **implementation round**. A round can run:
+- **once** for the whole change — one Implement, one Verify, one PR at the end
+- **per phase / slice** — each phase is implemented, verified, and merged before the next begins
+- occasionally **per work packet or small group of packets**, when a coherent, testable delta warrants its own integration boundary
+
+Rule: **every PR must be preceded by a Verify stage for its content**. Verification is never skipped before merge.
+
+```mermaid
+flowchart LR
+    I[Implement] --> V[Verify]
+    V --> P[PR / merge]
+    P -. next round .-> I
+```
+
+![Implementation round (big)](assets/implementation-round.svg)
+
+### Implementation cycle (small)
+
+Inside the Implement stage, work itself runs in smaller **implementation cycles** — pick a target (phase / packet / step), execute it, close the cycle. A round contains one or more cycles (see "Implementation cycles" in stage 3).
+
+
 ## Specification change
 
 A specification change may happen at any time. When it does:
@@ -221,6 +248,28 @@ A specification change may happen at any time. When it does:
 ### Terminology
 
 Individual lifecycle steps will be referred to as **stages**, as opposed to phases/slices, work packets, steps, substeps, implementation steps (which are elements of the implementation plan)
+
+### Overview
+
+```mermaid
+flowchart LR
+    A[0. Intake] --> B[1. Analysis]
+    B --> C["1.5. Architecture<br/>(optional)"]
+    C --> D[2. Plan]
+    subgraph R3["3. Implementation round"]
+        direction LR
+        I[Implement] --> V[Verify]
+        V --> P[PR / merge]
+    end
+    D --> R3
+    R3 -. next round .-> R3
+    R3 --> Ro[4. Rollout]
+    Ro --> L[5. Learn]
+```
+
+![MARSHAL SDLC overview](assets/sdlc-overview.svg)
+
+Stages **3a Implement**, **3b Verify**, and **3c PR / merge** together form one **implementation round** (see the Concept model). The dotted self-loop shows that the round may repeat — once for the whole change, or per phase/slice.
 
 
 ## 0. Intake / framing
@@ -449,15 +498,32 @@ Replanning mechanics:
 
 ---
 
-## 3. Implement
+## 3. Implementation round: Implement, Verify, PR
 
-### Goal
+Three high-level stages — **Implement**, **Verify**, and **PR / integration / merge** — run together as one **implementation round**. They remain distinct stages, but are bundled here because they always flow together and may repeat for parts of the plan (once for the whole change, or per phase / slice).
+
+Rule: **every PR must be preceded by a Verify stage for its content**. Verification is never skipped before merge.
+
+```mermaid
+flowchart LR
+    I[3a. Implement] --> V[3b. Verify]
+    V --> P[3c. PR / merge]
+    P -. next round .-> I
+```
+
+Inside the Implement stage, work runs in smaller **implementation cycles** (see below). PR grouping defaults are in the PR subsection.
+
+---
+
+### 3a. Implement
+
+#### Goal
 Execute the approved plan.
 
-### Cycles
-Implementation runs in cycles. The human chooses the granularity of each cycle: a phase/slice, a work packet, or a step/substep.
+#### Implementation cycles
+The Implement stage runs in small **implementation cycles**. The human chooses the granularity of each cycle: a phase/slice, a work packet, or a step/substep.
 
-A cycle roughly follows four steps: pick the target, confirm the plan is still accurate, execute, close the cycle (update statuses, changelog, tests). Use this as a guide, not a rigid checklist.
+A cycle roughly follows four steps: pick the target, confirm the plan is still accurate, execute, review, close the cycle (update statuses, changelog, tests). Use this as a guide, not a rigid checklist.
 
 Within a cycle the human can:
 - ask the AI to implement plan items
@@ -467,23 +533,39 @@ Within a cycle the human can:
 
 If the plan has to be adapted at any point during implementation, do it explicitly in `delivery-plan.md` before continuing. Very small changes or extensions don't need a plan update.
 
-### Testing strategy
-Testing is part of each cycle, not a separate end step. For each cycle:
-- cover new or changed code with **unit tests** and **integration tests**, following the conventions defined for the repo
-- when applicable, run real-life tests — the AI should run the code, the application, and full-stack / UI flows whenever possible
-- ask the human to manually test partial results when it makes sense (e.g. UX, or environments the AI cannot reach)
+```mermaid
+flowchart LR
+    T[Pick target<br/>phase / packet / step] --> A{Plan still<br/>accurate?}
+    A -- yes --> X[Execute<br/>code, tests, QA]
+    A -- no --> U[Adapt plan]
+    U --> X
+    X --> C[Close cycle<br/>update statuses,<br/>tests, changelog]
+    C -. next cycle .-> T
+```
 
-### Rules
+![Implementation cycle (small)](assets/implementation-cycle.svg)
+
+Implementation cycles are nested inside the **implementation round** (Implement → Verify → PR). See the Concept model.
+
+#### Testing strategy
+Testing is part of each cycle, not a separate end step. For each cycle:
+- cover new or changed code primarily with **unit tests**, adding **integration tests** for general cases and cross-component behavior, following the conventions defined for the repo
+- when applicable, run real-life tests — the AI should run the code, the application, and full-stack / UI flows whenever possible
+- the human should manually test partial results when it makes sense (e.g. UX, or environments the AI cannot reach)
+
+The final, formal checks — requirements validation, code testing guidance, and Dev-QA — happen in the Verify subsection below.
+
+#### Rules
 - implement against the current approved plan only
 - update status markers live
 - keep diffs small enough to reason about
 - a work packet is an execution unit, not a PR unit
 - a commit is not a planning unit
 
-### Review model
+#### Review model
 
 Default:
-- user reviews **within the plan** and in direct discussion with the AI at work-packet level
+- user reviews **within the plan** and in direct discussion with the AI at work-packet/task level
 - PR review is used for a **larger integration boundary**:
   - whole phase or the full approved slice or multiple phases / slices
   - in special cases, a work packet or multiple packets
@@ -495,22 +577,22 @@ Therefore:
 
 PRs should normally be assigned to another human developer for review, but can alternatively / additionally be reviewed by a reviewing AI agent.
 
-### If changes are requested during review
+#### If changes are requested during review
 
 Do not edit silently.
 
 Update the plan in `delivery-plan.md` using one of these patterns:
 
-#### Small correction inside same packet
+##### Small correction inside same packet
 - add a new step/substep under the current work packet
 - mark it `[ADDED yyyy-mm-dd]` or `[FIXUP yyyy-mm-dd]`
 
-#### Correction that changes scope/approach
+##### Correction that changes scope/approach
 - mark affected packet `[CHANGED yyyy-mm-dd]`
 - update remaining steps below it
 - update dependencies if needed
 
-#### Correction that deserves isolation
+##### Correction that deserves isolation
 - create a new sibling work packet:
   - `W1a. Review fixups [ADDED yyyy-mm-dd]`
 
@@ -519,13 +601,13 @@ Always log:
 - what changed in plan structure
 - whether already-completed work remains valid
 
-### Exit criteria for a work packet
+#### Exit criteria for a work packet
 - acceptance criteria met
 - plan status updated
 - tests updated
 - changelog updated
 
-### Artifacts produced
+#### Artifacts produced
 - `logs/phase-N.changelog.md`
     For each implementation phase, record:
     - steps completed
@@ -546,12 +628,12 @@ Always log:
 
 ---
 
-## 4. Verify
+### 3b. Verify
 
-### Goal
-Run an explicit verification gate, separate from coding. Re-run the Implementation phase in case of failed verification.
+#### Goal
+Run an explicit verification gate, separate from coding. Re-run the Implement stage in case of failed verification.
 
-### Requirements validation
+#### Requirements validation
 The AI agent goes through every requirement in `change-brief.md` and verifies:
 - each requirement is implemented
 - all corner cases are covered
@@ -559,27 +641,28 @@ The AI agent goes through every requirement in `change-brief.md` and verifies:
 
 The outcome is part of the acceptance criteria check.
 
-### Code testing guidance
+#### Code testing guidance
 Guidance for automated code tests:
 - for bugfixes: reproduce first, then add a regression test where possible
 - prefer unit tests as the primary coverage
 - use integration tests for general cases and cross-component behavior
 - add E2E only for critical user journeys or release risk
 
-### Dev-QA
+#### Dev-QA
 Beyond automated code tests, explicit QA is part of verification. Basic / happy case testing and some corner case testing should always happen:
 - the AI agent should perform QA whenever possible (by running the code or the application)
-- the human developer should always also perform QA manually
+- the human developer should always also perform QA manually before sending a PR for review
+- the human should always do manual testing of the end solution
 
 The outcome is part of the acceptance criteria check.
 
-### Exit criteria
+#### Exit criteria
 - verification passed
-- any required replan/fixup is added back into the plan, and the Implementation phase is run again
+- any required replan/fixup is added back into the plan, and the Implement stage is run again
 
-### Required artifacts
+#### Required artifacts
 - `verification-report.md`
-    For each completed phase / PR boundary:
+    For each completed round / PR boundary:
     - acceptance criteria check, including requirements validation (by AI) and dev-QA (happy-case and corner-case testing, by AI and by human)
     - static analysis / lint / typecheck
     - unit tests
@@ -589,7 +672,6 @@ The outcome is part of the acceptance criteria check.
     - security/privacy checks if relevant
     - open issues / residual risks
 
-//TODO maybe change everywhere to append?
 - append results to `logs/phase-N.changelog.md`
     Append:
     - verification result
@@ -604,21 +686,21 @@ The outcome is part of the acceptance criteria check.
 
 ---
 
-## 5. Final PR / integration / merge
+### 3c. PR / integration / merge
 
-### Goal
+#### Goal
 Use PRs only at meaningful integration boundaries.
 
-### Recommended default
+#### Recommended default
 - one PR per whole implementation (all phases/slices)
 - one PR per phase/slice
 - in special cases, one PR per group of completed work packets that forms a coherent, testable delta
 
-### Avoid
+#### Avoid
 - one PR per tiny packet
 - one PR per commit
 
-### PR should include
+#### PR should include
 - linked phase(s) / packet(s)
 - change summary
 - test summary
@@ -626,14 +708,14 @@ Use PRs only at meaningful integration boundaries.
 - known limitations
 - follow-up packets if any
 
-### If PR review requests changes
+#### If PR review requests changes
 - changes must be reflected back into `delivery-plan.md`
 - mark affected items `[FIXUP]` / `[CHANGED]` / `[ADDED]`
 - append rationale to the phase changelog
 
 ---
 
-## 6. Release / rollout
+## 4. Release / rollout
 
 ### Exit criteria
 - relevant migrations are documented
@@ -662,7 +744,7 @@ Use PRs only at meaningful integration boundaries.
 
 ---
 
-## 7. Learn / improve the system
+## 5. Learn / improve the system
 
 ### Goal
 Promote generalized learnings into durable system guidance. The user should approve the final update before merging the final update lists to individual buckets.
