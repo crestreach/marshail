@@ -224,8 +224,6 @@ flowchart LR
     P -. next round .-> I
 ```
 
-![Implementation round (big)](assets/implementation-round.svg)
-
 ### Implementation cycle (small)
 
 Inside the Implement stage, work itself runs in smaller **implementation cycles** — pick a target (phase / packet / step), execute it, close the cycle. A round contains one or more cycles (see "Implementation cycles" in stage 3).
@@ -266,8 +264,6 @@ flowchart LR
     R3 --> Ro[4. Rollout]
     Ro --> L[5. Learn]
 ```
-
-![MARSHAL SDLC overview](assets/sdlc-overview.svg)
 
 Stages **3a Implement**, **3b Verify**, and **3c PR / merge** together form one **implementation round** (see the Concept model). The dotted self-loop shows that the round may repeat — once for the whole change, or per phase/slice.
 
@@ -542,8 +538,6 @@ flowchart LR
     X --> C[Close cycle<br/>update statuses,<br/>tests, changelog]
     C -. next cycle .-> T
 ```
-
-![Implementation cycle (small)](assets/implementation-cycle.svg)
 
 Implementation cycles are nested inside the **implementation round** (Implement → Verify → PR). See the Concept model.
 

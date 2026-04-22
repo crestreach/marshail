@@ -2,8 +2,8 @@
 _notes.md
 _*.md
 
-# Icon/image sources (not tracked for now)
-assets/icons/
+# Assets (not tracked for now)
+assets/
 
 # macOS
 .DS_Store
