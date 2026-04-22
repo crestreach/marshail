@@ -182,6 +182,7 @@ Use simple inline markers:
 - `[ADDED yyyy-mm-dd]`
 - `[CHANGED yyyy-mm-dd]`
 - `[FIXUP yyyy-mm-dd]`
+- `[REVERT yyyy-mm-dd]`
 
 ## 4. Parallelism
 
@@ -199,6 +200,18 @@ Rules:
   - phase level
   - work packet level
   - occasionally step level
+
+
+## Specification change
+
+A specification change may happen at any time. When it does:
+- amend `change-brief.md` with the new or changed requirement
+- re-run Analysis, narrowed to the affected surface, and update `repo-recon.md`
+- update `delivery-plan.md`:
+  - keep already-finalized work as `[DONE]` where it remains valid
+  - add new phases/packets/steps for new requirements, marked `[ADDED yyyy-mm-dd]`
+  - add explicit items for work that must be undone, marked `[REVERT yyyy-mm-dd]`
+  - mark anything no longer needed `[DROPPED yyyy-mm-dd]`
 
 
 ## Lifecycle - stages
@@ -400,7 +413,20 @@ Replanning mechanics:
 ## 3. Implement
 
 ### Goal
-Execute the approved plan phase by phase.
+Execute the approved plan.
+
+### Cycles
+Implementation runs in cycles. The human chooses the granularity of each cycle: a phase/slice, a work packet, or a step/substep.
+
+A cycle roughly follows four steps: pick the target, confirm the plan is still accurate, execute, close the cycle (update statuses, changelog, tests). Use this as a guide, not a rigid checklist.
+
+Within a cycle the human can:
+- ask the AI to implement plan items
+- ask the AI for a custom programming task outside the current plan item
+- write code themselves and discuss with the AI
+- ask for a review at any time
+
+If the plan has to be adapted at any point during implementation, do it explicitly in `delivery-plan.md` before continuing. Very small changes or extensions don't need a plan update.
 
 ### Rules
 - implement against the current approved plan only
@@ -426,7 +452,7 @@ Therefore:
 
 Do not edit silently.
 
-Uupdate the plan in `delivery-plan.md` using one of these patterns:
+Update the plan in `delivery-plan.md` using one of these patterns:
 
 #### Small correction inside same packet
 - add a new step/substep under the current work packet
