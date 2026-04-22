@@ -467,6 +467,12 @@ Within a cycle the human can:
 
 If the plan has to be adapted at any point during implementation, do it explicitly in `delivery-plan.md` before continuing. Very small changes or extensions don't need a plan update.
 
+### Testing strategy
+Testing is part of each cycle, not a separate end step. For each cycle:
+- cover new or changed code with **unit tests** and **integration tests**, following the conventions defined for the repo
+- when applicable, run real-life tests — the AI should run the code, the application, and full-stack / UI flows whenever possible
+- ask the human to manually test partial results when it makes sense (e.g. UX, or environments the AI cannot reach)
+
 ### Rules
 - implement against the current approved plan only
 - update status markers live
@@ -545,12 +551,27 @@ Always log:
 ### Goal
 Run an explicit verification gate, separate from coding. Re-run the Implementation phase in case of failed verification.
 
-//TODO:
-### Testing guidance
+### Requirements validation
+The AI agent goes through every requirement in `change-brief.md` and verifies:
+- each requirement is implemented
+- all corner cases are covered
+- possible error cases are handled
+
+The outcome is part of the acceptance criteria check.
+
+### Code testing guidance
+Guidance for automated code tests:
 - for bugfixes: reproduce first, then add a regression test where possible
-- prefer integration tests for behavior confidence
-- add unit tests for dense logic / edge cases
+- prefer unit tests as the primary coverage
+- use integration tests for general cases and cross-component behavior
 - add E2E only for critical user journeys or release risk
+
+### Dev-QA
+Beyond automated code tests, explicit QA is part of verification. Basic / happy case testing and some corner case testing should always happen:
+- the AI agent should perform QA whenever possible (by running the code or the application)
+- the human developer should always also perform QA manually
+
+The outcome is part of the acceptance criteria check.
 
 ### Exit criteria
 - verification passed
@@ -559,7 +580,7 @@ Run an explicit verification gate, separate from coding. Re-run the Implementati
 ### Required artifacts
 - `verification-report.md`
     For each completed phase / PR boundary:
-    - acceptance criteria check
+    - acceptance criteria check, including requirements validation (by AI) and dev-QA (happy-case and corner-case testing, by AI and by human)
     - static analysis / lint / typecheck
     - unit tests
     - integration tests
@@ -583,7 +604,7 @@ Run an explicit verification gate, separate from coding. Re-run the Implementati
 
 ---
 
-## 5. PR / integration / merge
+## 5. Final PR / integration / merge
 
 ### Goal
 Use PRs only at meaningful integration boundaries.
