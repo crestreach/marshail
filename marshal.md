@@ -950,6 +950,7 @@ Skills (per stage):
 Setup skills:
 - [`marshal-init`](marshal-files/skills/marshal-init/SKILL.md) — first-time MARSHAL setup in a repo.
 - [`marshal-load`](marshal-files/skills/marshal-load/SKILL.md) — session bootstrap.
+- [`marshal-help`](marshal-files/skills/marshal-help/SKILL.md) — on-demand expert on MARSHAL: answers procedural and conceptual questions, orients the caller in the current change, and hands off to the right stage skill or to `marshal-driver` when work needs to actually progress.
 - [`marshal-promote-assets`](marshal-files/skills/marshal-promote-assets/SKILL.md) — copy MARSHAL durable assets from `.marshal/{skills,agents,rules}/` into the repo's `agent-config/` source tree (with `mx_` prefix) so the next `agent-conf-sync` run fans them out to all tool layouts.
 
 Knowledge skills (see Memory & Knowledge):
@@ -961,6 +962,7 @@ Knowledge skills (see Memory & Knowledge):
 
 Subagents (orchestration / fresh-context wrappers — v2):
 - [`marshal-driver`](marshal-files/agents/marshal-driver.md) — process orchestrator across stages.
+- [`marshal-helper`](marshal-files/agents/marshal-helper.md) — fresh-context MARSHAL coach: wraps `marshal-help` to answer questions about the process, the knowledge layer, and how MARSHAL applies to the current change.
 - [`marshal-researcher`](marshal-files/agents/marshal-researcher.md) — fresh-context research.
 - [`marshal-knowledge-curator`](marshal-files/agents/marshal-knowledge-curator.md) — fresh-context knowledge maintenance.
 - [`marshal-code-archaeologist`](marshal-files/agents/marshal-code-archaeologist.md) — fresh-context analysis (stage 3).

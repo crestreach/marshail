@@ -112,9 +112,21 @@ and config sync.
 
 These do not exist yet in v1. The skills above mark in their bodies which
 operations are good candidates to be promoted to dedicated subagents with
-fresh context. Proposed names: `marshal-driver`, `marshal-researcher`,
+fresh context. Proposed names: `marshal-driver`, `marshal-helper`,
+`marshal-researcher`,
 `marshal-knowledge-curator`, `marshal-code-archaeologist`,
 `marshal-planner`, `marshal-reviewer`. Stubs live in `.marshal/agents/`.
+
+## Getting unstuck / asking about MARSHAL
+
+If at any point you (or the user) are unsure which stage to be in,
+which skill to invoke, or how MARSHAL applies to the situation,
+invoke [`marshal-help`](skills/marshal-help/SKILL.md) (or its fresh-context
+wrapper [`marshal-helper`](agents/marshal-helper.md)). It reads
+`marshal.md` and the `.marshal/` tree, answers the question, and either
+points you at the right next skill or hands off to
+[`marshal-driver`](agents/marshal-driver.md) when work needs to actually
+progress.
 
 ## What this entry point is not
 
