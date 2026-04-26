@@ -14,7 +14,8 @@ Agents should read [`marshal.md`](./marshal.md) at the beginning of each session
 | [`AGENTS.md`](./AGENTS.md) | This file. Synced from `agent-config/AGENTS.md`. |
 | [`marshal-files/`](./marshal-files) | The MARSHAL source tree for *this* product repo. In a consumer repo this same tree is installed as `.marshal/`. Holds entrypoint, config, knowledge, references, design, plus `marshal-files/{skills,agents,rules}/` (the canonical built-in MARSHAL skills, subagents, and rules — all named `marshal-*`). |
 | [`agent-config/`](./agent-config) | Generic source tree consumed by [`ai-dev-agent-config-sync`](./ai-dev-agent-config-sync). Holds `AGENTS.md`, `agents/`, `skills/`, `rules/`, `mcp-servers/`. Edit here, then run the `agent-conf-sync` skill to fan out to tool layouts. |
-| [`ai-dev-agent-config-sync/`](./ai-dev-agent-config-sync) | Vendored submodule — the sync engine itself. Treat as read-only. |
+| [`ai-dev-agent-config-sync/`](./ai-dev-agent-config-sync) | Wrapper directory exposing the sync engine. Contains two relative symlinks — `scripts/` and `skills/` — pointing into [`ai-dev-agent-config-sync-source/`](./ai-dev-agent-config-sync-source). The `agent-conf-sync` skill should invoke `ai-dev-agent-config-sync/scripts/sync-all.sh` (or `sync-all.ps1`) from the repo root. |
+| [`ai-dev-agent-config-sync-source/`](./ai-dev-agent-config-sync-source) | Vendored submodule — the actual sync engine sources. Treat as read-only. The wrapper above is what tooling should reference. |
 | [`examples/`](./examples) | Worked examples (e.g. `snippets-api/`) showing what a consumer repo looks like with MARSHAL installed. |
 | [`assets/`](./assets) | Static assets (icons, diagrams). Untracked by git. |
 | [`LICENSES/`](./LICENSES) | Third-party license texts. |
@@ -65,7 +66,7 @@ Most work here is editing the process spec and adding supporting tooling (skills
 
 ## Agent configuration management
 
-This repo manages all of its AI-assistant configuration — guidelines (`AGENTS.md`), rules, skills, agents, and MCP servers — through [`ai-dev-agent-config-sync`](./ai-dev-agent-config-sync) (vendored as a submodule). The single generic source tree lives in [`agent-config/`](./agent-config); per-tool layouts (`.cursor/`, `.claude/`, `.github/`, `.junie/`, `.vscode/`, root `AGENTS.md`, `CLAUDE.md`) are generated from it.
+This repo manages all of its AI-assistant configuration — guidelines (`AGENTS.md`), rules, skills, agents, and MCP servers — through [`ai-dev-agent-config-sync`](./ai-dev-agent-config-sync) (a wrapper directory whose `scripts/` and `skills/` are symlinks into the vendored submodule [`ai-dev-agent-config-sync-source/`](./ai-dev-agent-config-sync-source)). The single generic source tree lives in [`agent-config/`](./agent-config); per-tool layouts (`.cursor/`, `.claude/`, `.github/`, `.junie/`, `.vscode/`, root `AGENTS.md`, `CLAUDE.md`) are generated from it. The `agent-conf-sync` skill invokes the sync via `ai-dev-agent-config-sync/scripts/sync-all.sh` (POSIX) or `ai-dev-agent-config-sync/scripts/sync-all.ps1` (Windows).
 
 When asked to **create or update** any of:
 
@@ -75,7 +76,7 @@ When asked to **create or update** any of:
 - a subagent
 - an MCP server entry
 
-read [`ai-dev-agent-config-sync/README.md`](./ai-dev-agent-config-sync/README.md) for the source-tree format (frontmatter fields, secret-token translation, agent ↔ MCP linkage), author the file under the appropriate folder of `agent-config/` (`agent-config/{rules,skills,agents,mcp-servers}/`), and then re-run the sync (skill `agent-conf-sync`) to fan it out to the per-tool directories. Do not hand-edit the generated `.cursor/`, `.claude/`, `.github/`, `.junie/`, `.vscode/` files — they are overwritten on the next sync.
+read [`ai-dev-agent-config-sync-source/README.md`](./ai-dev-agent-config-sync-source/README.md) for the source-tree format (frontmatter fields, secret-token translation, agent ↔ MCP linkage), author the file under the appropriate folder of `agent-config/` (`agent-config/{rules,skills,agents,mcp-servers}/`), and then re-run the sync (skill `agent-conf-sync`) to fan it out to the per-tool directories. Do not hand-edit the generated `.cursor/`, `.claude/`, `.github/`, `.junie/`, `.vscode/` files — they are overwritten on the next sync.
 
 
 ---

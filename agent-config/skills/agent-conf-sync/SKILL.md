@@ -177,4 +177,3 @@ Reply with a **compact** summary, not the full log:
 - **Submodule / monorepo:** always resolve real filesystem paths before running.
 - **Input equals output:** allowed; scripts skip the redundant `AGENTS.md` copy.
 - **Git Bash on Windows:** prefer the `.sh` script with `bash`; only use `.ps1` when the session is clearly native PowerShell.
-
