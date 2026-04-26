@@ -115,7 +115,7 @@ This process adapts several established ideas into one practical operating model
 
 Every change should move through this chain:
 
-**Change Brief → Analysis, Repo Recon → Architecture Notes (optional) → Delivery Plan → Implementation + Phase Logs + Phase Learnings → Verification Report → Rollout Note → Learning Rollup**
+**Specification → Change Brief → Analysis, Repo Recon → Architecture Notes (optional) → Delivery Plan → Implementation + Phase Logs + Phase Learnings → Verification Report → Rollout Note → Learning Rollup**
 
 Each artifact becomes input to the next phase.
 
@@ -124,7 +124,12 @@ Each artifact becomes input to the next phase.
 
 ## Plan hierarchy
 
-Use exactly 4 planning depth levels.
+MARSHAL defines up to 4 planning levels. **Use only as many as the change
+needs.** A trivial fix may be a single phase with one step (no L2/L3/L4
+at all). A larger change may go all the way to L4 in places. The agent
+plans down to whatever depth genuinely helps the next implementation
+cycle — unless the user has explicitly pinned a target depth, in which
+case that pin is honored.
 
 ### L1 — Phase / Slice
 A coherent slice of work that is reviewable as a larger chunk and may map to one PR. One PR might also span multiple phases / slices.
@@ -168,9 +173,23 @@ Use only when useful:
 - config/flag wiring
 - rough interfaces and contracts
 
-Do **not** force L4 everywhere. Use it for risky, cross-cutting, public-interface, migration, concurrency, or security-sensitive work. It should be specified in the planning promt whether this level should be included.
+### Choosing the right depth
 
-Not every level has to be filled in up front. A plan can be built to a shallow depth and deepened later, phase by phase — see "Staged planning" in stage 2.
+- **Always have at least L1** for the whole change so the overall
+  shape is agreed (a single phase counts).
+- **Stop deepening when going further wouldn't change behavior in
+  the next implementation cycle.** Trivial work may legitimately
+  stop at L1 + a one-line objective.
+- **Go to L3 / L4** when the work is risky, cross-cutting, public-
+  interface, migration, concurrency, or security-sensitive — or when
+  the user asks for it.
+- **Per-area depth is fine.** One phase may live at L2 while another
+  goes to L4.
+- **The user pins.** If the user specifies a target depth ("plan only
+  to L2", "go to L4 for the auth work"), follow it. Otherwise the
+  agent picks pragmatically and surfaces the choice for approval.
+- Not every level has to be filled in up front — see "Staged planning"
+  in stage 4.
 
 
 
@@ -212,7 +231,7 @@ Two cycle scales exist inside the lifecycle — the big one groups three high-le
 
 ### Implementation round (big)
 
-The Implement, Verify and PR / merge stages are still three separate high-level stages, but they run together as one **implementation round**. A round can run:
+Stages 5a Implement, 5b Verify, and 5c PR / merge are still three separate high-level stages, but they run together as one **implementation round**. A round can run:
 - **once** for the whole change — one Implement, one Verify, one PR at the end
 - **per phase / slice** — each phase is implemented, verified, and merged before the next begins
 - occasionally **per work packet or small group of packets**, when a coherent, testable delta warrants its own integration boundary
@@ -228,7 +247,7 @@ flowchart LR
 
 ### Implementation cycle (small)
 
-Inside the Implement stage, work itself runs in smaller **implementation cycles** — pick a target (phase / packet / step), execute it, close the cycle. A round contains one or more cycles (see "Implementation cycles" in stage 3).
+Inside the Implement stage, work itself runs in smaller **implementation cycles** — pick a target (phase / packet / step), execute it, close the cycle. A round contains one or more cycles (see "Implementation cycles" in stage 5).
 
 
 ## Specification change
@@ -253,27 +272,93 @@ Individual lifecycle steps will be referred to as **stages**, as opposed to phas
 
 ```mermaid
 flowchart LR
-    A[0. Intake] --> B[1. Analysis]
-    B --> C["1.5. Architecture<br/>(optional)"]
-    C --> D[2. Plan]
-    subgraph R3["3. Implementation round"]
+    S["1. Specification<br/>(optional)"] --> A["2. Intake<br/>(optional)"]
+    A --> B["3. Analysis<br/>(optional)"]
+    B --> C["3.5. Architecture<br/>(optional)"]
+    C --> D["4. Plan<br/>(mandatory)"]
+    subgraph R5["5. Implementation round"]
         direction LR
         I[Implement] --> V[Verify]
         V --> P[PR / merge]
     end
-    D --> R3
-    R3 -. next round .-> R3
-    R3 --> Ro[4. Rollout]
-    Ro --> L[5. Learn]
+    D --> R5
+    R5 -. next round .-> R5
+    R5 --> Ro["6. Rollout<br/>(optional)"]
+    Ro --> L["7. Learn<br/>(optional)"]
 ```
 
-Stages **3a Implement**, **3b Verify**, and **3c PR / merge** together form one **implementation round** (see the Concept model). The dotted self-loop shows that the round may repeat — once for the whole change, or per phase/slice.
+Stages **5a Implement**, **5b Verify**, and **5c PR / merge** together form one **implementation round** (see the Concept model). The dotted self-loop shows that the round may repeat — once for the whole change, or per phase/slice.
+
+### Stage optionality
+
+MARSHAL is meant to scale with the size of the change. Only **stage 4 Plan** is mandatory — `delivery-plan.md` is the canonical source of truth for the change and must always exist. Every other stage is optional and may be skipped when it would not add value. Practical guidance:
+
+- **Trivial changes** (typo, one-line config, obvious patch): produce a minimal one-section plan, implement, and stop. Skip Specification, Intake, Analysis, Architecture, Verify-as-separate-stage, Rollout, and Learn.
+- **Small but non-trivial changes** (a focused bugfix or a small feature): a short plan plus an Implement+Verify round is usually enough. Specification / Intake / Analysis can be folded into the plan's framing section if separate artifacts are not justified.
+- **Larger or risky changes**: keep the full pipeline. Architecture is recommended whenever the shape of the solution is not obvious.
+- **Always required regardless of size**: any PR must still be preceded by Verify for its content (see stage 5b).
+
+If a stage is skipped, do not invent its artifact. The downstream skill that would have consumed it must be able to proceed without it (its `Inputs` section says which artifacts are optional). The chosen scope (which stages are run, which are skipped) should be agreed with the user up front and recorded as the first lines of `delivery-plan.md`.
 
 
-## 0. Intake / framing
+
+## 1. Specification / clarify (optional)
 
 ### Goal
-Create a crisp, testable understanding of the change before repo analysis begins.
+Turn the user's raw prompt into an explicit, agreed specification before any framing or repo work begins.
+
+### When to skip
+For trivial changes, or when the user's prompt is already unambiguous and self-contained. The clarifications can also be folded into stage 2 Intake when both stages would be light.
+
+### What happens here
+- The user provides a prompt (feature idea, bug, refactor, tech-debt note).
+- The agent works **with** the user to clarify the request.
+- The agent **does not assume**. Where the prompt is ambiguous, incomplete, or contradictory, the agent lists the open points and asks targeted questions before proceeding.
+- The agent flags problems, risks, or disagreements explicitly and discusses them with the user rather than silently working around them.
+- An optional **acceptance checklist** is produced when it is useful for the change at hand.
+- Specification is approved by the user before moving on.
+
+### Exit criteria
+- the request is captured in the user's words plus any agreed clarifications
+- ambiguities are explicitly listed and either resolved or accepted as open
+- agent objections / risks are recorded with the user's response
+- specification is approved by the user
+
+### Artifacts produced
+- `specification.md`
+    Include:
+    - the original user prompt (verbatim)
+    - clarified intent (the agreed restatement)
+    - explicit assumptions, marked as such
+    - open questions still unresolved (if any)
+    - agent concerns / disagreements raised, and how they were resolved
+    - optional acceptance checklist (the conditions the user expects to see satisfied)
+- `logs/phase-1.changelog.md`
+    Record:
+    - questions asked and answers received
+    - clarifications added
+    - assumptions promoted to agreed facts
+    - agent concerns raised and outcomes
+- `learning/phase-1.learning.md`
+    Record only reusable learnings, e.g.:
+    - “Always ask about target environment before clarifying scope”
+    - “For bug reports, require expected vs actual upfront”
+
+### Skill
+- [`marshal-specify`](marshal_files/skills/marshal-specify/SKILL.md)
+
+---
+
+## 2. Intake / framing (optional)
+
+### Goal
+Turn the approved specification into a crisp, testable framing for engineering before repo analysis begins.
+
+### When to skip
+For trivial changes; or when the specification already contains scope, acceptance criteria, and constraints in enough detail to plan against directly.
+
+### Inputs
+- `specification.md` from stage 1 (if produced)
 
 ### What happens here
 For a feature:
@@ -310,12 +395,12 @@ For a bugfix:
     - impact / severity
     - evidence
     - suspected area if known
-- `logs/phase-0.changelog.md`
+- `logs/phase-2.changelog.md`
     Record:
     - clarifications added
     - scope changes
     - acceptance criteria changes
-- `learning/phase-0.learning.md`
+- `learning/phase-2.learning.md`
     Record only reusable learnings, e.g.:
     - “Require explicit repro template for bugfix intake”
     - “Always capture rollout expectation for externally visible changes”
@@ -323,10 +408,13 @@ For a bugfix:
 
 ---
 
-## 1. Research / analysis
+## 3. Research / analysis (optional)
 
 ### Goal
 Understand the requirement and narrow the repo search surface before planning.
+
+### When to skip
+For changes whose surface is already known (e.g. a single file or component the user named). Knowledge from `.marshal/knowledge/` may also make a separate recon redundant for well-mapped areas.
 
 
 ### What happens here
@@ -352,20 +440,20 @@ Understand the requirement and narrow the repo search surface before planning.
     - existing tests and test seams
     - unknowns / risks
     - excluded areas to avoid context pollution
-- `logs/phase-1.changelog.md`
+- `logs/phase-3.changelog.md`
     Record:
     - files inspected
     - architecture notes added
     - assumptions confirmed / rejected
     - narrowed search surface
-- `learning/phase-1.learning.md`
+- `learning/phase-3.learning.md`
     Record only generalized learnings, e.g.:
     - “In this repo, handlers are better entry points than controllers for tracing flow”
     - “Always inspect feature-flag definitions before planning cross-module changes”
 
 ---
 
-## 1.5. Architecture / design
+## 3.5. Architecture / design (optional)
 
 ### Goal
 Agree on a general implementation concept before planning.
@@ -402,28 +490,36 @@ Inputs:
 
 ---
 
-## 2. Plan / shape
+## 4. Plan / shape (mandatory)
 
 ### Goal
-Convert the brief + recon into an executable, reviewable plan.
+Convert the brief + recon (or, for lightweight runs, the prompt itself) into an executable, reviewable plan.
+
+### Why mandatory
+`delivery-plan.md` is the canonical source of truth for the change. Every change — even a one-line fix — has a plan, even if that plan is a single phase with a single step. Implementation never proceeds without it.
 
 ### What happens here
-- agree on initial planning depth — full plan vs. staged (see "Staged planning" below)
+- agree on initial planning depth — both the **target depth** (do we
+  plan to L1, L2, L3, or L4? possibly different per area) and the
+  **timing mode** (full vs. staged vs. mixed; see below)
 - define phases/slices
-- define work packets (to the agreed depth)
-- define execution steps (to the agreed depth)
-- add L4 implementation detail only where needed
+- define work packets only where the agreed depth includes L2
+- define execution steps only where the agreed depth includes L3
+- add L4 implementation detail only where it pays off (or where the
+  user asked for it)
 - mark review boundaries
 - mark PR boundaries
 - mark rollout boundaries
 - mark safe parallelism using `<~Tn>` if helpful
 
 ### Exit criteria
-- plan is approved to the agreed depth
+- plan is approved to the agreed depth (which may stop above L4 — or
+  even above L2/L3 — for simple work)
 - review boundaries are explicit
 - PR boundaries are explicit
 - parallelizable items are marked where useful
-- L4 details are added only where worth it or when explicitly requested
+- depth-per-area, if non-uniform, is recorded so the implementer
+  knows where to expect detail and where to use judgment
 
 
 ### Required artifacts
@@ -433,6 +529,7 @@ Convert the brief + recon into an executable, reviewable plan.
     # Delivery Plan
 
     Planning mode: full | staged | mixed
+    Target depth: L1 / L2 / L3 / L4 (per area, e.g. "L2 default; L4 in P1")
 
     ## P1. Phase / Slice title `[TODO]` `<~T1>`
     Goal:
@@ -463,7 +560,7 @@ Convert the brief + recon into an executable, reviewable plan.
 
     ## P2. Phase / Slice title `[TODO]`
 
-- `logs/phase-2.changelog.md`
+- `logs/phase-4.changelog.md`
     Record:
     - plan additions/removals
     - packet splits/merges
@@ -471,7 +568,7 @@ Convert the brief + recon into an executable, reviewable plan.
     - review boundary changes
     - PR boundary changes
 
-- `learning/phase-2.learning.md`
+- `learning/phase-4.learning.md`
     Record only reusable learnings, e.g.:
     - “For medium changes, define PR boundary at phase level, not packet level”
     - “Use L4 implementation steps only for shared interfaces and migrations”
@@ -481,19 +578,33 @@ Convert the brief + recon into an executable, reviewable plan.
 
 ### Staged planning
 
-Planning does not have to be completed in one pass. Before writing the plan, the human chooses an initial planning depth. This is useful when lower-level details depend on decisions that will only be made during earlier phases, and avoids churn from replanning details that were never stable to begin with.
+Planning has two independent dials:
 
-Typical shapes:
-- **Full plan up front** — all phases, packets, steps (and L4 where useful) are planned before implementation starts. Good default for small or well-understood changes.
-- **Staged / rolling plan** — higher levels are planned up front; lower levels are filled in just in time, phase by phase (or packet by packet). Good for larger or less-certain work where deeper details would likely churn.
-- **Mixed** — rough plan for the whole story plus a detailed plan for the first phase(s). The rest is deepened as earlier phases finish.
+1. **Target depth** — how far down (L1 / L2 / L3 / L4) the plan goes.
+   May vary per area. Default: agent picks the shallowest depth that
+   still makes the next implementation cycle unambiguous; user may
+   pin a different depth.
+2. **Timing mode** — when the planned levels are filled in.
+
+Timing modes:
+- **Full plan up front** — everything at the chosen target depth is
+  planned before implementation starts. Good default for small or
+  well-understood changes.
+- **Staged / rolling plan** — higher levels are planned up front;
+  lower levels are filled in just in time, phase by phase (or packet
+  by packet). Good for larger or less-certain work where deeper
+  details would likely churn.
+- **Mixed** — rough plan for the whole story plus a detailed plan for
+  the first phase(s). The rest is deepened as earlier phases finish.
 
 Rules:
 - The initial plan must always cover L1 for the whole change, so the overall shape is agreed.
 - Each phase/packet must be planned to the depth needed for its implementation cycle(s) **before** that cycle starts. No item is implemented without its own plan complete to the required depth.
 - Deepening is a normal, expected update — not a replan. Log it to the phase changelog, but do not treat it as a scope change.
 - If deepening reveals that higher-level assumptions were wrong, fall back to the Replanning rule.
-- The chosen planning mode (full / staged / mixed) is captured once in `delivery-plan.md`; subsequent deepening passes are logged to the relevant phase changelog.
+- The chosen target depth (per area, if non-uniform) and timing mode
+  are captured once in `delivery-plan.md`; subsequent deepening passes
+  are logged to the relevant phase changelog.
 
 ### Replanning rule
 
@@ -517,7 +628,7 @@ Replanning mechanics:
 
 ---
 
-## 3. Implementation round: Implement, Verify, PR
+## 5. Implementation round: Implement, Verify, PR
 
 Three high-level stages — **Implement**, **Verify**, and **PR / integration / merge** — run together as one **implementation round**. They remain distinct stages, but are bundled here because they always flow together and may repeat for parts of the plan (once for the whole change, or per phase / slice).
 
@@ -525,8 +636,8 @@ Rule: **every PR must be preceded by a Verify stage for its content**. Verificat
 
 ```mermaid
 flowchart LR
-    I[3a. Implement] --> V[3b. Verify]
-    V --> P[3c. PR / merge]
+    I[5a. Implement] --> V[5b. Verify]
+    V --> P[5c. PR / merge]
     P -. next round .-> I
 ```
 
@@ -534,7 +645,7 @@ Inside the Implement stage, work runs in smaller **implementation cycles** (see 
 
 ---
 
-### 3a. Implement
+### 5a. Implement
 
 #### Goal
 Execute the approved plan.
@@ -645,10 +756,13 @@ Always log:
 
 ---
 
-### 3b. Verify
+### 5b. Verify
 
 #### Goal
 Run an explicit verification gate, separate from coding. Re-run the Implement stage in case of failed verification.
+
+#### When to scale down
+For trivial changes, Verify can collapse into a short paragraph in the phase changelog rather than a separate `verification-report.md`. The Verify rule still holds: nothing merges without an explicit verification step recorded somewhere.
 
 #### Requirements validation
 The AI agent goes through every requirement in `change-brief.md` and verifies:
@@ -703,10 +817,13 @@ The outcome is part of the acceptance criteria check.
 
 ---
 
-### 3c. PR / integration / merge
+### 5c. PR / integration / merge
 
 #### Goal
 Use PRs only at meaningful integration boundaries.
+
+#### When to skip
+For work that is not committed to a shared branch (local experiments, scratch work) or for trunk-direct workflows where the merge boundary is implicit. The Verify rule still applies before any code is shared with others.
 
 #### Recommended default
 - one PR per whole implementation (all phases/slices)
@@ -732,7 +849,10 @@ Use PRs only at meaningful integration boundaries.
 
 ---
 
-## 4. Release / rollout
+## 6. Release / rollout (optional)
+
+### When to skip
+For changes with no operational impact — internal refactors, doc-only changes, or work behind a flag that does not yet ship. Skip whenever there is nothing to migrate, toggle, document for users, or roll back.
 
 ### Exit criteria
 - relevant migrations are documented
@@ -761,10 +881,13 @@ Use PRs only at meaningful integration boundaries.
 
 ---
 
-## 5. Learn / improve the system
+## 7. Learn / improve the system (optional)
 
 ### Goal
 Promote generalized learnings into durable system guidance. The user should approve the final update before merging the final update lists to individual buckets.
+
+### When to skip
+When no phase produced a learning file worth promoting (small or routine changes). Skipping Learn does **not** delete the per-phase learning files; they remain available for a later rollup.
 
 ### Inputs
 - all `learning/phase-*.learning.md` files
@@ -798,61 +921,125 @@ Promote generalized learnings into durable system guidance. The user should appr
   - repo navigation heuristics
 - skill file updates, including review/plan convention updates
 
-//TODO each lifecycle stage should be validated by the user, discussed if necessary, only then we can proceed to the next phase - that should be selected in the plan
+//TODO each lifecycle stage should be validated by the user, discussed if necessary, only then we can proceed to the next phase — that selection should be recorded in the plan (the "scope" line set during stage 4).
 
 ---
 
+
+---
+
+## Skills and subagents
+
+MARSHAL ships a set of `marshal-*` skills (one per stage plus knowledge skills) and a set of `marshal-*` subagent definitions under [`.marshal/`](marshal_files/). Skills hold the procedural detail; agents are thin wrappers that compose skills with the necessary handoffs and run with isolated context.
+
+Skills (per stage):
+
+| Stage | Skill | Artifact | Optional? |
+|---|---|---|---|
+| 1. Specification | [`marshal-specify`](marshal_files/skills/marshal-specify/SKILL.md) | `specification.md` | optional |
+| 2. Intake | [`marshal-intake`](marshal_files/skills/marshal-intake/SKILL.md) | `change-brief.md` | optional |
+| 3. Analysis | [`marshal-analysis`](marshal_files/skills/marshal-analysis/SKILL.md) | `repo-recon.md` | optional |
+| 3.5. Architecture | [`marshal-architecture`](marshal_files/skills/marshal-architecture/SKILL.md) | `architecture-notes.md` | optional |
+| 4. Plan | [`marshal-plan`](marshal_files/skills/marshal-plan/SKILL.md) | `delivery-plan.md` | **mandatory** |
+| 5a. Implement | [`marshal-implement`](marshal_files/skills/marshal-implement/SKILL.md) | code + phase logs | mandatory when there is code to write |
+| 5b. Verify | [`marshal-verify`](marshal_files/skills/marshal-verify/SKILL.md) | `verification-report.md` | mandatory before any PR; may be folded into the changelog for trivial changes |
+| 5c. PR | [`marshal-pr`](marshal_files/skills/marshal-pr/SKILL.md) | PR description | optional (skip for non-shared work) |
+| 6. Rollout | [`marshal-rollout`](marshal_files/skills/marshal-rollout/SKILL.md) | `rollout-note.md` | optional |
+| 7. Learn | [`marshal-learn`](marshal_files/skills/marshal-learn/SKILL.md) | `learning-rollup.md` | optional |
+
+Setup skills:
+- [`marshal-init`](marshal_files/skills/marshal-init/SKILL.md) — first-time MARSHAL setup in a repo.
+- [`marshal-load`](marshal_files/skills/marshal-load/SKILL.md) — session bootstrap.
+
+Knowledge skills (see Memory & Knowledge):
+- [`marshal-knowledge-init`](marshal_files/skills/marshal-knowledge-init/SKILL.md)
+- [`marshal-knowledge-maintain`](marshal_files/skills/marshal-knowledge-maintain/SKILL.md) (modes: `from-changes`, `from-learning`, `rescan`)
+- [`marshal-knowledge-research`](marshal_files/skills/marshal-knowledge-research/SKILL.md)
+- [`marshal-knowledge-branch-merge`](marshal_files/skills/marshal-knowledge-branch-merge/SKILL.md)
+- [`marshal-knowledge-rebuild`](marshal_files/skills/marshal-knowledge-rebuild/SKILL.md)
+
+Subagents (orchestration / fresh-context wrappers — v2):
+- [`marshal-driver`](marshal_files/agents/marshal-driver.md) — process orchestrator across stages.
+- [`marshal-researcher`](marshal_files/agents/marshal-researcher.md) — fresh-context research.
+- [`marshal-knowledge-curator`](marshal_files/agents/marshal-knowledge-curator.md) — fresh-context knowledge maintenance.
+- [`marshal-code-archaeologist`](marshal_files/agents/marshal-code-archaeologist.md) — fresh-context analysis (stage 3).
+- [`marshal-planner`](marshal_files/agents/marshal-planner.md) — fresh-context planning (stage 4).
+- [`marshal-reviewer`](marshal_files/agents/marshal-reviewer.md) — AI review at stage 5c.
+
+Every skill states its own prerequisites, inputs, outputs, and handoff (next skill + artifacts to pass). That makes each skill safe to run in an isolated context.
+
+---
+
+## Memory and knowledge
+
+MARSHAL is paired with an agent-managed knowledge layer kept under [`.marshal/knowledge/`](marshal_files/knowledge/). Knowledge complements the per-change artifact chain: the artifact chain captures *this* change, while knowledge captures durable facts about the repo (architecture, logic, conventions, decisions) that survive across changes.
+
+Key points:
+
+- **Two trees.** The `.marshal/` config-sync source ships marshal-* agents/skills/rules and gets fanned out to tool layouts. The `.marshal/knowledge/` tree is **not synced** — agents read it directly through [`.marshal/ENTRYPOINT.md`](marshal_files/ENTRYPOINT.md).
+- **Progressive disclosure, recursive.** Always-loaded root [`INDEX.md`](marshal_files/knowledge/INDEX.md) (capped at `knowledge.root_index_max_lines`) → per-folder indexes → topic files. Topics may themselves split into a sub-index plus subtopics, recursively, with no fixed depth.
+- **Configurable size limits.** [`config.yml`](marshal_files/config.yml) defines `knowledge.topic_max_lines` (default 400) and `knowledge.subindex_max_lines` (default 150). When a topic exceeds its cap, `marshal-knowledge-maintain` proposes a split: convert the topic into a folder with a sub-index and subtopic files. The split dimension (by component, by concern, by time, by feature, etc.) is chosen for each topic; reviewers may re-split along a different dimension during a knowledge review.
+- **Frontmatter contract.** Every knowledge file has `id`, `kind`, `summary`, `repo_paths`, `importance`, `confidence`, `updated`, `verified_against_commit`. See [`references/knowledge-format.md`](marshal_files/references/knowledge-format.md).
+- **Staleness without hooks.** `verified_against_commit` + `updated` are stamped explicitly. The maintenance skill diffs HEAD against the recorded SHA on demand.
+- **Approval.** [`.marshal/config.yml`](marshal_files/config.yml) controls autonomy (`review` default; `auto` opt-in). Knowledge writes produce a diff for human approval unless `auto` is set.
+- **Where it plugs into the lifecycle.** Stage 3 (Analysis) consults knowledge first to narrow the search surface and may invoke `marshal-knowledge-research`. After each implementation cycle, `marshal-knowledge-maintain` mode `from-changes` keeps knowledge in sync. Stage 7 (Learn) feeds promotable items into knowledge via mode `from-learning`. Larger reconciliation is handled by `marshal-knowledge-branch-merge` and `marshal-knowledge-rebuild`.
+
+Full design rationale: [`.marshal/design/knowledge-design.md`](marshal_files/design/knowledge-design.md). A worked example tree lives under [`examples/snippets-api/`](examples/snippets-api/).
+
+---
+
+## Generated assets and config sync
+
+MARSHAL produces two kinds of content:
+
+1. **Per-change artifacts** — specification, brief, recon, plan, logs, learnings, etc. They live in the per-change working folder.
+2. **Durable assets** — skills, subagents, rules, and guidelines that codify reusable behavior. They live under [`.marshal/`](marshal_files/) and are versioned with the repo.
+
+> **Naming note.** In a consumer repo, the durable-assets directory is `.marshal/`. In this product repo (the MARSHAL source) the same tree lives under [`marshal_files/`](marshal_files/) so it is not confused with a real installed `.marshal/` instance. Documentation refers to it as `.marshal/` because that is what consumers see; the link targets in this document point at `marshal_files/` for in-repo navigation.
+
+### Where durable assets live
+
+| Folder | What it holds |
+|---|---|
+| [`.marshal/skills/`](marshal_files/skills/) | One folder per skill (Agent Skills format), each containing a `SKILL.md`. |
+| [`.marshal/agents/`](marshal_files/agents/) | One file per subagent definition. |
+| [`.marshal/rules/`](marshal_files/rules/) | One file per rule. Generic rule frontmatter (`description`, `applies-to`, `always-apply`). |
+| [`.marshal/knowledge/`](marshal_files/knowledge/) | Repo knowledge — **not synced**, read in-place via `.marshal/ENTRYPOINT.md`. |
+| [`.marshal/AGENTS.md`](marshal_files/AGENTS.md) | Snippet meant to be **manually merged** into the host repo's root `AGENTS.md` so that AI assistants see the MARSHAL entry point. |
+
+### How they get generated
+
+MARSHAL agents may create or update any of these assets in two situations:
+
+- **From learnings.** During stage 7 Learn, recurring lessons in `learning-rollup.md` can be promoted into a new or updated skill, subagent, rule, or guideline.
+- **On request.** The user can ask the agent at any time to produce a skill / subagent / rule / guideline for a recurring task. The agent drafts it under the appropriate `.marshal/` folder and surfaces a diff for approval (per the autonomy setting in `.marshal/config.yml`).
+
+Generated rules use the generic frontmatter understood by the sync tool (see below): `description`, `applies-to` (comma-separated globs), `always-apply` (boolean).
+
+### Syncing into native AI-assistant layouts
+
+The `.marshal/skills/`, `.marshal/agents/`, and `.marshal/rules/` folders follow the layout consumed by [ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync). Pointing that tool's `sync-all` script at `.marshal/` as its source root produces tool-native files for Cursor (`.cursor/`), Claude Code (`.claude/` + `CLAUDE.md`), GitHub Copilot (`.github/`), and JetBrains Junie (`.junie/`).
+
+Guidelines flow:
+
+- The sync tool requires a root `AGENTS.md` in its source root. That role is played by the host repo's own `AGENTS.md`. The MARSHAL-shipped [`.marshal/AGENTS.md`](marshal_files/AGENTS.md) is **not** that root file — it is a snippet to copy/paste (or otherwise merge) into the repo's `AGENTS.md` so the tool fans it out alongside the rest.
+- Rules under `.marshal/rules/` translate as documented by the sync tool: Cursor `.cursor/rules/*.mdc`, Copilot `.github/instructions/*.instructions.md`, and merged into `CLAUDE.md` and `.junie/AGENTS.md`.
+
+This split keeps the canonical source of truth in `.marshal/` and lets every IDE/assistant pick it up in its own native format.
 
 ---
 
 ## Recommended skills / contexts
 
-### Skill 1 — Change Framer
-Input:
-- raw request
+This was the original sketch of skills; it has been superseded by the concrete `marshal-*` skill set listed in [Skills and subagents](#skills-and-subagents) above. The mapping is:
 
-Output:
-- `change-brief.md`
-
-### Skill 2 — Repo Recon
-Input:
-- change brief
-
-Output:
-- `repo-recon.md`
-
-### Skill 3 — Planner / Shaper
-Input:
-- brief + recon
-
-Output:
-- `delivery-plan.md`
-
-### Skill 4 — Executor
-Input:
-- approved packet/phase
-
-Output:
-- code
-- tests
-- updated statuses
-- changelog entries
-- learning entries
-
-### Skill 5 — Verifier / Reviewer
-Input:
-- diff + plan + optional tests
-
-Output:
-- `verification-report.md`
-- fixup recommendations
-
-### Skill 6 — Learning Curator
-Input:
-- all phase learning files
-
-Output:
-- `learning-rollup.md`
-- updates to AGENTS / rules / skills / knowledge files (after approval)
+| Original sketch | Current |
+|---|---|
+| Change Framer | `marshal-specify` + `marshal-intake` |
+| Repo Recon | `marshal-analysis` |
+| Planner / Shaper | `marshal-plan` |
+| Executor | `marshal-implement` |
+| Verifier / Reviewer | `marshal-verify` + `marshal-reviewer` (subagent) |
+| Learning Curator | `marshal-learn` + `marshal-knowledge-maintain` |
 
 ---
