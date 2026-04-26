@@ -5,13 +5,6 @@ should be **manually copied / merged into the host repository's root
 `AGENTS.md`** so AI assistants pick up MARSHAL alongside any other
 repo-level guidelines you keep there.
 
-The [ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync)
-tool requires a single `AGENTS.md` at the source root — that role belongs
-to your repo's own `AGENTS.md`, not to this file. Once the snippet below is
-merged in, run the sync tool against `.marshal/` as the source root to fan
-everything (skills, agents, rules, the merged `AGENTS.md`) out into
-tool-native layouts (`.cursor/`, `.claude/`, `.github/`, `.junie/`).
-
 Keep this file **short**. The rich entry point lives in
 [ENTRYPOINT.md](./ENTRYPOINT.md).
 
@@ -35,6 +28,39 @@ Before doing any repo work:
 
 If the task is trivial (e.g. small docs typo) and does not require repo
 knowledge, you may skip steps 2–3.
+
+### AI-assistant config sync
+
+MARSHAL works with
+[ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync) —
+a small batch script that takes a single generic source tree of AI-assistant
+configuration (`AGENTS.md`, `agents/`, `skills/`, `rules/`, `mcp-servers/`)
+and fans it out into tool-native layouts: Cursor (`.cursor/`),
+Claude Code (`.claude/` + `CLAUDE.md`), GitHub Copilot (`.github/`),
+JetBrains Junie (`.junie/`), VS Code (`.vscode/`), plus a root `AGENTS.md`
+and `.mcp.json`. Each tool consumes its own per-tool directory; the source
+tree is the only place humans and agents edit.
+
+Two layouts are supported:
+
+- **Direct.** The sync's source root is `.marshal/` itself — simplest if
+  MARSHAL's durable assets are the only thing the repo wants synced.
+- **Separate `agent-config/` source tree.** The repo keeps its own
+  `agent-config/` (or similarly named) folder at the root and uses the
+  [`marshal-promote-assets`](./skills/marshal-promote-assets/SKILL.md)
+  skill to copy `.marshal/{skills,agents,rules}/` into
+  `agent-config/{skills,agents,rules}/` (with an `mx_` prefix on every
+  promoted basename). Sync then runs over `agent-config/`.
+
+When work touches **guidelines (the merged `AGENTS.md`), rules, skills,
+subagents, or MCP server entries**, read the sync tool's local README
+(typically `./ai-dev-agent-config-sync/README.md` if vendored as a
+submodule, otherwise the upstream link above) for the source-tree format,
+frontmatter fields, secret-token translation, and agent ↔ MCP linkage.
+Author changes in the source tree (`.marshal/` for MARSHAL built-ins, or
+`agent-config/` for repo-specific items), then re-run the sync — never
+hand-edit the generated `.cursor/`, `.claude/`, `.github/`, `.junie/`,
+`.vscode/` files, root `AGENTS.md`, `CLAUDE.md`, or `.mcp.json`.
 
 ### Hierarchical `AGENTS.md`
 
