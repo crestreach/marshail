@@ -950,6 +950,7 @@ Skills (per stage):
 Setup skills:
 - [`marshal-init`](marshal_files/skills/marshal-init/SKILL.md) — first-time MARSHAL setup in a repo.
 - [`marshal-load`](marshal_files/skills/marshal-load/SKILL.md) — session bootstrap.
+- [`marshal-promote-assets`](marshal_files/skills/marshal-promote-assets/SKILL.md) — copy MARSHAL durable assets from `.marshal/{skills,agents,rules}/` into the repo's `agent-config/` source tree (with `mx_` prefix) so the next `agent-conf-sync` run fans them out to all tool layouts.
 
 Knowledge skills (see Memory & Knowledge):
 - [`marshal-knowledge-init`](marshal_files/skills/marshal-knowledge-init/SKILL.md)
@@ -1018,12 +1019,22 @@ Generated rules use the generic frontmatter understood by the sync tool (see bel
 
 ### Syncing into native AI-assistant layouts
 
-The `.marshal/skills/`, `.marshal/agents/`, and `.marshal/rules/` folders follow the layout consumed by [ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync). Pointing that tool's `sync-all` script at `.marshal/` as its source root produces tool-native files for Cursor (`.cursor/`), Claude Code (`.claude/` + `CLAUDE.md`), GitHub Copilot (`.github/`), and JetBrains Junie (`.junie/`).
+The `.marshal/skills/`, `.marshal/agents/`, and `.marshal/rules/` folders follow the layout consumed by [ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync). Running that tool's `sync-all` script over a source tree containing those folders produces tool-native files for Cursor (`.cursor/`), Claude Code (`.claude/` + `CLAUDE.md`), GitHub Copilot (`.github/`), and JetBrains Junie (`.junie/`).
+
+Two layouts are supported:
+
+- **Direct.** Point `sync-all -i` at `.marshal/` itself. Simplest setup; only works when MARSHAL's durable assets are the only ones the repo wants synced.
+- **Separate `agent-config/` source tree.** The repo keeps its own `agent-config/` (or similarly named) source folder at the root, alongside `.marshal/`. MARSHAL's durable assets are *promoted* into it via the [`marshal-promote-assets`](marshal_files/skills/marshal-promote-assets/SKILL.md) skill, which copies `.marshal/{skills,agents,rules}/` into `agent-config/{skills,agents,rules}/` and prefixes every promoted name with `mx_` (marshal extension) so they remain visibly distinct from non-MARSHAL items in the same tree. The sync runs over `agent-config/`.
+
+Naming convention:
+
+- Built-in MARSHAL assets (lifecycle skills, MARSHAL subagents) keep their `marshal-` prefix in `.marshal/`.
+- When promoted into `agent-config/`, every basename is reprefixed with `mx_` unconditionally (e.g. `marshal-plan` → `mx_marshal-plan`); items already starting with `mx_` are kept as-is.
 
 Guidelines flow:
 
-- The sync tool requires a root `AGENTS.md` in its source root. That role is played by the host repo's own `AGENTS.md`. The MARSHAL-shipped [`.marshal/AGENTS.md`](marshal_files/AGENTS.md) is **not** that root file — it is a snippet to copy/paste (or otherwise merge) into the repo's `AGENTS.md` so the tool fans it out alongside the rest.
-- Rules under `.marshal/rules/` translate as documented by the sync tool: Cursor `.cursor/rules/*.mdc`, Copilot `.github/instructions/*.instructions.md`, and merged into `CLAUDE.md` and `.junie/AGENTS.md`.
+- The sync tool requires an `AGENTS.md` in its source root. With the **direct** layout, that role is played by [`.marshal/AGENTS.md`](marshal_files/AGENTS.md). With the **separate** layout, the repo's `agent-config/AGENTS.md` is authoritative and `.marshal/AGENTS.md` becomes a snippet to be **manually merged** into it so the MARSHAL entry point fans out alongside the rest.
+- Rules under `.marshal/rules/` (or `agent-config/rules/`) translate as documented by the sync tool: Cursor `.cursor/rules/*.mdc`, Copilot `.github/instructions/*.instructions.md`, and merged into `CLAUDE.md` and `.junie/AGENTS.md`.
 
 This split keeps the canonical source of truth in `.marshal/` and lets every IDE/assistant pick it up in its own native format.
 
