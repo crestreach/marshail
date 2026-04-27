@@ -18,7 +18,7 @@ spec and the repo's MARSHAL files, then answer questions about:
 - how a specific MARSHAL concept maps onto **this** repo's state
   (current stage, existing artifacts, autonomy mode, what is in the
   knowledge tree);
-- generated-asset / config-sync questions (`.marshal/` ↔ `agent-config/`,
+- generated-asset / config-sync questions (`.marshal/` ↔ `.agent-config/`,
   the `marshal-promote-assets` skill, the `mx_` prefix).
 
 If the caller asks to *do* a stage rather than just learn about it,

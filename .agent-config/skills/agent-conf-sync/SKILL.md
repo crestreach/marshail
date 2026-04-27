@@ -1,11 +1,11 @@
 ---
 name: agent-conf-sync
-description: Runs the ai-dev-agent-config-sync batch script (`sync-all`) to regenerate Cursor, Claude Code, GitHub Copilot, VS Code, and JetBrains Junie configuration from a generic source tree. Use when the user asks to "sync agent config", "regenerate rules/skills/agents/mcp", "update .cursor / .claude / .github / .junie / .vscode from source", "run sync-all", or similar — so they don't have to assemble CLI flags or pick Windows vs Unix scripts themselves. The skill detects the OS, finds the script, and infers `-i` / `-o` / `--tools` / `--items` / `--clean` from the natural-language request.
+description: Runs the cyncia batch script (`sync-all`) to regenerate Cursor, Claude Code, GitHub Copilot, VS Code, and JetBrains Junie configuration from a generic source tree. Use when the user asks to "sync agent config", "regenerate rules/skills/agents/mcp", "update .cursor / .claude / .github / .junie / .vscode from source", "run sync-all", or similar — so they don't have to assemble CLI flags or pick Windows vs Unix scripts themselves. The skill detects the OS, finds the script, and infers `-i` / `-o` / `--tools` / `--items` / `--clean` from the natural-language request.
 ---
 
 # agent-conf-sync
 
-This skill invokes **`scripts/sync-all.sh`** (macOS/Linux/Git Bash) or **`scripts/sync-all.ps1`** (Windows PowerShell) from the `ai-dev-agent-config-sync` repo. The user describes what they want in plain language; you pick the right script, resolve paths, infer flags, run it, and summarize the result.
+This skill invokes **`scripts/sync-all.sh`** (macOS/Linux/Git Bash) or **`scripts/sync-all.ps1`** (Windows PowerShell) from the `.cyncia` repo. The user describes what they want in plain language; you pick the right script, resolve paths, infer flags, run it, and summarize the result.
 
 ## Source tree format (`<source_root>`)
 
@@ -64,7 +64,7 @@ Detect with: `$env:OS -eq "Windows_NT"` in PowerShell; `uname` in Bash. Do **not
 Resolve the directory that contains `scripts/sync-all.sh` and `scripts/sync-all.ps1`:
 
 1. If the workspace root has `scripts/sync-all.sh`, use the workspace root.
-2. Else if the user named a path (e.g. `vendor/ai-dev-agent-config-sync`), use that.
+2. Else if the user named a path (e.g. `vendor/cyncia`), use that.
 3. Else search the workspace for `**/scripts/sync-all.sh` and use its grandparent.
 4. If still ambiguous or missing, **ask once** for the path.
 
@@ -133,7 +133,7 @@ Before running:
 Example — macOS / Linux:
 
 ```bash
-bash "/abs/path/to/ai-dev-agent-config-sync/scripts/sync-all.sh" \
+bash "/abs/path/to/.cyncia/scripts/sync-all.sh" \
   -i "/abs/path/to/source-root" \
   -o "/abs/path/to/output-root" \
   --tools cursor,claude \
@@ -143,7 +143,7 @@ bash "/abs/path/to/ai-dev-agent-config-sync/scripts/sync-all.sh" \
 With clean:
 
 ```bash
-bash "/abs/path/to/ai-dev-agent-config-sync/scripts/sync-all.sh" \
+bash "/abs/path/to/.cyncia/scripts/sync-all.sh" \
   -i "/abs/path/to/source-root" \
   -o "/abs/path/to/output-root" \
   --clean
@@ -152,7 +152,7 @@ bash "/abs/path/to/ai-dev-agent-config-sync/scripts/sync-all.sh" \
 Example — Windows PowerShell:
 
 ```powershell
-& 'C:\abs\path\to\ai-dev-agent-config-sync\scripts\sync-all.ps1' `
+& 'C:\abs\path\to\cyncia\scripts\sync-all.ps1' `
   -InputRoot 'C:\abs\path\to\source-root' `
   -OutputRoot 'C:\abs\path\to\output-root' `
   -Tools 'cursor,claude' `

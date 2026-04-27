@@ -13,9 +13,9 @@ See [`marshal.md`](./marshal.md) for the full specification.
 ## Repository
 
 - [`marshal.md`](./marshal.md) — the process specification (source of truth)
-- [`AGENTS.md`](./AGENTS.md) — guidance for AI agents working in this repo (generated; authored under [`agent-config/AGENTS.md`](./agent-config/AGENTS.md))
+- [`AGENTS.md`](./AGENTS.md) — guidance for AI agents working in this repo (generated; authored under [`.agent-config/AGENTS.md`](./.agent-config/AGENTS.md))
 - [`marshal-files/`](./marshal-files) — MARSHAL durable assets for *this* product repo (entrypoint, config, knowledge, skills, agents, rules). Equivalent to `.marshal/` in a consumer repo.
-- [`agent-config/`](./agent-config) — generic source tree consumed by [`ai-dev-agent-config-sync`](./ai-dev-agent-config-sync) (vendored as a submodule). Edit here, then re-run sync to regenerate per-tool layouts (`.cursor/`, `.claude/`, `.github/`, `.junie/`, `.vscode/`, root `AGENTS.md`, `CLAUDE.md`, `.mcp.json`).
+- [`.agent-config/`](./.agent-config) — generic source tree consumed by [`.cyncia`](./.cyncia) (vendored as a submodule). Edit here, then re-run sync to regenerate per-tool layouts (`.cursor/`, `.claude/`, `.github/`, `.junie/`, `.vscode/`, root `AGENTS.md`, `CLAUDE.md`, `.mcp.json`).
 - [`examples/`](./examples) — worked examples of MARSHAL installed in a repo.
 - `assets/` — branding (untracked).
 
@@ -23,7 +23,7 @@ Tooling (skills, prompt templates, artifact templates, examples) will be added a
 
 ## Installing MARSHAL in your repo
 
-The supported entry point is the [`marshal-init`](./marshal-files/skills/marshal-init/SKILL.md) skill — invoke it from any AI assistant that has access to MARSHAL's skills, and it will scaffold `.marshal/`, install [ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync) (typically as a git submodule), provision an `agent-config/` source tree, run [`marshal-promote-assets`](./marshal-files/skills/marshal-promote-assets/SKILL.md) to wire MARSHAL durable assets into it, and (with your approval) run the sync once to fan everything out into per-tool layouts.
+The supported entry point is the [`marshal-init`](./marshal-files/skills/marshal-init/SKILL.md) skill — invoke it from any AI assistant that has access to MARSHAL's skills, and it will scaffold `.marshal/`, install [cyncia](https://github.com/crestreach/cyncia) (typically as a git submodule), provision an `.agent-config/` source tree, run [`marshal-promote-assets`](./marshal-files/skills/marshal-promote-assets/SKILL.md) to wire MARSHAL durable assets into it, and (with your approval) run the sync once to fan everything out into per-tool layouts.
 
 If you want to vendor MARSHAL durable assets directly (no `marshal-init`), the recommended pattern is:
 

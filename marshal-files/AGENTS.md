@@ -12,6 +12,8 @@ Keep this file **short**. The rich entry point lives in
 
 ## Snippet to merge
 
+### Marshal
+
 This repository uses **MARSHAL** — an AI-assisted SDLC defined in
 [marshal.md](../marshal.md).
 
@@ -29,38 +31,21 @@ Before doing any repo work:
 If the task is trivial (e.g. small docs typo) and does not require repo
 knowledge, you may skip steps 2–3.
 
-### AI-assistant config sync
 
-MARSHAL works with
-[ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync) —
-a small batch script that takes a single generic source tree of AI-assistant
-configuration (`AGENTS.md`, `agents/`, `skills/`, `rules/`, `mcp-servers/`)
-and fans it out into tool-native layouts: Cursor (`.cursor/`),
-Claude Code (`.claude/` + `CLAUDE.md`), GitHub Copilot (`.github/`),
-JetBrains Junie (`.junie/`), VS Code (`.vscode/`), plus a root `AGENTS.md`
-and `.mcp.json`. Each tool consumes its own per-tool directory; the source
-tree is the only place humans and agents edit.
+### Agent configuration management (cyncia)
 
-Two layouts are supported:
+This repo manages all of its AI-assistant configuration — guidelines (`AGENTS.md`), rules, skills, agents, and MCP servers — through [`.cyncia`](./.cyncia) (a wrapper directory whose `scripts/` and `skills/` are symlinks into the vendored submodule [`.cyncia-source/`](./.cyncia-source)). The single generic source tree lives in [`.agent-config/`](./.agent-config); per-tool layouts (`.cursor/`, `.claude/`, `.github/`, `.junie/`, `.vscode/`, root `AGENTS.md`, `CLAUDE.md`) are generated from it. The `agent-conf-sync` skill invokes the sync via `.cyncia/scripts/sync-all.sh` (POSIX) or `.cyncia/scripts/sync-all.ps1` (Windows).
 
-- **Direct.** The sync's source root is `.marshal/` itself — simplest if
-  MARSHAL's durable assets are the only thing the repo wants synced.
-- **Separate `agent-config/` source tree.** The repo keeps its own
-  `agent-config/` (or similarly named) folder at the root and uses the
-  [`marshal-promote-assets`](./skills/marshal-promote-assets/SKILL.md)
-  skill to copy `.marshal/{skills,agents,rules}/` into
-  `agent-config/{skills,agents,rules}/` (with an `mx_` prefix on every
-  promoted basename). Sync then runs over `agent-config/`.
+When asked to **create or update** any of (or if any of the folliwing gets updated):
 
-When work touches **guidelines (the merged `AGENTS.md`), rules, skills,
-subagents, or MCP server entries**, read the sync tool's local README
-(typically `./ai-dev-agent-config-sync/README.md` if vendored as a
-submodule, otherwise the upstream link above) for the source-tree format,
-frontmatter fields, secret-token translation, and agent ↔ MCP linkage.
-Author changes in the source tree (`.marshal/` for MARSHAL built-ins, or
-`agent-config/` for repo-specific items), then re-run the sync — never
-hand-edit the generated `.cursor/`, `.claude/`, `.github/`, `.junie/`,
-`.vscode/` files, root `AGENTS.md`, `CLAUDE.md`, or `.mcp.json`.
+- a guideline (the root `AGENTS.md`)
+- a rule
+- a skill
+- a subagent
+- an MCP server entry
+
+read [`.cyncia-source/README.md`](./.cyncia-source/README.md) for the source-tree format (frontmatter fields, secret-token translation, agent ↔ MCP linkage), author the file under the appropriate folder of `.agent-config/` (`.agent-config/{rules,skills,agents,mcp-servers}/`), and then re-run the sync (skill `agent-conf-sync`) to fan it out to the per-tool directories. Do not hand-edit the generated `.cursor/`, `.claude/`, `.github/`, `.junie/`, `.vscode/` files — they are overwritten on the next sync.
+
 
 ### Hierarchical `AGENTS.md`
 

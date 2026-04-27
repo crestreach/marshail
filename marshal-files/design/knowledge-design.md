@@ -28,7 +28,7 @@ MARSHAL keeps a clean separation:
 
 | Tree | Owner | Content | Synced to tool layouts? |
 |---|---|---|---|
-| `<user-config-source>/` | user / project / company | project-specific `agents/`, `skills/`, `rules/`, `mcp-servers/`, `AGENTS.md` | yes, via [ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync) |
+| `<user-config-source>/` | user / project / company | project-specific `agents/`, `skills/`, `rules/`, `mcp-servers/`, `AGENTS.md` | yes, via [cyncia](https://github.com/crestreach/cyncia) |
 | `.marshal/` (config-sync source) | MARSHAL baseline | `marshal-*`-prefixed `agents/`, `skills/`, `rules/`, `mcp-servers/`, plus `AGENTS.md` | yes, via the same sync tool, run separately against `.marshal/` |
 | `.marshal/knowledge/` | agents (under human approval) | repo knowledge: code notes, logic, architecture, decisions, learnings | **no** — read directly via the entry point |
 

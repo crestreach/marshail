@@ -47,7 +47,7 @@ skip when no phase produced a learning file worth promoting.
    file or area; get human approval per bucket before applying. New
    skills / subagents / rules are written to the corresponding
    `.marshal/` subfolder in the format used by
-   [ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync)
+   [cyncia](https://github.com/crestreach/cyncia)
    so they can be fanned out to tool-native layouts.
 3. For each non-knowledge bucket, propose a diff against the target
    file or area; get human approval per bucket before applying.

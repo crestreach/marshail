@@ -1,6 +1,6 @@
 ---
 name: marshal-init
-description: First-time MARSHAL setup in a repository. Creates the .marshal/ scaffolding, copies default config, optionally installs ai-dev-agent-config-sync (as a submodule) and an agent-config/ source tree, runs marshal-promote-assets to wire MARSHAL durable assets into agent-config/, optionally runs the sync to fan everything out into tool-native layouts, and triggers marshal-knowledge-init for the initial knowledge snapshot. Idempotent.
+description: First-time MARSHAL setup in a repository. Creates the .marshal/ scaffolding, copies default config, optionally installs cyncia (as a submodule) and an .agent-config/ source tree, runs marshal-promote-assets to wire MARSHAL durable assets into .agent-config/, optionally runs the sync to fan everything out into tool-native layouts, and triggers marshal-knowledge-init for the initial knowledge snapshot. Idempotent.
 ---
 
 # marshal-init
@@ -17,9 +17,9 @@ Setup skill — runs once per repo.
 - The repo root.
 - Existing `AGENTS.md` if present.
 - Existing `.marshal/` if present (for idempotent re-runs).
-- Existing `agent-config/` (or similarly named config-sync source
+- Existing `.agent-config/` (or similarly named config-sync source
   tree) if present.
-- Existing `ai-dev-agent-config-sync` checkout (submodule, vendored
+- Existing `.cyncia` checkout (submodule, vendored
   copy, or installed binary) if present.
 
 ## Workflow
@@ -41,42 +41,42 @@ Setup skill — runs once per repo.
    it into the repo's root `AGENTS.md`. Do **not** auto-edit the root
    file — the sync tool treats it as user-owned and will overwrite
    only generated tool layouts, not the source `AGENTS.md`.
-4. **Install [ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync)
-   if needed.** Detect it first (look for `ai-dev-agent-config-sync/`
+4. **Install [cyncia](https://github.com/crestreach/cyncia)
+   if needed.** Detect it first (look for `.cyncia/`
    at the repo root, or any directory containing `scripts/sync-all.sh`
    the user already uses). If absent, **ask the user** which install
    method they want and execute it:
    - **Git submodule (recommended):**
-     `git submodule add https://github.com/crestreach/ai-dev-agent-config-sync.git ai-dev-agent-config-sync`
+     `git submodule add https://github.com/crestreach/cyncia.git cyncia`
    - **Subtree:** see the sync tool's
-     [README](https://github.com/crestreach/ai-dev-agent-config-sync#installation)
+     [README](https://github.com/crestreach/cyncia#installation)
      for the `git subtree add` invocation.
    - **Skip:** the user can run MARSHAL without fanning durable assets
      out to tool layouts. In that case, jump to step 7.
-5. **Provision an `agent-config/` source tree** (or whatever the user
+5. **Provision an `.agent-config/` source tree** (or whatever the user
    already calls their config-sync source root). If absent, scaffold
    it with the required structure:
-   - `agent-config/AGENTS.md` — the user's authoritative
+   - `.agent-config/AGENTS.md` — the user's authoritative
      `AGENTS.md` for the repo (start with the merged snippet from
      step 3 if the user wants).
-   - `agent-config/{skills,agents,rules,mcp-servers}/` — empty
+   - `.agent-config/{skills,agents,rules,mcp-servers}/` — empty
      directories with `.gitkeep` placeholders.
    See the sync tool's
-   [README](https://github.com/crestreach/ai-dev-agent-config-sync#source-tree-format)
+   [README](https://github.com/crestreach/cyncia#source-tree-format)
    for the source-tree format.
-6. **Promote MARSHAL durable assets into `agent-config/`** by running
+6. **Promote MARSHAL durable assets into `.agent-config/`** by running
    [`marshal-promote-assets`](../marshal-promote-assets/SKILL.md). It
    copies `.marshal/{skills,agents,rules}/` into
-   `agent-config/{skills,agents,rules}/` with the `mx_` prefix on
+   `.agent-config/{skills,agents,rules}/` with the `mx_` prefix on
    every promoted basename so MARSHAL items remain visibly distinct
    from non-MARSHAL items in the shared tree.
 7. **Run the sync (optional, ask first).** Invoke
-   `ai-dev-agent-config-sync/scripts/sync-all.sh -i agent-config -o .`
+   `.cyncia/scripts/sync-all.sh -i .agent-config -o .`
    to fan everything out into tool-native layouts (`.cursor/`,
    `.claude/`, `.github/`, `.junie/`, `.vscode/` plus root `AGENTS.md`,
    `CLAUDE.md`, `.mcp.json`). Warn the user that the sync overwrites
    the generated directories on every run; only the source tree
-   (`.marshal/` + `agent-config/`) is hand-edited.
+   (`.marshal/` + `.agent-config/`) is hand-edited.
 8. **Update `.gitignore`** if the user agrees: ignore the generated
    directories (`.claude/`, `.cursor/`, `.github/`, `.junie/`,
    `.vscode/`) and the generated root files (`CLAUDE.md`, `.mcp.json`)
@@ -88,8 +88,8 @@ Setup skill — runs once per repo.
 ## Outputs
 
 - `.marshal/` directory populated with scaffolding.
-- (Optional) `ai-dev-agent-config-sync/` installed as a submodule.
-- (Optional) `agent-config/` scaffolded as the config-sync source
+- (Optional) `.cyncia/` installed as a submodule.
+- (Optional) `.agent-config/` scaffolded as the config-sync source
   tree, with MARSHAL durable assets promoted into it (`mx_` prefix).
 - (Optional) Tool-layout files written by the sync.
 - (Optional) Updated `.gitignore`.
@@ -101,8 +101,8 @@ Setup skill — runs once per repo.
 - `.marshal/` exists with required files.
 - The user has been pointed at `.marshal/AGENTS.md` for manual merge
   into the repo's root `AGENTS.md`.
-- If the user opted in: `ai-dev-agent-config-sync` is installed,
-  `agent-config/` exists, MARSHAL assets are promoted into it, and
+- If the user opted in: `.cyncia` is installed,
+  `.agent-config/` exists, MARSHAL assets are promoted into it, and
   the sync has run cleanly at least once.
 - Initial knowledge snapshot is approved (or marked deferred).
 

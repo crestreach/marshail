@@ -104,7 +104,7 @@ promoting. Diffs go through the autonomy gate in `.marshal/config.yml`.
 
 To fan these out into tool-native layouts (Cursor, Claude Code, GitHub
 Copilot, JetBrains Junie), point
-[ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync)
+[cyncia](https://github.com/crestreach/cyncia)
 at `.marshal/` as its source root — see `marshal.md` § Generated assets
 and config sync.
 

@@ -1,7 +1,7 @@
 # `.marshal/rules/`
 
 One Markdown file per rule, in the format consumed by
-[ai-dev-agent-config-sync](https://github.com/crestreach/ai-dev-agent-config-sync).
+[cyncia](https://github.com/crestreach/cyncia).
 
 Each rule file is YAML frontmatter plus a body:
 

@@ -1,6 +1,6 @@
 ---
 name: marshal-promote-assets
-description: Copies MARSHAL-generated durable assets (rules, skills, subagents) from the project's `.marshal/` directory into the project's agent-config source tree, so the next `agent-conf-sync` run fans them out to all tool layouts. Use when the user asks to "promote MARSHAL skills/agents/rules", "copy from .marshal to agent-config", "wire MARSHAL assets into the sync source", or similar.
+description: Copies MARSHAL-generated durable assets (rules, skills, subagents) from the project's `.marshal/` directory into the project's .agent-config source tree, so the next `agent-conf-sync` run fans them out to all tool layouts. Use when the user asks to "promote MARSHAL skills/agents/rules", "copy from .marshal to .agent-config", "wire MARSHAL assets into the sync source", or similar.
 ---
 
 # marshal-promote-assets
@@ -8,9 +8,9 @@ description: Copies MARSHAL-generated durable assets (rules, skills, subagents) 
 MARSHAL stores its durable assets — rules, skills, and subagents — under a
 `.marshal/` directory in the repo. These are the canonical authored
 versions. To make them available to all AI assistants (Cursor, Claude,
-Copilot, VS Code, Junie), they must be copied into the agent-config
+Copilot, VS Code, Junie), they must be copied into the .agent-config
 source tree consumed by
-[`ai-dev-agent-config-sync`](https://github.com/crestreach/ai-dev-agent-config-sync),
+[`.cyncia`](https://github.com/crestreach/cyncia),
 and then synced.
 
 This skill performs the copy step only. Run `agent-conf-sync` afterwards
@@ -21,7 +21,7 @@ to fan the result out to tool-specific layouts.
 Trigger phrases:
 
 - "promote MARSHAL skills / agents / rules"
-- "copy MARSHAL assets into agent-config"
+- "copy MARSHAL assets into .agent-config"
 - "wire `.marshal/` into the sync source"
 - "sync MARSHAL assets to tools" (do this skill, then `agent-conf-sync`)
 
@@ -34,24 +34,24 @@ asking about MARSHAL stages — that is normal MARSHAL work.
   current repo's `AGENTS.md` may pin a different path). Otherwise:
   ask the user.
 - **Agent-config source dir** (default: read from `AGENTS.md` of the
-  current repo, or use the conventional location `agent-config/`).
+  current repo, or use the conventional location `.agent-config/`).
   Otherwise: ask.
 - Optional explicit overrides from the user prompt
   (`from <path>`, `into <path>`).
 
 ## Workflow
 
-1. **Resolve paths.** Determine MARSHAL source dir and agent-config
+1. **Resolve paths.** Determine MARSHAL source dir and .agent-config
    source dir as described above. Use absolute paths.
 2. **Sanity-check.** Confirm the MARSHAL source dir exists and contains
    at least one of `skills/`, `agents/`, `rules/`. Confirm the
-   agent-config source dir exists and contains `AGENTS.md`.
+   .agent-config source dir exists and contains `AGENTS.md`.
 3. **Plan copies.** For each of the three asset folders that exists in
    the MARSHAL source dir, copy its contents into the matching folder
-   in the agent-config source dir, creating the target folder if
+   in the .agent-config source dir, creating the target folder if
    missing. **Every copied item's basename is prefixed with `mx_`**
    ("marshal extension") to namespace promoted MARSHAL assets in the
-   shared agent-config tree, distinguish them from the built-in
+   shared .agent-config tree, distinguish them from the built-in
    `marshal-` lifecycle skills shipped with MARSHAL itself, and avoid
    collisions with non-MARSHAL items. Apply the prefix unconditionally
    — even if the source name already starts with `marshal-` or
@@ -74,7 +74,7 @@ asking about MARSHAL stages — that is normal MARSHAL work.
    (default autonomy). Skip the prompt if the user explicitly said
    "go ahead", "just do it", or similar.
 5. **Copy.** Use `cp -R` (Unix) or `Copy-Item -Recurse -Force`
-   (PowerShell). Overwrite existing files in agent-config — that
+   (PowerShell). Overwrite existing files in .agent-config — that
    directory is the sync source, not authored content. Apply the
    `mx_` prefix as part of the destination path.
 6. **Skip MARSHAL housekeeping files.** Do not copy the MARSHAL source
@@ -95,7 +95,7 @@ asking about MARSHAL stages — that is normal MARSHAL work.
 ## Edge cases
 
 - **Conflicting names.** If a non-MARSHAL skill/agent/rule with the
-  same name exists in agent-config, surface the conflict and ask
+  same name exists in .agent-config, surface the conflict and ask
   before overwriting.
 - **Out-of-tree MARSHAL.** If the MARSHAL dir is not at the repo
   root (rare), the user must specify the path explicitly.
@@ -109,8 +109,8 @@ asking about MARSHAL stages — that is normal MARSHAL work.
 This skill is half of a two-step flow:
 
 1. `marshal-promote-assets` — copy `.marshal/` assets into
-   agent-config (this skill).
-2. `agent-conf-sync` — fan agent-config out to all tool layouts.
+   .agent-config (this skill).
+2. `agent-conf-sync` — fan .agent-config out to all tool layouts.
 
 When the user asks to "promote MARSHAL assets to all tools", run both
 in order.
