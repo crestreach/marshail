@@ -162,9 +162,11 @@ Single mode in v1: **pull / progressive disclosure.**
    agent to read `.marshal/ENTRYPOINT.md`.
 2. `ENTRYPOINT.md` instructs the agent to read `knowledge/INDEX.md`.
 3. The agent descends into the topic indexes and topic files it needs.
-4. If a needed topic is missing or stale, the agent invokes
-   `marshal-knowledge-research` to gather a condensed delta, then optionally
-   feeds it back via `marshal-knowledge-maintain`.
+4. If a needed topic is missing or stale, the agent invokes the
+   `marshal-researcher` subagent (via `marshal-delegate-to-knowledge-research`)
+   to gather a condensed delta, then optionally feeds it back via the
+   `marshal-knowledge-curator` subagent (via
+   `marshal-delegate-to-knowledge-maintain`).
 
 Path-scoped auto-attach (Cursor/Claude rules style) is **not** used for
 knowledge in v1. That activation mode is already covered by the existing
@@ -173,15 +175,15 @@ config-sync rules mechanism.
 ## 8. Staleness model (no hooks)
 
 - `verified_against_commit` + `updated` are stamped on every file.
-- The maintenance skill modes do the work explicitly:
+- The `marshal-knowledge-curator` subagent does the work explicitly via
+  modes:
   - **`from-changes`** — invoked after an implementation cycle; diffs HEAD
     against `verified_against_commit` for each file's `repo_paths` and
     proposes patches.
   - **`from-learning`** — promotes items from `learn/inbox/` to canonical
     files (or `learn/rollups/`), aligned with marshal.md §5.
   - **`rescan`** — full sweep; flags or refreshes stale files.
-  - (separate skills) `marshal-knowledge-branch-merge` and
-    `marshal-knowledge-rebuild` for the larger reconciliation cases.
+  - **`branch-merge`** and **`rebuild`** — the larger reconciliation cases.
 - All write paths produce a diff for human approval unless
   `knowledge.autonomy: auto` is set in `.marshal/config.yml`.
 
@@ -197,30 +199,34 @@ knowledge:
 `review` is the default. `auto` is intended for later, after the system
 proves trustworthy on the repo.
 
-## 10. Skills (v1) and subagent candidates (v2)
+## 10. Subagents and skills
 
-All entries below live under `.marshal/skills/<name>/SKILL.md` and follow
-the Anthropic Agent Skills format used by the config-sync tool.
+Workflow logic lives in **subagents** under `.marshal/agents/<name>.md`.
+For each subagent, two skill wrappers ship: a delegate skill under
+`.marshal/skills/marshal-delegate-to-<x>/SKILL.md` (for environments with
+subagent support) and a fallback skill under
+`.marshal/skills-fallback/marshal-<x>/SKILL.md` (for environments without).
 
-| Skill | Purpose | v2 subagent candidate |
+| Subagent | Purpose | Wrapper skills (delegate / fallback) |
 |---|---|---|
-| `marshal-load` | Session bootstrap: read entry point + INDEX. | — |
-| `marshal-init` | First-time Marshal setup in a repo (creates `.marshal/`, configs, runs knowledge-init). | — |
-| `marshal-knowledge-init` | Build initial knowledge snapshot from current code. | `marshal-knowledge-curator` |
-| `marshal-knowledge-maintain` | Modes: `from-changes`, `from-learning`, `rescan`. | `marshal-knowledge-curator` |
-| `marshal-knowledge-research` | Topic / codebase deep-dive returning a condensed delta. | `marshal-researcher` |
-| `marshal-knowledge-branch-merge` | Reconcile knowledge files diverged on two branches. | `marshal-knowledge-curator` |
-| `marshal-knowledge-rebuild` | Post-feature rescan to incorporate new / deleted code and changed logic. | `marshal-knowledge-curator` |
-| `marshal-specify` | Stage 1 (optional) — produce `specification.md`. | `marshal-driver` (process orchestrator) |
-| `marshal-intake` | Stage 2 (optional) — produce `change-brief.md`. | `marshal-driver` (process orchestrator) |
-| `marshal-analysis` | Stage 3 (optional) — produce `repo-recon.md`. | `marshal-code-archaeologist` |
-| `marshal-architecture` | Stage 3.5 (optional) — produce `architecture-notes.md`. | — |
-| `marshal-plan` | Stage 4 (**mandatory**) — produce `delivery-plan.md`. | `marshal-planner` |
-| `marshal-implement` | Stage 5a — drive implementation cycles. | — |
-| `marshal-verify` | Stage 5b — produce `verification-report.md`. | — |
-| `marshal-pr` | Stage 5c (optional) — PR boundary, summary, fixup loop. | `marshal-reviewer` |
-| `marshal-rollout` | Stage 6 (optional) — produce `rollout-note.md`. | — |
-| `marshal-learn` | Stage 7 (optional) — produce `learning-rollup.md` and feed `marshal-knowledge-maintain from-learning`. | — |
+| `marshal-knowledge-curator` | Knowledge bootstrap + maintenance + reconciliation (modes: `init`, `from-changes`, `from-learning`, `rescan`, `rebuild`, `branch-merge`). | `marshal-delegate-to-knowledge-{init,maintain,rebuild,branch-merge}` / `marshal-knowledge-{init,maintain,rebuild,branch-merge}` |
+| `marshal-researcher` | Read-only topic / codebase deep-dive returning a condensed delta. | `marshal-delegate-to-knowledge-research` / `marshal-knowledge-research` |
+| `marshal-specifier` | Stage 1 (optional) — produce `specification.md`. | `marshal-delegate-to-specify` / `marshal-specify` |
+| `marshal-framer` | Stage 2 (optional) — produce `change-brief.md`. | `marshal-delegate-to-intake` / `marshal-intake` |
+| `marshal-code-archaeologist` | Stage 3 (optional) — produce `repo-recon.md`. | `marshal-delegate-to-analysis` / `marshal-analysis` |
+| `marshal-architect` | Stage 3.5 (optional) — produce `architecture-notes.md`. | `marshal-delegate-to-architecture` / `marshal-architecture` |
+| `marshal-planner` | Stage 4 (**mandatory**) — produce `delivery-plan.md`. | `marshal-delegate-to-plan` / `marshal-plan` |
+| `marshal-implementer` | Stage 5a — drive implementation cycles. | `marshal-delegate-to-implement` / `marshal-implement` |
+| `marshal-verifier` | Stage 5b — produce `verification-report.md`. | `marshal-delegate-to-verify` / `marshal-verify` |
+| `marshal-reviewer` | Stage 5c (optional) — PR boundary, summary, fixup loop. | `marshal-delegate-to-pr` / `marshal-pr` |
+| `marshal-releaser` | Stage 6 (optional) — produce `rollout-note.md`. | `marshal-delegate-to-rollout` / `marshal-rollout` |
+| `marshal-learner` | Stage 7 (optional) — produce `learning-rollup.md` and feed `marshal-knowledge-curator` mode `from-learning`. | `marshal-delegate-to-learn` / `marshal-learn` |
+| `marshal-helper` | On-demand procedural / conceptual help on MARSHAL itself. | `marshal-delegate-to-help` / `marshal-help` |
+| `marshal-driver` | Full end-to-end orchestrator across stages. | `marshal-delegate-to-driver` / — |
+
+Main-session skills (no subagent counterpart): `marshal-init`,
+`marshal-load`, `marshal-promote-assets`. They live under `.marshal/skills/`
+only.
 
 ## 11. Shared bundle
 

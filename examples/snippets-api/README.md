@@ -29,8 +29,10 @@ test/
 
 ## Why this example exists
 
-To show what `.marshal/knowledge/` looks like once `marshal-knowledge-init`
-has run on a real-but-small repo. Browse the tree below.
+To show what `.marshal/knowledge/` looks like once the
+`marshal-knowledge-curator` subagent has run in `init` mode (via
+`marshal-delegate-to-knowledge-init` or its fallback `marshal-knowledge-init`)
+on a real-but-small repo. Browse the tree below.
 
 ## Knowledge tree
 

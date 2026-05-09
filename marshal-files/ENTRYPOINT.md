@@ -22,27 +22,43 @@ for risky ones). Each run’s scope is recorded at the top of
 feed the next. Phase learnings are captured separately and promoted to
 durable guidance only when they are reusable.
 
-## Stages and skills
+## Stages, agents, and skills
 
-Stages map to `marshal-*` skills. Use the relevant one when working in
-that stage. Stage 4 Plan is the only mandatory stage; all others are
-optional unless noted.
+MARSHAL workflow logic lives in **subagents** under `.marshal/agents/`. The
+shipped layout is:
 
-| Stage | Skill | Artifact | Optional? |
-|---|---|---|---|
-| 1. Specification | `marshal-specify` | `specification.md` | optional |
-| 2. Intake | `marshal-intake` | `change-brief.md` | optional |
-| 3. Analysis | `marshal-analysis` | `repo-recon.md` | optional |
-| 3.5. Architecture | `marshal-architecture` | `architecture-notes.md` | optional |
-| 4. Plan | `marshal-plan` | `delivery-plan.md` | **mandatory** |
-| 5a. Implement | `marshal-implement` | code + `logs/phase-N.changelog.md` | required when there is code to write |
-| 5b. Verify | `marshal-verify` | `verification-report.md` | required before any PR |
-| 5c. PR | `marshal-pr` | PR description | optional (skip for non-shared work) |
-| 6. Rollout | `marshal-rollout` | `rollout-note.md` | optional |
-| 7. Learn | `marshal-learn` | `learning-rollup.md` | optional |
+- `.marshal/agents/<name>.md` — the canonical workflow for a stage / role.
+  This is the single source of truth.
+- `.marshal/skills/marshal-delegate-to-<x>/SKILL.md` — thin wrapper skills
+  that match user intent (high-recall trigger phrases) and delegate to
+  the matching subagent in fresh context.
+- `.marshal/skills-fallback/marshal-<x>/SKILL.md` — equivalent skills for
+  environments **without** subagent support; they instruct the assistant
+  to follow the agent's source-of-truth file inline in the current
+  session. Same names as the historical full-bodied skills.
 
-Each skill states its own prerequisites, inputs, outputs, and handoff so it
-can run in isolated context.
+Stage 4 Plan is the only mandatory stage; all others are optional unless
+noted.
+
+| Stage | Subagent | Delegate skill | Fallback skill | Artifact | Optional? |
+|---|---|---|---|---|---|
+| 1. Specification | `marshal-specifier` | `marshal-delegate-to-specify` | `marshal-specify` | `specification.md` | optional |
+| 2. Intake | `marshal-framer` | `marshal-delegate-to-intake` | `marshal-intake` | `change-brief.md` | optional |
+| 3. Analysis | `marshal-code-archaeologist` | `marshal-delegate-to-analysis` | `marshal-analysis` | `repo-recon.md` | optional |
+| 3.5. Architecture | `marshal-architect` | `marshal-delegate-to-architecture` | `marshal-architecture` | `architecture-notes.md` | optional |
+| 4. Plan | `marshal-planner` | `marshal-delegate-to-plan` | `marshal-plan` | `delivery-plan.md` | **mandatory** |
+| 5a. Implement | `marshal-implementer` | `marshal-delegate-to-implement` | `marshal-implement` | code + `logs/phase-N.changelog.md` | required when there is code to write |
+| 5b. Verify | `marshal-verifier` | `marshal-delegate-to-verify` | `marshal-verify` | `verification-report.md` | required before any PR |
+| 5c. PR | `marshal-reviewer` | `marshal-delegate-to-pr` | `marshal-pr` | PR description | optional (skip for non-shared work) |
+| 6. Rollout | `marshal-releaser` | `marshal-delegate-to-rollout` | `marshal-rollout` | `rollout-note.md` | optional |
+| 7. Learn | `marshal-learner` | `marshal-delegate-to-learn` | `marshal-learn` | `learning-rollup.md` | optional |
+
+The full end-to-end orchestrator is `marshal-driver` (delegate skill
+`marshal-delegate-to-driver`); it has no fallback because its value is
+subagent orchestration with isolated context per stage.
+
+The agent file states the prerequisites, inputs, outputs, and handoff. Do
+not duplicate workflow content into the wrapper skills.
 
 ## Knowledge layer
 
@@ -76,15 +92,21 @@ code path; use `summary` to decide whether to open a file.
 Knowledge content is not limited to code facts — it covers logic,
 architecture, design rationale, decisions, and conventions.
 
-## Knowledge skills
+## Knowledge agents and skills
 
-| Skill | When to use |
-|---|---|
-| `marshal-knowledge-init` | First-time bootstrap of `.marshal/knowledge/`. |
-| `marshal-knowledge-maintain` | After an implementation cycle (mode `from-changes`); after stage 7 (mode `from-learning`); on schedule (mode `rescan`). Also splits oversize topics into sub-indexes. |
-| `marshal-knowledge-research` | When the index does not answer a question — gather a condensed delta. |
-| `marshal-knowledge-branch-merge` | When merging branches that both updated knowledge files. |
-| `marshal-knowledge-rebuild` | After a large feature, to incorporate new / deleted code and changed logic. |
+All knowledge maintenance work runs through the
+[`marshal-knowledge-curator`](agents/marshal-knowledge-curator.md)
+subagent (modes `init`, `from-changes`, `from-learning`, `rescan`,
+`rebuild`, `branch-merge`). Read-only research uses the
+[`marshal-researcher`](agents/marshal-researcher.md) subagent.
+
+| When | Subagent / mode | Delegate skill | Fallback skill |
+|---|---|---|---|
+| First-time bootstrap of `.marshal/knowledge/` | `marshal-knowledge-curator` (`init`) | `marshal-delegate-to-knowledge-init` | `marshal-knowledge-init` |
+| After an implementation cycle, after stage 7, or on schedule | `marshal-knowledge-curator` (`from-changes` / `from-learning` / `rescan`) | `marshal-delegate-to-knowledge-maintain` | `marshal-knowledge-maintain` |
+| Read-only deep-dive on a narrow topic | `marshal-researcher` | `marshal-delegate-to-knowledge-research` | `marshal-knowledge-research` |
+| Reconciling knowledge changes from two branches | `marshal-knowledge-curator` (`branch-merge`) | `marshal-delegate-to-knowledge-branch-merge` | `marshal-knowledge-branch-merge` |
+| Post-feature restructure of the knowledge tree | `marshal-knowledge-curator` (`rebuild`) | `marshal-delegate-to-knowledge-rebuild` | `marshal-knowledge-rebuild` |
 
 ## Approval and autonomy
 
@@ -97,8 +119,15 @@ only.
 
 Durable assets MARSHAL produces or maintains live under `.marshal/`:
 
-- `skills/<name>/SKILL.md` — one folder per skill.
-- `agents/<name>.md` — one file per subagent.
+- `agents/<name>.md` — one file per subagent. **Source of truth for
+  workflow logic.**
+- `skills/marshal-delegate-to-<x>/SKILL.md` — thin delegate wrappers,
+  one folder per stage / role. Each delegates to the matching subagent.
+- `skills-fallback/marshal-<x>/SKILL.md` — fallback skills for
+  environments without subagent support; they point back to the agent
+  file as the source of truth.
+- `skills/marshal-{init,load,promote-assets}/SKILL.md` — main-session
+  skills with no subagent counterpart.
 - `rules/<name>.md` — one file per rule (frontmatter: `description`,
   `applies-to`, `always-apply`).
 - `knowledge/...` — read in place; **not** part of the sync source.
@@ -116,23 +145,14 @@ Copilot, JetBrains Junie), point
 at `.marshal/` as its source root — see `marshal.md` § Generated assets
 and config sync.
 
-## Marshal-shipped agents (subagents)
-
-These do not exist yet in v1. The skills above mark in their bodies which
-operations are good candidates to be promoted to dedicated subagents with
-fresh context. Proposed names: `marshal-driver`, `marshal-helper`,
-`marshal-researcher`,
-`marshal-knowledge-curator`, `marshal-code-archaeologist`,
-`marshal-planner`, `marshal-reviewer`. Stubs live in `.marshal/agents/`.
-
 ## Getting unstuck / asking about MARSHAL
 
 If at any point you (or the user) are unsure which stage to be in,
 which skill to invoke, or how MARSHAL applies to the situation,
-invoke [`marshal-help`](skills/marshal-help/SKILL.md) (or its fresh-context
-wrapper [`marshal-helper`](agents/marshal-helper.md)). It reads
+invoke [`marshal-delegate-to-help`](skills/marshal-delegate-to-help/SKILL.md)
+(it delegates to [`marshal-helper`](agents/marshal-helper.md)). It reads
 `marshal.md` and the `.marshal/` tree, answers the question, and either
-points you at the right next skill or hands off to
+points you at the right next skill / agent or hands off to
 [`marshal-driver`](agents/marshal-driver.md) when work needs to actually
 progress.
 

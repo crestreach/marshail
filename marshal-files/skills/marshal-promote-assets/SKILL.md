@@ -44,8 +44,8 @@ asking about MARSHAL stages — that is normal MARSHAL work.
 1. **Resolve paths.** Determine MARSHAL source dir and .agent-config
    source dir as described above. Use absolute paths.
 2. **Sanity-check.** Confirm the MARSHAL source dir exists and contains
-   at least one of `skills/`, `agents/`, `rules/`. Confirm the
-   .agent-config source dir exists and contains `AGENTS.md`.
+   at least one of `skills/`, `skills-fallback/`, `agents/`, `rules/`.
+   Confirm the .agent-config source dir exists and contains `AGENTS.md`.
 3. **Plan copies.** For each of the three asset folders that exists in
    the MARSHAL source dir, copy its contents into the matching folder
    in the .agent-config source dir, creating the target folder if
@@ -64,11 +64,25 @@ asking about MARSHAL stages — that is normal MARSHAL work.
    - `<marshal_src>/skills/<name>/` → `<agent_config>/skills/mx_<name>/`
      (preserve the inner `SKILL.md` plus any extra files in the same
      folder)
+   - `<marshal_src>/skills-fallback/<name>/` → `<agent_config>/skills/mx_<name>/`
+     **only when the host environment lacks subagent support** — see
+     step 3a below. Otherwise skip the fallback tree.
    - `<marshal_src>/agents/<name>.md` → `<agent_config>/agents/mx_<name>.md`
    - `<marshal_src>/rules/<name>.md` → `<agent_config>/rules/mx_<name>.md`
 
    If the source name already starts with `mx_`, keep it as-is (do
    not double-prefix).
+3a. **Pick `skills/` vs `skills-fallback/` per target tool.** MARSHAL
+   ships two parallel skill flavors:
+   - `skills/marshal-delegate-to-*` — thin wrappers that delegate to
+     the matching subagent in fresh context. Promote these for tool
+     layouts that **support custom subagents** (Cursor, Claude Code,
+     Codex with agents, etc.).
+   - `skills-fallback/marshal-*` — full inline workflows for layouts
+     that **do not support custom subagents**. Both folders intentionally
+     hold sibling names; promote at most **one** flavor per name to
+     avoid conflicts. If unsure, ask the user which flavor to promote
+     (default: delegate skills from `skills/`).
 4. **Show the plan**: list the source files / folders and their
    `mx_`-prefixed destinations, then ask for approval before copying
    (default autonomy). Skip the prompt if the user explicitly said
@@ -99,8 +113,8 @@ asking about MARSHAL stages — that is normal MARSHAL work.
   before overwriting.
 - **Out-of-tree MARSHAL.** If the MARSHAL dir is not at the repo
   root (rare), the user must specify the path explicitly.
-- **Empty source.** If neither `skills/` nor `agents/` nor `rules/`
-  exist in the MARSHAL source, exit with a note instead of copying.
+- **Empty source.** If none of `skills/`, `skills-fallback/`, `agents/`,
+  `rules/` exist in the MARSHAL source, exit with a note instead of copying.
 - **Dry-run flag.** If the user says "preview", "dry run", or similar,
   print the copy plan without executing.
 
