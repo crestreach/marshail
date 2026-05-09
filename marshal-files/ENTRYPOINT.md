@@ -129,21 +129,29 @@ Durable assets MARSHAL produces or maintains live under `.marshal/`:
 - `skills/marshal-{init,load,promote-assets}/SKILL.md` — main-session
   skills with no subagent counterpart.
 - `rules/<name>.md` — one file per rule (frontmatter: `description`,
-  `applies-to`, `always-apply`).
+  `applies-to`, `always-apply`). Built-in MARSHAL rules.
+- `extensions/{skills,agents,rules}/` — **repo-specific extensions**
+  drafted by [`marshal-learner`](agents/marshal-learner.md) (or
+  hand-authored) on top of the built-ins. Every basename is
+  `mx_`-prefixed at creation. Lives outside the built-in folders so
+  it survives MARSHAL upgrades.
 - `knowledge/...` — read in place; **not** part of the sync source.
 - `AGENTS.md` — a snippet to merge **manually** into the host repo's
   root `AGENTS.md` (which is the file the sync tool requires at its
   source root).
 
-MARSHAL agents may **create or update** any of skills / agents / rules
-on request, or as part of stage 7 Learn when a recurring lesson is worth
-promoting. Diffs go through the autonomy gate in `.marshal/config.yml`.
+MARSHAL agents may **create or update** built-in `skills/` / `agents/` /
+`rules/` only when MARSHAL itself is being changed. Repo-specific
+guidance generated from learnings or on user request goes under
+`extensions/{skills,agents,rules}/` with the `mx_` prefix at creation.
+Diffs go through the autonomy gate in `.marshal/config.yml`.
 
 To fan these out into tool-native layouts (Cursor, Claude Code, GitHub
-Copilot, JetBrains Junie), point
-[cyncia](https://github.com/crestreach/cyncia)
-at `.marshal/` as its source root — see `marshal.md` § Generated assets
-and config sync.
+Copilot, JetBrains Junie), the
+[`marshal-promote-assets`](skills/marshal-promote-assets/SKILL.md)
+skill copies both built-ins and extensions into `.agent-config/`, then
+[cyncia](https://github.com/crestreach/cyncia)'s
+sync fans it out — see `marshal.md` § Generated assets and config sync.
 
 ## Getting unstuck / asking about MARSHAL
 
