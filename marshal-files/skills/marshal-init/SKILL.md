@@ -1,6 +1,6 @@
 ---
 name: marshal-init
-description: First-time MARSHAL setup in a repository. Creates the .marshal/ scaffolding, copies default config, optionally installs cyncia (via the cyncia installer) and an .agent-config/ source tree, runs marshal-promote-assets to wire MARSHAL durable assets into .agent-config/, optionally runs the sync to fan everything out into tool-native layouts, and triggers marshal-knowledge-init for the initial knowledge snapshot. Idempotent.
+description: First-time MARSHAL setup in a repository. Creates the .marshal/ scaffolding, copies default config, optionally installs cyncia (via the cyncia installer) and an .agent-config/ source tree, runs marshal-promote-assets to wire MARSHAL durable assets into .agent-config/, optionally runs the sync to fan everything out into tool-native layouts, and offers the initial knowledge bootstrap via marshal-delegate-to-knowledge-init. Idempotent.
 ---
 
 # marshal-init
@@ -27,15 +27,20 @@ Setup skill — runs once per repo.
 1. **Detect existing `.marshal/`.** If present, prompt before
    proceeding. The skill is idempotent — only the missing parts are
    created.
-2. **Create the `.marshal/` skeleton:**
+2. **Create the `.marshal/` skeleton.** Static files are **copied
+   verbatim** from the shipped MARSHAL files (they are templates, not
+   generated from scratch each time, so they stay identical across
+   repos):
    - [`AGENTS.md`](../../AGENTS.md) (the snippet that gets **merged**
      into the host repo's root `AGENTS.md`),
      [`ENTRYPOINT.md`](../../ENTRYPOINT.md),
-     [`config.yml`](../../config.yml).
-   - [`marshal-override.md`](../../marshal-override.md) — empty
-     (template-only) repo-specific override file. Users edit it later
-     to specify or modify MARSHAL behavior on top of `marshal.md`. Not
-     synced.
+     [`config.yml`](../../config.yml) — copied as-is.
+   - [`marshal-override.md`](../../marshal-override.md) — created
+     **empty** (just the header note that an empty file means "no
+     overrides"). The purpose, structure, and examples are documented in
+     `marshal.md` and the shipped `marshal-override.md`, so the consumer
+     file stays clean. Users edit it later to modify MARSHAL behavior on
+     top of `marshal.md`. Not synced.
    - `skills/`, `skills-fallback/`, `agents/`,
      [`rules/`](../../rules/) — the canonical built-in MARSHAL durable
      assets (`marshal-*` skills, subagents, rules).
@@ -97,9 +102,13 @@ Setup skill — runs once per repo.
    transient per-change working tree `.marshal/work/` (the artifact
    chain is rebuilt per change; `.marshal/archive/` is retained, so do
    **not** ignore it).
-9. **Hand off** to
-   [`marshal-knowledge-init`](../marshal-knowledge-init/SKILL.md) to
-   build the initial knowledge snapshot.
+9. **Offer the initial knowledge bootstrap.** Trigger
+   [`marshal-delegate-to-knowledge-init`](../marshal-delegate-to-knowledge-init/SKILL.md)
+   (curator `init` mode) to build the initial knowledge snapshot. This
+   is **not** silent: it is offered as the final init step and the user
+   can run it now or defer it to a later session. Under `auto` autonomy
+   the curator writes the snapshot and returns a summary; under `review`
+   it returns a diff for approval.
 
 ## Outputs
 
@@ -110,8 +119,9 @@ Setup skill — runs once per repo.
   their `marshal-` prefix; extensions keep their `mx-` prefix).
 - (Optional) Tool-layout files written by the sync.
 - (Optional) Updated `.gitignore`.
-- An initial knowledge tree under `.marshal/knowledge/` produced by
-  `marshal-knowledge-init` (separate diff for approval).
+- An initial knowledge tree under `.marshal/knowledge/` produced by the
+  knowledge bootstrap (applied with a summary under `auto`, or a separate
+  diff for approval under `review`) — when not deferred.
 
 ## Exit criteria
 
@@ -121,21 +131,20 @@ Setup skill — runs once per repo.
 - If the user opted in: `.cyncia` is installed,
   `.agent-config/` exists, MARSHAL assets are promoted into it, and
   the sync has run cleanly at least once.
-- Initial knowledge snapshot is approved (or marked deferred).
+- Initial knowledge snapshot is created (applied directly under
+  `auto`, or a diff approved under `review`) — or explicitly deferred
+  by the user to a later session.
 
-## Handoff
+## Next steps
 
-- **Next skill (during init):**
-  [`marshal-promote-assets`](../marshal-promote-assets/SKILL.md) —
+- **During init:**
+  [`marshal-promote-assets`](../marshal-promote-assets/SKILL.md) is
   invoked from step 6 above.
-- **Final handoff:**
-  [`marshal-knowledge-init`](../marshal-knowledge-init/SKILL.md).
-- **Pass:** path to `.marshal/knowledge/` (empty); optional list of
-  detected language / framework hints.
-
-## Subagent
-
-For the heavy knowledge bootstrap step,
-[`marshal-knowledge-curator`](../../agents/marshal-knowledge-curator.md)
-is the v2 subagent that wraps `marshal-knowledge-init` with fresh
-context.
+- **Knowledge bootstrap (final step, opt-in):**
+  [`marshal-delegate-to-knowledge-init`](../marshal-delegate-to-knowledge-init/SKILL.md),
+  which delegates to
+  [`marshal-knowledge-curator`](../../agents/marshal-knowledge-curator.md)
+  in `init` mode with fresh context. Pass: path to `.marshal/knowledge/`
+  (empty) and any detected language / framework hints. In environments
+  without subagent support, the equivalent fallback skill
+  `marshal-knowledge-init` runs the same logic inline.
