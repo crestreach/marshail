@@ -52,25 +52,37 @@ context stays small:
 - **`phase-N.changelog.md`** — the per-phase changelog (artifact of
   record for what changed in each phase).
 
-**Fresh-run detection.** Because an agent can run many times for one
+**Fresh-run vs resume.** Because an agent can run many times for one
 change (replanning, an implementation cycle per phase), each invocation
-opens a **new run section** in its `<agent>.log.md`:
+works against a **run section** in its `<agent>.log.md`:
 
 ```
-## Run <n> — <ISO-8601 timestamp> — trigger: <stage/phase/cycle id>
+## Run <n> — <ISO-8601 timestamp>
 ```
 
-The caller (driver or user) passes the run context (stage + phase /
-cycle id); the agent compares it with the last run heading. A new or
-changed context means a **fresh run** (open a new section); the same
-open context means a continuation of the last run. The agent may read
-the previous run for continuity but never silently overwrites it.
+The caller does **not** pass a run id. Instead, each agent **marks its
+run section finished** when it completes its work (and leaves it unmarked
+while the work is still in progress). On the next invocation the agent
+reads the **last run section** in its `<agent>.log.md` and decides:
+
+- last section **marked finished** → the previous run is done, so this is
+  a **fresh run**: open a new section.
+- last section **not finished** → the previous run was interrupted, so
+  **resume** it (continue in the same section).
+
+The **prompt takes precedence** over this heuristic: if the caller (or
+user) explicitly asks to start over / open a new run, or to continue a
+specific prior run, honor that regardless of the last section's state.
+The agent may read the previous run for continuity but never silently
+overwrites it.
 
 On resume, an agent reads `resume.md` first (always), then descends into
 its own `<agent>.log.md` or the phase changelogs only if it needs more
 detail. Every agent that changes state appends to its run section and
-refreshes `resume.md` before handing back, so the next dispatch — by the
-driver or directly by the user — can continue from disk.
+refreshes `resume.md` before handing back; when it has actually finished
+its work it **marks the run section finished** (the signal the next
+invocation uses to tell a fresh run from a resume), so the next dispatch
+— by the driver or directly by the user — can continue from disk.
 
 ## Knowledge write discipline
 

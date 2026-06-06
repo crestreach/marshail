@@ -156,12 +156,15 @@ holds three kinds of file, kept separate so resuming stays cheap:
   phase).
 
 Because an agent can run many times for one change (replanning, one
-implementation cycle per phase), each invocation opens a **new run
-section** (`## Run <n> — <timestamp> — trigger: <stage/phase/cycle>`) in
-its `<agent>.log.md`. The caller passes the run context so the agent can
-tell a **fresh run** from a continuation. Every agent refreshes
-`resume.md` and appends to its run log before handing back, so the next
-dispatch continues where the last left off. The full contract lives in
+implementation cycle per phase), each invocation works against a **run
+section** (`## Run <n> — <timestamp>`) in its `<agent>.log.md`. The
+caller does **not** pass a run id: an agent **marks its run section
+finished** when its work is done, and the next invocation tells a
+**fresh run** (last section finished → open a new one) from a **resume**
+(last section unfinished → continue it), unless the prompt explicitly
+says otherwise. Every agent refreshes `resume.md` and appends to its run
+log before handing back, so the next dispatch continues where the last
+left off. The full contract lives in
 [`references/activation-protocol.md`](marshal-files/references/activation-protocol.md).
 
 When a change is finalized, the working folder is **archived** to
