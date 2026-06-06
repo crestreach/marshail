@@ -63,7 +63,10 @@ only ingests what those settings route to the inbox.
   - `from-changes`: a list of changed paths or a git diff range.
   - `from-learning`: the inbox items to promote.
   - `rescan`: nothing (operates on whole tree vs HEAD).
-  - `rebuild`: a feature branch / commit range to incorporate.
+  - `rebuild`: **optional** — a feature branch / commit range to
+    incorporate. When given, it focuses the rebuild on what that change
+    touched; when omitted, the rebuild operates on the whole tree vs
+    current HEAD (like `rescan`, but with restructuring).
   - `branch-merge`: two branch refs or merge base + two heads;
     optional file focus list.
 
@@ -176,7 +179,10 @@ follows whatever that implementation prescribes.
 
 ### `rebuild`
 
-Heavier than `rescan`. Comparison:
+Heavier than `rescan`. A change (feature branch / commit range) may be
+passed to focus the rebuild, but it is **optional** — with no change
+given, the rebuild re-derives structure from the whole tree vs current
+HEAD. Comparison:
 
 | Concern | `rescan` | `rebuild` |
 |---|---|---|
