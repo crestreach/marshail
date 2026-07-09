@@ -55,6 +55,7 @@ Specification → Intake → Analysis → Architecture → Plan
 
 Only **Plan** is mandatory; every other stage is skipped when it would not add value.
 The chosen scope is agreed up front and recorded at the top of `delivery-plan.md`.
+Inside Implement, work runs in small **implementation cycles**; the human can inspect intermediate results and give feedback at any cycle, and the feedback is folded back into the work (and the plan, when it changes scope) before the cycle closes.
 A PR may target the final branch directly or an **integration branch**; in the latter case a final round (Implement → Verify → Review/PR) promotes the integration branch to the release / main branch and reviews the change as a whole.
 The whole per-change **artifact chain** lives in a working folder under `.marshail/work/<change-id>/` (transient, gitignored, archived on finalize); see [`marshail.md`](./marshail-files/marshail.md) for its structure and the resume contract.
 

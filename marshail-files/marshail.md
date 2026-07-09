@@ -280,7 +280,7 @@ flowchart LR
 
 ### Implementation cycle (small)
 
-Inside the Implement stage, work itself runs in smaller **implementation cycles** — pick a target (phase / packet / step), execute it, close the cycle.
+Inside the Implement stage, work itself runs in smaller **implementation cycles** — pick a target (phase / packet / step), execute it, optionally let the human inspect the result and give feedback, close the cycle.
 A round contains one or more cycles (see "Implementation cycles" in stage 6).
 
 
@@ -677,7 +677,7 @@ Execute the approved plan.
 The Implement stage runs in small **implementation cycles**.
 The human chooses the granularity of each cycle: a phase/slice, a work packet, or a step/substep.
 
-A cycle roughly follows these steps: pick the target, confirm the plan is still accurate **and detailed enough for this target — deepen it if staged planning left this item at a higher level**, execute, review, close the cycle (update statuses, changelog, tests).
+A cycle roughly follows these steps: pick the target, confirm the plan is still accurate **and detailed enough for this target — deepen it if staged planning left this item at a higher level**, execute, offer the human a chance to inspect the result and give feedback (optional), close the cycle (update statuses, changelog, tests).
 Use this as a guide, not a rigid checklist.
 
 Within a cycle the human can:
@@ -685,6 +685,10 @@ Within a cycle the human can:
 - ask the AI for a custom programming task outside the current plan item
 - write code themselves and discuss with the AI
 - ask for a review at any time
+- inspect intermediate results and give feedback at any point
+
+Human inspection and feedback are part of the cycle, not an interruption of it: feedback is applied before the cycle closes — directly for small corrections, or via a plan update (per the review-feedback patterns) when it changes scope or approach.
+How often the human steps in is their choice and follows the agreed interaction level; hands-off runs may skip inspection entirely and rely on the Verify stage and approval gates.
 
 If the plan has to be adapted at any point during implementation, do it explicitly in `delivery-plan.md` before continuing.
 Very small changes or extensions don't need a plan update.
@@ -695,7 +699,10 @@ flowchart LR
     A -- yes --> X[Execute<br/>code, tests, QA]
     A -- no --> U[Adapt or<br/>deepen plan]
     U --> X
-    X --> C[Close cycle<br/>update statuses,<br/>tests, changelog]
+    X --> H{Human inspection<br/>optional}
+    H -- feedback --> F[Apply feedback<br/>update plan if scope<br/>or approach changes]
+    F --> X
+    H -- ok / skipped --> C[Close cycle<br/>update statuses,<br/>tests, changelog]
     C -. next cycle .-> T
 ```
 
