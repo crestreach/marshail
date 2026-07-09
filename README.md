@@ -98,7 +98,7 @@ It fetches the MARSHAIL `marshail-files/` subtree — which now includes the can
 It is **idempotent** — re-run it to update:
 
 - `config.yml` is generated with defaults on a fresh install; on an update, newly introduced properties are added while your existing values are left alone (obsolete ones are kept unless you choose to drop them).
-- The agent-managed knowledge tree (`.marshail/knowledge/`), the per-change work tree (`.marshail/work/`), and your `.marshail/marshail-override.md` are never overwritten.
+- The agent-managed knowledge tree (`.marshail/knowledge/`), the per-change work tree (`.marshail/work/`), your `.marshail/marshail-override.md`, and your per-agent tool grants in `.marshail/agent-tools.yml` are never overwritten.
 - The installed ref is recorded in `.marshail/VERSION` (for `main`, any tag(s) pointing at `HEAD`), the same way cyncia records its own `.cyncia/VERSION`.
 
 Run with `--help` for options (`--ref`, `--marshail-dir`, `--agent-config`, `--no-cyncia`, `--no-sync`).

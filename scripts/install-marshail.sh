@@ -29,8 +29,9 @@
 #      on an update it is reconciled in place — newly introduced properties are
 #      added (prompt defaults to yes), existing values are left alone, and
 #      obsolete properties are kept unless you choose to drop them (prompt
-#      defaults to no). `marshail-override.md` is seeded once and never
-#      clobbered. This mirrors how cyncia reconciles its own cyncia.conf.
+#      defaults to no). `marshail-override.md` and `agent-tools.yml` are
+#      seeded once and never clobbered. This mirrors how cyncia reconciles
+#      its own cyncia.conf.
 #      The `LICENSE` lives at the MARSHAIL repo *root* (outside `marshail-files/`)
 #      and is installed *inside* <marshail-dir> (`.marshail/LICENSE`). The
 #      canonical spec `marshail.md` ships inside `marshail-files/`, so it lands at
@@ -393,6 +394,12 @@ fi
 # marshail-override.md: seed it on a fresh install, never clobber on update.
 if [ -e "$SRC/marshail-override.md" ] && [ ! -e "$MARSHAIL_DIR/marshail-override.md" ]; then
   cp "$SRC/marshail-override.md" "$MARSHAIL_DIR/marshail-override.md"
+fi
+
+# agent-tools.yml: seed the template on a fresh install, never clobber on
+# update — it holds the repo's own per-agent tool grants.
+if [ -e "$SRC/agent-tools.yml" ] && [ ! -e "$MARSHAIL_DIR/agent-tools.yml" ]; then
+  cp "$SRC/agent-tools.yml" "$MARSHAIL_DIR/agent-tools.yml"
 fi
 
 # config.yml: generate from the shipped template on a fresh install; on an
