@@ -54,6 +54,7 @@ Load tier: **full** (see [activation-protocol](../references/activation-protocol
 1. Read entry point + knowledge contract + active implementation + relevant indexes — including the implementation's **depth and code-derivation policy** (what to scan, from which entrypoints, and how to decide depth per node).
 2. Run mode-specific logic (below).
 3. For each touched knowledge unit: refresh its metadata and re-verify its claims against current code, following the field and merge rules of the active knowledge implementation and [promotion-rules](../references/promotion-rules.md).
+   Cross-link related knowledge units instead of duplicating their content, and keep existing cross-references valid when units are split, merged, renamed, or archived (see the active implementation's cross-reference rules).
 4. **Check size policy** on every touched unit and split where the implementation's limits are exceeded (see *Size and structure*).
 5. Regenerate every affected index as the implementation prescribes; where an index would exceed its limit, split the area it covers further.
 6. Apply or propose per autonomy: under `knowledge.autonomy: auto` (default) apply directly and return a brief summary; under `review` produce the diff and apply only after human approval.

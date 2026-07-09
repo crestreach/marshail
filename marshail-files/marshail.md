@@ -1073,6 +1073,9 @@ Key points:
   Knowledge is a recursive tree: an always-loaded root index, then deeper indexes and topic files pulled in only as a task needs them, with no fixed depth.
   How knowledge is grouped at each level (the split dimension) is chosen for what helps agents most and may be revised over time.
   The exact layout, metadata, size caps, and split / merge mechanics are defined by the active implementation — see [`references/knowledge-markdown-spine.md`](references/knowledge-markdown-spine.md).
+- **Cross-referenced.**
+  Individual knowledge files may cross-reference other knowledge content / files — related topics, decisions, and indexes are linked instead of duplicated, so an agent can follow a reference to the connected knowledge only when it needs it.
+  The linking mechanics are defined by the active implementation.
 - **Code-derived, with depth decided per area.**
   `init` and `rebuild` produce knowledge by scanning the code from the system's entrypoints inward — existing docs only corroborate, they are not the source — and every recorded claim is verified against the code.
   How deep the tree goes is judged **locally, per node**: a trivial module may stay a single short topic, while a complex or multi-capability area expands into deeper, multi-level nodes (for a large repo, multiple levels are expected, not exceptional).

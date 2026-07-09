@@ -158,6 +158,17 @@ verified_against_commit: 0a3f75e      # short SHA
 - `decision` — a decision record with its rationale (ADR).
 - `index` — a folder or sub-index (`INDEX.md`) file.
 
+## Cross-references
+
+Knowledge files may cross-reference other knowledge content / files, in two ways:
+
+- the `links:` frontmatter field — a list of related knowledge ids (e.g. `links: [repo/architecture, domains/payments/contracts]`);
+- inline relative markdown links in the body, pointing at other topics, decisions, or indexes within `.marshail/knowledge/`.
+
+Prefer a cross-reference over duplicating content: when a topic needs facts owned by another topic, link to it and keep each fact in one place.
+Agents follow cross-references only as needed (progressive disclosure applies to links too).
+When a unit is split, merged, renamed, or archived, the curator updates the cross-references that point at it so links stay valid.
+
 ## Index rules
 
 - **Discovery is the source of truth.**
