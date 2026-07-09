@@ -1142,6 +1142,7 @@ MARSHAIL produces two kinds of content:
 | [`.marshail/AGENTS.md`](AGENTS.md) | Snippet meant to be **manually merged** into the host repo's root `AGENTS.md` so that AI assistants see the MARSHAIL entry point. |
 | [`.marshail/marshail-override.md`](marshail-override.md) | **Optional** repo-specific override file. Free-form Markdown that specifies or modifies how MARSHAIL behaves on top of `marshail.md` (stage policy, artifact policy, agent/skill preferences). Read by every MARSHAIL-aware agent immediately after `marshail.md`; entries here take precedence on the points they address. Empty by default. **Not synced.** |
 | [`.marshail/agent-tools.yml`](agent-tools.yml) | **Optional** per-agent tool (MCP) grants. Maps a built-in (`marshail-<name>`) or extension (`mx-<name>`) agent to extra tools that `marshail-promote-assets` merges (union) into that agent's declared tools at promotion. Survives MARSHAIL updates (seeded once by the installer, never overwritten on update). Empty by default. |
+| [`.marshail/agent-models.yml`](agent-models.yml) | **Optional** per-agent model assignments. Maps a built-in (`marshail-<name>`) or extension (`mx-<name>`) agent to the model it should run on; `marshail-promote-assets` writes it as the `model:` frontmatter key on the promoted copy. Agents not listed keep the host tool's default model. Survives MARSHAIL updates (seeded once by the installer, never overwritten on update). Empty by default. |
 
 ### How they get generated
 

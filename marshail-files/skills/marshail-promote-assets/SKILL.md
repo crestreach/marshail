@@ -102,7 +102,7 @@ MARSHAIL ships two parallel built-in skill flavors:
    Use `cp -R` (Unix) or `Copy-Item -Recurse -Force` (PowerShell).
    Overwrite existing files in the config-sync source — that directory is the sync source, not authored content.
 6. **Skip MARSHAIL housekeeping files.**
-   Do not copy the MARSHAIL source dir's own `AGENTS.md`, `ENTRYPOINT.md`, `LICENSE`, `config.yml`, `references/`, `knowledge/`, or any `README.md` (including `extensions/README.md`).
+   Do not copy the MARSHAIL source dir's own `AGENTS.md`, `ENTRYPOINT.md`, `LICENSE`, `config.yml`, `agent-tools.yml`, `agent-models.yml`, `references/`, `knowledge/`, or any `README.md` (including `extensions/README.md`).
    Only the asset folders.
 7. **Filter by scope or glob (optional).**
    If the user named specific items ("just `marshail-plan`", "just the new extensions") or passed a scope flag (`built-ins-only`, `extensions-only`), narrow the copy plan accordingly.
@@ -110,7 +110,11 @@ MARSHAIL ships two parallel built-in skill flavors:
    Read [`agent-tools.yml`](../../agent-tools.yml).
    For each promoted agent whose canonical name (`marshail-<name>` for built-ins, `mx-<name>` for extensions) appears under `agents:`, **union** the listed `tools` into the agent file's declared tools (de-duplicate; never drop the agent's baseline tools).
    Agents not listed there are copied unchanged.
-9. **Suggest follow-up.**
+9. **Apply per-agent model assignments.**
+   Read [`agent-models.yml`](../../agent-models.yml).
+   For each promoted agent whose canonical name appears under `agents:`, set the listed `model` as the `model:` frontmatter key on the promoted copy (add it, or replace an existing value).
+   Agents not listed keep no `model:` key and run on the host tool's default model.
+10. **Suggest follow-up.**
    End by suggesting the user run `agent-conf-sync` (the cyncia sync skill) to propagate the copied assets into tool layouts.
 
 ## Outputs

@@ -61,13 +61,15 @@ run_install() {
   [ -f "$TEST_HOME/.marshail/extensions/README.md" ]
   [ -f "$TEST_HOME/.marshail/references/activation-protocol.md" ]
 
-  # config.yml created and marshail-override.md / agent-tools.yml seeded on
-  # a fresh install.
+  # config.yml created and marshail-override.md / agent-tools.yml /
+  # agent-models.yml seeded on a fresh install.
   [ -f "$TEST_HOME/.marshail/config.yml" ]
   [ -f "$TEST_HOME/.marshail/marshail-override.md" ]
   grep -q "RUN1" "$TEST_HOME/.marshail/marshail-override.md"
   [ -f "$TEST_HOME/.marshail/agent-tools.yml" ]
   grep -q "RUN1" "$TEST_HOME/.marshail/agent-tools.yml"
+  [ -f "$TEST_HOME/.marshail/agent-models.yml" ]
+  grep -q "RUN1" "$TEST_HOME/.marshail/agent-models.yml"
 }
 
 @test "install: marshail.md (subtree) and the repo-root LICENSE land inside .marshail" {
@@ -184,10 +186,11 @@ EOF
   run_install --no-cyncia --no-sync
   [ "$status" -eq 0 ]
 
-  # User customizes the override, grants agent tools, and adds agent-managed
-  # knowledge + work trees.
+  # User customizes the override, grants agent tools, pins agent models, and
+  # adds agent-managed knowledge + work trees.
   echo "MY CUSTOM OVERRIDE" > "$TEST_HOME/.marshail/marshail-override.md"
   printf 'agents:\n  marshail-implementer:\n    tools: [MY-CUSTOM-TOOL]\n' > "$TEST_HOME/.marshail/agent-tools.yml"
+  printf 'agents:\n  marshail-architect:\n    model: MY-CUSTOM-MODEL\n' > "$TEST_HOME/.marshail/agent-models.yml"
   mkdir -p "$TEST_HOME/.marshail/knowledge" "$TEST_HOME/.marshail/work"
   echo "kept-knowledge" > "$TEST_HOME/.marshail/knowledge/INDEX.md"
   echo "kept-work"      > "$TEST_HOME/.marshail/work/current"
@@ -196,10 +199,11 @@ EOF
   run_install --no-cyncia --no-sync
   [ "$status" -eq 0 ]
 
-  # Override and tool grants are never clobbered; knowledge/work are left
-  # untouched.
+  # Override, tool grants, and model assignments are never clobbered;
+  # knowledge/work are left untouched.
   grep -q "MY CUSTOM OVERRIDE" "$TEST_HOME/.marshail/marshail-override.md"
   grep -q "MY-CUSTOM-TOOL" "$TEST_HOME/.marshail/agent-tools.yml"
+  grep -q "MY-CUSTOM-MODEL" "$TEST_HOME/.marshail/agent-models.yml"
   grep -q "kept-knowledge" "$TEST_HOME/.marshail/knowledge/INDEX.md"
   grep -q "kept-work" "$TEST_HOME/.marshail/work/current"
 }

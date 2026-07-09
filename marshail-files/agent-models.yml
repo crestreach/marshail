@@ -1,0 +1,32 @@
+# MARSHAIL agent → model assignments.
+#
+# MARSHAIL agents run on whatever model the host tool uses by default.
+# This file lets a repo pin a specific model for specific agents (e.g. a
+# stronger model for the architect or planner, a cheaper one for the
+# helper). When marshail-promote-assets promotes an agent listed here,
+# it sets the `model` frontmatter key on the promoted copy; the sync
+# then carries it into each tool layout (tools that do not support a
+# per-agent model ignore the key).
+#
+# Keys are the agent's canonical name:
+#   - built-ins:  marshail-<name>   (e.g. marshail-architect)
+#   - extensions: mx-<name>        (e.g. mx-deploy-helper)
+#
+# Model identifiers are whatever the target tool understands (e.g.
+# claude model aliases or provider/model ids). MARSHAIL does not
+# validate them; it only writes the assignment through.
+#
+# This file survives MARSHAIL updates: the installer seeds it once on a
+# fresh install and never overwrites it on update (same never-clobbered
+# rule as marshail-override.md and agent-tools.yml).
+#
+# Empty by default — every agent keeps the host tool's default model.
+# Example:
+#
+# agents:
+#   marshail-architect:
+#     model: opus
+#   marshail-helper:
+#     model: haiku
+
+agents: {}
