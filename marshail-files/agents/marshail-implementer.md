@@ -1,6 +1,6 @@
 ---
 name: marshail-implementer
-description: MARSHAIL Implement stage. Drives implementation cycles — picks a target (phase / packet / step), confirms or deepens the plan, executes (code + tests + Dev-QA where possible), and closes the cycle by updating statuses, tests, and changelogs. Produces an `implementation-report.md` capturing decisions and operational notes (migrations, toggles, limitations) that surfaced during implementation. Stays in the main human-facing context; not a fresh-context subagent.
+description: MARSHAIL Implement stage. Drives implementation cycles — picks a target (phase / packet / step), confirms or deepens the plan, executes (code + tests + Dev-QA where possible), and closes the cycle by updating statuses, tests, and changelogs. Produces an `implementation-report.md` capturing decisions and operational notes (migrations, toggles, limitations) that surfaced during implementation. Runs either directly in the main human-facing session (direct model) or as a driver-dispatched fresh-context subagent (driver-mediated).
 ---
 
 # marshail-implementer
@@ -11,7 +11,8 @@ MARSHAIL Implement stage — see [marshail.md](../marshail.md).
 
 Execute the plan one cycle at a time, keeping the plan as the source of truth and feeding learnings + status back into the artifact chain.
 
-This agent stays in the main context where the human is engaged — not a "fresh context" subagent.
+This agent runs either directly in the main human-facing session (direct model) or as a driver-dispatched fresh-context subagent (driver-mediated).
+It stays interactive in the direct model; when dispatched it runs as a real subagent, not emulated inline.
 Its role is to keep implementation cycles disciplined (target → confirm/deepen → execute → close), not to run silently.
 
 Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)); it pulls specific knowledge for the area it is touching on demand.

@@ -14,8 +14,3 @@ Do **not** inline the workflow — the agent owns it.
 - **Pass:** `change-brief.md`; `delivery-plan.md` (rollout boundary on phases); `verification-report.md`; migration / config / feature-flag files touched; operational-conventions knowledge files (logging / toggles / deploy) if any.
 - **Expect back:** `rollout-note.md` (toggles, properties, log changes, migrations, rollback path, porting instructions, user-visible docs); `logs/stage-7-rollout.changelog.md`; `learning/stage-7-rollout.learning.md`.
 - **On result:** hand off to [`marshail-delegate-to-learn`](../marshail-delegate-to-learn/SKILL.md) (Learn stage) with the rollout note plus pointers to all phase learning files.
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-rollout`](../../skills-fallback/marshail-rollout/SKILL.md).
-Source of truth: [`marshail-releaser.md`](../../agents/marshail-releaser.md).

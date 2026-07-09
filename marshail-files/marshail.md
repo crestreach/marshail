@@ -975,6 +975,10 @@ Two flavors of stage skill ship for every stage:
   Same name as the full-bodied skills they replace.
   Instructs the assistant to follow the agent's source-of-truth file inline in the current session.
 
+**Prefer delegation when spawning is available.**
+Use the `marshail-delegate-to-<x>` (subagent) flavor whenever a subagent-spawn tool exists; use the `marshail-<x>` fallback (inline) flavor only when spawning is genuinely unavailable.
+Never emulate a stage agent inline when you could spawn it (see [references/activation-protocol.md](references/activation-protocol.md) → *Dispatch by spawning, not emulation*).
+
 Each delegated agent works **independently** and keeps its internals out of the caller's context — it returns only what the caller needs (a summary or an artifact path), not its full working detail.
 This avoids context pollution and keeps long runs cheap.
 
@@ -1041,6 +1045,7 @@ The driver infers the level from the prompt and the autonomy setting in [`config
 
 **Tradeoff.**
 Agent dispatch is turn-based — there is no portable held-open live subagent session — so the driver mediates by *re-dispatching* the relevant agent with the accumulated context each turn.
+"Re-dispatching" means re-invoking the stage subagent (via the subagent-spawn tool) with the accumulated context — never re-implementing the stage inline; a stage is emulated inline only when the runtime has no subagent-spawn tool.
 State is carried on disk through the artifact chain and the working folder's resume notes, not in an in-memory conversation.
 This is robust (any session can resume from `.marshail/work/<change-id>/`) but can be lossy at the margins: nuance from a long back-and-forth that was never written down is not automatically available to the next dispatch.
 To keep mediation faithful, agents **log everything important** (decisions, open questions, rejected options) into their artifact and resume notes.

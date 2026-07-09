@@ -31,6 +31,9 @@ The shipped layout is:
 - `.marshail/skills-fallback/marshail-<x>/SKILL.md` — equivalent skills for environments **without** subagent support; they instruct the assistant to follow the agent's source-of-truth file inline in the current session.
   Same names as the full-bodied skills they replace.
 
+Prefer delegation when spawning is available: if a subagent-spawn tool exists, dispatch stage / role work by spawning the target `marshail-*` agent as a real fresh-context subagent — never emulate it inline.
+Fall back to the inline flavor only when spawning is genuinely unavailable (see [references/activation-protocol.md](references/activation-protocol.md) → *Dispatch by spawning, not emulation*).
+
 Each delegated agent is meant to work **independently** and to keep its internals out of the caller's context: it returns only what the caller needs (a summary or an artifact path), not its full working detail.
 This keeps long runs cheap and avoids context pollution (see the general rule "share only what is needed across agent boundaries").
 

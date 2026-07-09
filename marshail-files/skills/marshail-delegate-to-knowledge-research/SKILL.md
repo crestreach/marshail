@@ -17,8 +17,3 @@ Do **not** inline the workflow — the agent owns it.
   When the request says it is for knowledge, the note follows the active knowledge implementation so it can be promoted as-is.
 - **On result:** consume the note inline.
   For promotion to canonical knowledge, drop it into `.marshail/knowledge/learn/inbox/` and invoke [`marshail-delegate-to-knowledge-maintain`](../marshail-delegate-to-knowledge-maintain/SKILL.md) (`from-learning`).
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-knowledge-research`](../../skills-fallback/marshail-knowledge-research/SKILL.md).
-Source of truth: [`marshail-researcher.md`](../../agents/marshail-researcher.md).

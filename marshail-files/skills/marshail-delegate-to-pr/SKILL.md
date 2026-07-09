@@ -17,8 +17,3 @@ Do **not** inline the workflow — the agent owns it.
   If knowledge upkeep wasn't done in the Implement stage, run [`marshail-delegate-to-knowledge-maintain`](../marshail-delegate-to-knowledge-maintain/SKILL.md) (`from-changes`).
 - **On result (request-changes):** hand back to [`marshail-delegate-to-implement`](../marshail-delegate-to-implement/SKILL.md), then re-verify and re-review.
 - **Integration branch:** when the PR targets an integration branch, finish with one more round to promote it to the final branch — Implement (merge / rebase onto the target, resolve conflicts, final improvements) → Verify (whole integrated scope) → Review / PR (final review of the change as a whole).
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-pr`](../../skills-fallback/marshail-pr/SKILL.md).
-Source of truth: [`marshail-reviewer.md`](../../agents/marshail-reviewer.md).

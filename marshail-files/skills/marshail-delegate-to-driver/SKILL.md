@@ -16,9 +16,3 @@ Do **not** inline the orchestration — the driver owns it.
 - **On result:** review the stage summary; pursue any flagged follow-ups.
 
 For one-off stage runs, prefer the per-stage `marshail-delegate-to-*` skills directly instead of the driver.
-
-## Fallback (no-subagent environments)
-
-The driver's value is subagent orchestration with isolated context per stage.
-In environments without subagent support, chain the per-stage fallback skills under [`marshail-files/skills-fallback/`](../../skills-fallback/) manually instead — same workflows, same artifact chain.
-There is no separate driver fallback skill.

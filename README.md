@@ -69,6 +69,7 @@ The representation is exchangeable: the general contract lives in [`knowledge-co
 ## Agents and skills
 
 Each stage is owned by a `marshail-*` **subagent** (the single source of truth for that role) with matching **skills** that match user intent and dispatch the work — a `marshail-delegate-to-*` wrapper for tools with subagent support, and a full inline `marshail-*` fallback for tools without it.
+When a subagent-spawn tool is available, stage agents are always launched as real fresh-context subagents — never emulated inline.
 
 - **Stage agents:** `marshail-specifier`, `marshail-framer`, `marshail-code-archaeologist`, `marshail-architect`, `marshail-planner`, `marshail-implementer`, `marshail-verifier`, `marshail-reviewer`, `marshail-releaser`, `marshail-learner`.
 - **Knowledge:** `marshail-knowledge-curator` (maintenance in all modes) and `marshail-researcher` (read-only, source-linked deep dives).

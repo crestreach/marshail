@@ -16,8 +16,3 @@ Do **not** inline the workflow — the agent owns it.
 - **Expect back:** a single concise answer block (default ≤ ~30 lines), ending with a one-line "next step" pointer.
   No files written.
 - **On result:** if the answer includes a handoff to a stage agent (driver or specific stage), invoke the matching `marshail-delegate-to-*` next.
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-help`](../../skills-fallback/marshail-help/SKILL.md).
-Source of truth: [`marshail-helper.md`](../../agents/marshail-helper.md).
