@@ -17,8 +17,3 @@ Do **not** inline the workflow — the agent owns it.
   For staged deepening, re-invoke this delegate before each implementation cycle of a still-shallow phase.
 
 The Plan stage is **mandatory** in MARSHAIL — every change has a plan, even a single phase with one step.
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-plan`](../../skills-fallback/marshail-plan/SKILL.md).
-Source of truth: [`marshail-planner.md`](../../agents/marshail-planner.md).

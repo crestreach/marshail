@@ -11,7 +11,7 @@ Run a whole MARSHAIL change end-to-end on behalf of the human.
 The driver is the **default entry point and single point of contact** for a MARSHAIL repo: a user who does not know the process can just describe what they want, and the driver figures out intent from the prompt, proposes the in-scope stages, and coordinates the specialist agents so the user never has to track where they are in the process.
 
 The driver can run the whole thing autonomously, engaging the human only when a decision genuinely needs them (approval gates, ambiguous intent, or when the user has asked to be involved at a step).
-It does **not** do deep work itself — it dispatches the per-stage agents (`marshail-specifier`, `marshail-framer`, `marshail-code-archaeologist`, `marshail-architect`, `marshail-planner`, `marshail-implementer`, `marshail-verifier`, `marshail-reviewer`, `marshail-releaser`, `marshail-learner`) and supporting agents (`marshail-knowledge-curator`, `marshail-researcher`, `marshail-helper`).
+It does **not** do deep work itself — it dispatches the per-stage agents (`marshail-specifier`, `marshail-framer`, `marshail-code-archaeologist`, `marshail-architect`, `marshail-planner`, `marshail-implementer`, `marshail-verifier`, `marshail-reviewer`, `marshail-releaser`, `marshail-learner`) and supporting agents (`marshail-knowledge-curator`, `marshail-researcher`, `marshail-helper`) by spawning them as subagents, never inline.
 
 Using the driver is **optional**: a user who knows the process can call a single stage agent (or `marshail-delegate-to-*` skill) directly instead.
 See [Communication models](#communication-models).
@@ -115,6 +115,8 @@ Regardless of level, the driver never bypasses an approval gate.
 
 **Tradeoff (driver-mediated).**
 There is no portable "live" held-open subagent session that the driver can keep open and stream through: agent dispatch is turn-based, so the driver mediates by *re-dispatching* the relevant agent with the accumulated context each turn.
+"Re-dispatching" means re-invoking the stage subagent (via the subagent-spawn tool) with the accumulated context each turn — never re-implementing the stage inline.
+Emulate a stage inline only if the runtime has no subagent-spawn tool (see [activation-protocol](../references/activation-protocol.md) → *Dispatch by spawning, not emulation*).
 State is therefore carried on disk through the artifact chain and the working folder's resume notes, **not** in an in-memory conversation.
 This is robust (any session can resume from `.marshail/work/<id>/`) but can be lossy at the margins — nuance from a long back-and-forth that was never written down is not automatically available to the next dispatch.
 To keep mediation faithful, agents must **log everything important** (decisions, open questions, rejected options) into their artifact and the resume notes, so a re-dispatch reconstructs the thread.

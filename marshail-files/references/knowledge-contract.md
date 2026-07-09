@@ -39,6 +39,7 @@ A MARSHAIL knowledge representation must define:
 - how agents discover available knowledge from a cheap root entry point;
 - how topic files or records expose a stable identity, summary, scope, and freshness metadata;
 - how agents select the smallest useful knowledge slice for a task;
+- how knowledge items **cross-reference** each other — a topic or record may link to related knowledge content (other topics, decisions, indexes) so related knowledge is connected instead of duplicated;
 - how knowledge is produced at an **appropriate, locally-decided analysis depth** — derived from a code scan that follows the system's entrypoints and call paths into its complex and high-value areas, and split into as many levels of hierarchy as each area needs (no fixed number of levels);
 - how updates are proposed, reviewed, and applied under `.marshail/config.yml` autonomy settings;
 - how stale knowledge is detected against changed repo paths;
@@ -55,7 +56,7 @@ The representation may use files, records, generated indexes, or a retrieval sid
 - importance or loading priority;
 - confidence or verification quality;
 - freshness marker, usually date plus verified commit or equivalent source revision;
-- links or parent/child relationships when knowledge is split.
+- links to related knowledge items (cross-references), plus parent/child relationships when knowledge is split.
 
 The exact field names belong to the active implementation reference.
 

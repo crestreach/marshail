@@ -17,8 +17,3 @@ Do **not** inline the workflow — the agent owns it.
 - **Expect back:** a **summary** of structure changes (contexts added / removed / renamed) and content changes — not the full knowledge diff.
 - **On result:** under `knowledge.autonomy: auto` (default) it is already applied — read the summary.
   Under `review`, approve the diff.
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-knowledge-rebuild`](../../skills-fallback/marshail-knowledge-rebuild/SKILL.md).
-Source of truth: [`marshail-knowledge-curator.md`](../../agents/marshail-knowledge-curator.md).

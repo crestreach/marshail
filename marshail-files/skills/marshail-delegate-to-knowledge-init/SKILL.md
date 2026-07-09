@@ -19,8 +19,3 @@ Do **not** inline the workflow — the agent owns it.
   Not the full knowledge diff.
 - **On result:** under `knowledge.autonomy: auto` (default) the tree is already written — read the summary and resolve any open follow-ups.
   Under `review`, work the diff with the human before it is applied.
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-knowledge-init`](../../skills-fallback/marshail-knowledge-init/SKILL.md).
-Source of truth: [`marshail-knowledge-curator.md`](../../agents/marshail-knowledge-curator.md).

@@ -2,7 +2,7 @@
 
 *Human-approved AI software engineering with a curated learning loop.*
 
-**MARSHAIL** = **M**ethod for **A**I-assisted **R**equirements and **S**oftware Engineering, with **H**uman **A**pproval and **I**ncremental **L**earning.
+**MARSHAIL** (pronounced MAR-shuhl, /ˈmɑːr.ʃəl/) = **M**ethod for **A**I-assisted **R**equirements and **S**oftware Engineering, with **H**uman **A**pproval and **I**ncremental **L**earning.
 
 <p align="center">
   <img src="assets/marshail-logo-shield-chip-sync-v1.png" alt="MARSHAIL icon" width="160" />
@@ -55,6 +55,7 @@ Specification → Intake → Analysis → Architecture → Plan
 
 Only **Plan** is mandatory; every other stage is skipped when it would not add value.
 The chosen scope is agreed up front and recorded at the top of `delivery-plan.md`.
+Inside Implement, work runs in small **implementation cycles**; the human can inspect intermediate results and give feedback at any cycle, and the feedback is folded back into the work (and the plan, when it changes scope) before the cycle closes.
 A PR may target the final branch directly or an **integration branch**; in the latter case a final round (Implement → Verify → Review/PR) promotes the integration branch to the release / main branch and reviews the change as a whole.
 The whole per-change **artifact chain** lives in a working folder under `.marshail/work/<change-id>/` (transient, gitignored, archived on finalize); see [`marshail.md`](./marshail-files/marshail.md) for its structure and the resume contract.
 
@@ -69,6 +70,7 @@ The representation is exchangeable: the general contract lives in [`knowledge-co
 ## Agents and skills
 
 Each stage is owned by a `marshail-*` **subagent** (the single source of truth for that role) with matching **skills** that match user intent and dispatch the work — a `marshail-delegate-to-*` wrapper for tools with subagent support, and a full inline `marshail-*` fallback for tools without it.
+When a subagent-spawn tool is available, stage agents are always launched as real fresh-context subagents — never emulated inline.
 
 - **Stage agents:** `marshail-specifier`, `marshail-framer`, `marshail-code-archaeologist`, `marshail-architect`, `marshail-planner`, `marshail-implementer`, `marshail-verifier`, `marshail-reviewer`, `marshail-releaser`, `marshail-learner`.
 - **Knowledge:** `marshail-knowledge-curator` (maintenance in all modes) and `marshail-researcher` (read-only, source-linked deep dives).
@@ -97,7 +99,7 @@ It fetches the MARSHAIL `marshail-files/` subtree — which now includes the can
 It is **idempotent** — re-run it to update:
 
 - `config.yml` is generated with defaults on a fresh install; on an update, newly introduced properties are added while your existing values are left alone (obsolete ones are kept unless you choose to drop them).
-- The agent-managed knowledge tree (`.marshail/knowledge/`), the per-change work tree (`.marshail/work/`), and your `.marshail/marshail-override.md` are never overwritten.
+- The agent-managed knowledge tree (`.marshail/knowledge/`), the per-change work tree (`.marshail/work/`), your `.marshail/marshail-override.md`, and your per-agent tool grants in `.marshail/agent-tools.yml`, and your per-agent model assignments in `.marshail/agent-models.yml` are never overwritten.
 - The installed ref is recorded in `.marshail/VERSION` (for `main`, any tag(s) pointing at `HEAD`), the same way cyncia records its own `.cyncia/VERSION`.
 
 Run with `--help` for options (`--ref`, `--marshail-dir`, `--agent-config`, `--no-cyncia`, `--no-sync`).

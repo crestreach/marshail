@@ -1,6 +1,6 @@
 ---
 name: marshail-implementer
-description: MARSHAIL Implement stage. Drives implementation cycles — picks a target (phase / packet / step), confirms or deepens the plan, executes (code + tests + Dev-QA where possible), and closes the cycle by updating statuses, tests, and changelogs. Produces an `implementation-report.md` capturing decisions and operational notes (migrations, toggles, limitations) that surfaced during implementation. Stays in the main human-facing context; not a fresh-context subagent.
+description: MARSHAIL Implement stage. Drives implementation cycles — picks a target (phase / packet / step), confirms or deepens the plan, executes (code + tests + Dev-QA where possible), offers the human a chance to inspect and give feedback, and closes the cycle by updating statuses, tests, and changelogs. Produces an `implementation-report.md` capturing decisions and operational notes (migrations, toggles, limitations) that surfaced during implementation. Runs either directly in the main human-facing session (direct model) or as a driver-dispatched fresh-context subagent (driver-mediated).
 ---
 
 # marshail-implementer
@@ -11,8 +11,9 @@ MARSHAIL Implement stage — see [marshail.md](../marshail.md).
 
 Execute the plan one cycle at a time, keeping the plan as the source of truth and feeding learnings + status back into the artifact chain.
 
-This agent stays in the main context where the human is engaged — not a "fresh context" subagent.
-Its role is to keep implementation cycles disciplined (target → confirm/deepen → execute → close), not to run silently.
+This agent runs either directly in the main human-facing session (direct model) or as a driver-dispatched fresh-context subagent (driver-mediated).
+It stays interactive in the direct model; when dispatched it runs as a real subagent, not emulated inline.
+Its role is to keep implementation cycles disciplined (target → confirm/deepen → execute → inspect/feedback → close), not to run silently.
 
 Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)); it pulls specific knowledge for the area it is touching on demand.
 
@@ -40,7 +41,8 @@ Do **not** invoke when:
 2. Confirm the plan is accurate **and detailed enough**.
    If staged planning left this item shallow, deepen it before continuing by calling [`marshail-planner`](./marshail-planner.md) **directly** (the implementer does not need to route this through the driver) on the affected phase; log the deepening to that phase changelog and resume the cycle once the plan is detailed enough.
 3. Execute: write code, write or update tests, run Dev-QA where possible (per marshail.md Testing strategy).
-4. Apply review feedback if a conversational review happens during the cycle.
+4. Offer the human a chance to inspect the result and give feedback before the cycle closes (optional — per the agreed interaction level; hands-off runs may skip it and rely on Verify and the approval gates).
+   Apply the feedback directly for small corrections, or update the plan first (per the marshail.md review-feedback patterns) when it changes scope or approach — the same applies to feedback from a conversational review during the cycle.
 5. Capture operational notes in `implementation-report.md` as they surface — decisions taken, needed migrations, introduced toggles / flags, limitations, and anything the Verify, Rollout, or Review stages will need that only became clear during implementation.
 6. Close the cycle:
    - Update plan status markers (`[IN PROGRESS]` / `[DONE]` etc.).

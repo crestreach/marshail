@@ -18,8 +18,3 @@ Do **not** inline the workflow — the agent owns it.
   Not the full knowledge diff.
 - **On result:** under `knowledge.autonomy: auto` (default) the merge is already applied — read the summary.
   Under `review`, resolve the flagged items with the human and approve.
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-knowledge-branch-merge`](../../skills-fallback/marshail-knowledge-branch-merge/SKILL.md).
-Source of truth: [`marshail-knowledge-curator.md`](../../agents/marshail-knowledge-curator.md).

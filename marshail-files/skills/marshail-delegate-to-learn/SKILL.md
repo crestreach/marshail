@@ -15,8 +15,3 @@ Do **not** inline the workflow — the agent owns it.
 - **Expect back:** `learning-rollup.md`; per-bucket proposed diffs (human-approved before applying); files dropped into `.marshail/knowledge/learn/inbox/` for the knowledge bucket.
 - **On result:** for the knowledge bucket, hand off to [`marshail-delegate-to-knowledge-maintain`](../marshail-delegate-to-knowledge-maintain/SKILL.md) (`from-learning`) with paths to the inbox files just added.
   For new skills / subagents / rules drafted under `.marshail/`, run the agent-config sync afterwards.
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-learn`](../../skills-fallback/marshail-learn/SKILL.md).
-Source of truth: [`marshail-learner.md`](../../agents/marshail-learner.md).

@@ -22,8 +22,3 @@ Do **not** inline the workflow — the agent owns it.
 - **On result:** under `knowledge.autonomy: auto` (default) it is already applied — read the summary.
   Under `review`, approve the diff.
   For larger restructures, escalate to [`marshail-delegate-to-knowledge-rebuild`](../marshail-delegate-to-knowledge-rebuild/SKILL.md).
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-knowledge-maintain`](../../skills-fallback/marshail-knowledge-maintain/SKILL.md).
-Source of truth: [`marshail-knowledge-curator.md`](../../agents/marshail-knowledge-curator.md).

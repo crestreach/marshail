@@ -41,6 +41,7 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
    Avoid loading large unrelated files.
 4. Synthesize the research note in the active knowledge implementation.
    Cite specific files and (where useful) line ranges.
+   Cross-reference existing knowledge topics (per the active implementation's cross-reference rules) instead of restating their content.
 5. Stamp `verified_against_commit` with the current short SHA.
 6. **Return** the research note.
    Do not modify **canonical** knowledge.

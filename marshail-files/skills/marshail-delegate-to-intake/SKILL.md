@@ -15,8 +15,3 @@ Do **not** inline the workflow — the agent owns it.
   Plus the top-level `AGENTS.md` and `.marshail/knowledge/INDEX.md` paths for context.
 - **Expect back:** approved `change-brief.md` plus `logs/stage-2-intake.changelog.md` and `learning/stage-2-intake.learning.md`.
 - **On result:** hand off to [`marshail-delegate-to-analysis`](../marshail-delegate-to-analysis/SKILL.md) (Analysis stage) or directly to [`marshail-delegate-to-plan`](../marshail-delegate-to-plan/SKILL.md) (Plan stage) per the agreed scope.
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-intake`](../../skills-fallback/marshail-intake/SKILL.md).
-Source of truth: [`marshail-framer.md`](../../agents/marshail-framer.md).

@@ -18,6 +18,13 @@ Each agent names its own **load tier** below in its own definition; this file de
 An agent loads the **smallest tier** that lets it do its job, then descends into specific knowledge topic files or artifacts on demand.
 If knowledge is missing or stale, it asks the researcher for a fresh note rather than guessing.
 
+## Dispatch by spawning, not emulation
+
+If you have a subagent-spawn tool (e.g. `task`), you MUST dispatch stage / role work by launching the target `marshail-*` agent as a real fresh-context subagent, and MUST NOT do that agent's deep work inline.
+Nested spawning is supported — a spawned agent may itself spawn.
+Only run an agent's source-of-truth file inline when no spawn tool is actually present.
+When unsure, check for the tool first; if it exists, prefer spawning.
+
 ## Logging and resume
 
 The per-change working folder `.marshail/work/<change-id>/` holds the artifact chain plus a `logs/` folder.

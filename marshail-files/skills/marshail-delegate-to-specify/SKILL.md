@@ -14,8 +14,3 @@ Do **not** inline the workflow — the agent owns it.
 - **Pass:** the user's raw prompt; pointers to any prior context the user named (issues, prior briefs, screenshots).
 - **Expect back:** an approved `specification.md` plus `logs/stage-1-specification.changelog.md` and `learning/stage-1-specification.learning.md`.
 - **On result:** confirm the spec is approved and hand off to [`marshail-delegate-to-intake`](../marshail-delegate-to-intake/SKILL.md) (Intake stage) or [`marshail-delegate-to-plan`](../marshail-delegate-to-plan/SKILL.md) (Plan stage) per the agreed scope.
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-specify`](../../skills-fallback/marshail-specify/SKILL.md) — same workflow, runs inline.
-Both share [`marshail-specifier.md`](../../agents/marshail-specifier.md) as source of truth.

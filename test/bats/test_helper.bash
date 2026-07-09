@@ -82,6 +82,8 @@ test_helper::make_marshail_tarball() {
     "$mf/extensions" \
     "$mf/references"
   cp "${REPO_ROOT}/marshail-files/config.yml" "$mf/config.yml"
+  printf '# MARSHAIL agent tool grants (%s)\nagents: {}\n' "$marker" > "$mf/agent-tools.yml"
+  printf '# MARSHAIL agent model assignments (%s)\nagents: {}\n' "$marker" > "$mf/agent-models.yml"
   printf '# MARSHAIL override (%s)\n' "$marker"            > "$mf/marshail-override.md"
   printf '# MARSHAIL Entry Point (%s)\n' "$marker"         > "$mf/ENTRYPOINT.md"
   printf '# AGENTS snippet (%s)\n' "$marker"              > "$mf/AGENTS.md"

@@ -2,7 +2,7 @@
 
 *Human-approved AI software engineering with a curated learning loop.*
 
-**MARSHAIL** = **M**ethod for **A**I-assisted **R**equirements and **S**oftware Engineering, with **H**uman **A**pproval and **I**ncremental **L**earning.
+**MARSHAIL** (pronounced MAR-shuhl, /ˈmɑːr.ʃəl/) = **M**ethod for **A**I-assisted **R**equirements and **S**oftware Engineering, with **H**uman **A**pproval and **I**ncremental **L**earning.
 
 This document defines MARSHAIL, a practical AI-assisted SDLC for features, bugfixes, refactors, and technical debt work.
 It covers the full loop: framing a change, narrowing repo analysis, shaping an executable plan, implementing in reviewable slices, verifying, rolling out, and promoting durable learnings back into the system — all with explicit human approval gates between stages.
@@ -280,7 +280,7 @@ flowchart LR
 
 ### Implementation cycle (small)
 
-Inside the Implement stage, work itself runs in smaller **implementation cycles** — pick a target (phase / packet / step), execute it, close the cycle.
+Inside the Implement stage, work itself runs in smaller **implementation cycles** — pick a target (phase / packet / step), execute it, optionally let the human inspect the result and give feedback, close the cycle.
 A round contains one or more cycles (see "Implementation cycles" in stage 6).
 
 
@@ -677,7 +677,7 @@ Execute the approved plan.
 The Implement stage runs in small **implementation cycles**.
 The human chooses the granularity of each cycle: a phase/slice, a work packet, or a step/substep.
 
-A cycle roughly follows these steps: pick the target, confirm the plan is still accurate **and detailed enough for this target — deepen it if staged planning left this item at a higher level**, execute, review, close the cycle (update statuses, changelog, tests).
+A cycle roughly follows these steps: pick the target, confirm the plan is still accurate **and detailed enough for this target — deepen it if staged planning left this item at a higher level**, execute, offer the human a chance to inspect the result and give feedback (optional), close the cycle (update statuses, changelog, tests).
 Use this as a guide, not a rigid checklist.
 
 Within a cycle the human can:
@@ -685,6 +685,10 @@ Within a cycle the human can:
 - ask the AI for a custom programming task outside the current plan item
 - write code themselves and discuss with the AI
 - ask for a review at any time
+- inspect intermediate results and give feedback at any point
+
+Human inspection and feedback are part of the cycle, not an interruption of it: feedback is applied before the cycle closes — directly for small corrections, or via a plan update (per the review-feedback patterns) when it changes scope or approach.
+How often the human steps in is their choice and follows the agreed interaction level; hands-off runs may skip inspection entirely and rely on the Verify stage and approval gates.
 
 If the plan has to be adapted at any point during implementation, do it explicitly in `delivery-plan.md` before continuing.
 Very small changes or extensions don't need a plan update.
@@ -695,7 +699,10 @@ flowchart LR
     A -- yes --> X[Execute<br/>code, tests, QA]
     A -- no --> U[Adapt or<br/>deepen plan]
     U --> X
-    X --> C[Close cycle<br/>update statuses,<br/>tests, changelog]
+    X --> H{Human inspection<br/>optional}
+    H -- feedback --> F[Apply feedback<br/>update plan if scope<br/>or approach changes]
+    F --> X
+    H -- ok / skipped --> C[Close cycle<br/>update statuses,<br/>tests, changelog]
     C -. next cycle .-> T
 ```
 
@@ -975,6 +982,10 @@ Two flavors of stage skill ship for every stage:
   Same name as the full-bodied skills they replace.
   Instructs the assistant to follow the agent's source-of-truth file inline in the current session.
 
+**Prefer delegation when spawning is available.**
+Use the `marshail-delegate-to-<x>` (subagent) flavor whenever a subagent-spawn tool exists; use the `marshail-<x>` fallback (inline) flavor only when spawning is genuinely unavailable.
+Never emulate a stage agent inline when you could spawn it (see [references/activation-protocol.md](references/activation-protocol.md) → *Dispatch by spawning, not emulation*).
+
 Each delegated agent works **independently** and keeps its internals out of the caller's context — it returns only what the caller needs (a summary or an artifact path), not its full working detail.
 This avoids context pollution and keeps long runs cheap.
 
@@ -1041,6 +1052,7 @@ The driver infers the level from the prompt and the autonomy setting in [`config
 
 **Tradeoff.**
 Agent dispatch is turn-based — there is no portable held-open live subagent session — so the driver mediates by *re-dispatching* the relevant agent with the accumulated context each turn.
+"Re-dispatching" means re-invoking the stage subagent (via the subagent-spawn tool) with the accumulated context — never re-implementing the stage inline; a stage is emulated inline only when the runtime has no subagent-spawn tool.
 State is carried on disk through the artifact chain and the working folder's resume notes, not in an in-memory conversation.
 This is robust (any session can resume from `.marshail/work/<change-id>/`) but can be lossy at the margins: nuance from a long back-and-forth that was never written down is not automatically available to the next dispatch.
 To keep mediation faithful, agents **log everything important** (decisions, open questions, rejected options) into their artifact and resume notes.
@@ -1068,6 +1080,9 @@ Key points:
   Knowledge is a recursive tree: an always-loaded root index, then deeper indexes and topic files pulled in only as a task needs them, with no fixed depth.
   How knowledge is grouped at each level (the split dimension) is chosen for what helps agents most and may be revised over time.
   The exact layout, metadata, size caps, and split / merge mechanics are defined by the active implementation — see [`references/knowledge-markdown-spine.md`](references/knowledge-markdown-spine.md).
+- **Cross-referenced.**
+  Individual knowledge files may cross-reference other knowledge content / files — related topics, decisions, and indexes are linked instead of duplicated, so an agent can follow a reference to the connected knowledge only when it needs it.
+  The linking mechanics are defined by the active implementation.
 - **Code-derived, with depth decided per area.**
   `init` and `rebuild` produce knowledge by scanning the code from the system's entrypoints inward — existing docs only corroborate, they are not the source — and every recorded claim is verified against the code.
   How deep the tree goes is judged **locally, per node**: a trivial module may stay a single short topic, while a complex or multi-capability area expands into deeper, multi-level nodes (for a large repo, multiple levels are expected, not exceptional).
@@ -1136,7 +1151,8 @@ MARSHAIL produces two kinds of content:
 | [`.marshail/knowledge/`](knowledge/) | Repo knowledge — **not synced**, read in-place via `.marshail/ENTRYPOINT.md`. |
 | [`.marshail/AGENTS.md`](AGENTS.md) | Snippet meant to be **manually merged** into the host repo's root `AGENTS.md` so that AI assistants see the MARSHAIL entry point. |
 | [`.marshail/marshail-override.md`](marshail-override.md) | **Optional** repo-specific override file. Free-form Markdown that specifies or modifies how MARSHAIL behaves on top of `marshail.md` (stage policy, artifact policy, agent/skill preferences). Read by every MARSHAIL-aware agent immediately after `marshail.md`; entries here take precedence on the points they address. Empty by default. **Not synced.** |
-| [`.marshail/agent-tools.yml`](agent-tools.yml) | **Optional** per-agent tool (MCP) grants. Maps a built-in (`marshail-<name>`) or extension (`mx-<name>`) agent to extra tools that `marshail-promote-assets` merges (union) into that agent's declared tools at promotion. Survives MARSHAIL updates (installers add new keys, never overwrite existing ones). Empty by default. |
+| [`.marshail/agent-tools.yml`](agent-tools.yml) | **Optional** per-agent tool (MCP) grants. Maps a built-in (`marshail-<name>`) or extension (`mx-<name>`) agent to extra tools that `marshail-promote-assets` merges (union) into that agent's declared tools at promotion. Survives MARSHAIL updates (seeded once by the installer, never overwritten on update). Empty by default. |
+| [`.marshail/agent-models.yml`](agent-models.yml) | **Optional** per-agent model assignments. Maps a built-in (`marshail-<name>`) or extension (`mx-<name>`) agent to the model it should run on; `marshail-promote-assets` writes it as the `model:` frontmatter key on the promoted copy. Agents not listed keep the host tool's default model. Survives MARSHAIL updates (seeded once by the installer, never overwritten on update). Empty by default. |
 
 ### How they get generated
 

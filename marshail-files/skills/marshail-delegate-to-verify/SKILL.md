@@ -17,8 +17,3 @@ Do **not** inline the workflow — the agent owns it.
 - **On result (fail):** hand back to [`marshail-delegate-to-implement`](../marshail-delegate-to-implement/SKILL.md) with failing items as plan updates ([FIXUP] / [CHANGED] / [ADDED]).
 
 Nothing merges without an explicit verification step recorded somewhere.
-
-## Fallback (no-subagent environments)
-
-If subagents are not available, use [`marshail-verify`](../../skills-fallback/marshail-verify/SKILL.md).
-Source of truth: [`marshail-verifier.md`](../../agents/marshail-verifier.md).

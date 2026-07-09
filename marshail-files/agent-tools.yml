@@ -16,9 +16,9 @@
 # (e.g. files under .agent-config/mcp-servers/). MARSHAIL only maps which
 # agent gets which already-defined tool; it does not define the servers.
 #
-# This file survives MARSHAIL updates: installers add newly introduced
-# keys but never overwrite or remove a repo's existing entries (same
-# add-but-don't-touch rule as config.yml and marshail-override.md).
+# This file survives MARSHAIL updates: the installer seeds it once on a
+# fresh install and never overwrites it on update (same never-clobbered
+# rule as marshail-override.md).
 #
 # Empty by default. Example:
 #
