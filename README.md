@@ -2,7 +2,7 @@
 
 *Human-approved AI software engineering with a curated learning loop.*
 
-**MARSHAIL** = **M**ethod for **A**I-assisted **R**equirements and **S**oftware Engineering, with **H**uman **A**pproval and **I**ncremental **L**earning.
+**MARSHAIL** (pronounced MAR-shuhl, /ˈmɑːr.ʃəl/) = **M**ethod for **A**I-assisted **R**equirements and **S**oftware Engineering, with **H**uman **A**pproval and **I**ncremental **L**earning.
 
 <p align="center">
   <img src="assets/marshail-logo-shield-chip-sync-v1.png" alt="MARSHAIL icon" width="160" />

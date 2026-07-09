@@ -2,7 +2,7 @@
 
 *Human-approved AI software engineering with a curated learning loop.*
 
-**MARSHAIL** = **M**ethod for **A**I-assisted **R**equirements and **S**oftware Engineering, with **H**uman **A**pproval and **I**ncremental **L**earning.
+**MARSHAIL** (pronounced MAR-shuhl, /ˈmɑːr.ʃəl/) = **M**ethod for **A**I-assisted **R**equirements and **S**oftware Engineering, with **H**uman **A**pproval and **I**ncremental **L**earning.
 
 This document defines MARSHAIL, a practical AI-assisted SDLC for features, bugfixes, refactors, and technical debt work.
 It covers the full loop: framing a change, narrowing repo analysis, shaping an executable plan, implementing in reviewable slices, verifying, rolling out, and promoting durable learnings back into the system — all with explicit human approval gates between stages.
