@@ -1,10 +1,12 @@
-# cyncia
+# Cyncia
+
+<img src="assets/logo/logo.svg" alt="Cyncia logo" width="200">
 
 **Author your AI-assistant config once, sync it to every tool.**
 
 Website: <https://www.cyncia.net>
 
-Cyncia takes a single, tool-agnostic source tree (guidelines, agents, skills, rules, MCP servers) and generates the per-tool layouts that **Cursor**, **Claude Code**, **GitHub Copilot**, **VS Code**, **JetBrains Junie**, and **Codex** expect — file paths, file formats, and frontmatter keys all translated for you.
+Cyncia (pronounced "SIN-sha", /ˈsɪnʃə/) takes a single, tool-agnostic source tree (guidelines, agents, skills, rules, MCP servers) and generates the per-tool layouts that **Cursor**, **Claude Code**, **GitHub Copilot**, **VS Code**, **JetBrains Junie**, and **Codex** expect — file paths, file formats, and frontmatter keys all translated for you.
 
 > Full reference (formats, frontmatter, MCP secret tokens, per-tool field map,
 > edge cases): **[`cyncia.md`](cyncia.md)**.
@@ -132,6 +134,8 @@ Full installer reference (all flags, env vars, behavior on re-run): see [`cyncia
    - an MCP server entry
 
     read [`.cyncia/README.md`](./.cyncia/README.md) for the source-tree format (frontmatter fields, secret-token translation, agent ↔ MCP linkage), author the file under the appropriate folder of `.agent-config/` (`.agent-config/{rules,skills,agents,mcp-servers}/`), and then re-run the sync (skill `agent-conf-sync`) to fan it out to the per-tool directories. Do not hand-edit generated `.cursor/`, `.claude/`, `.github/`, `.junie/`, `.vscode/`, `.codex/agents/`, `.agents/skills/`, root `AGENTS.md`, root `AGENTS.override.md`, or `CLAUDE.md` files — they are overwritten on the next sync.
+
+   Unless explicitly asked otherwise, do not simulate `.agent-config/` assets from generated outputs; sync them first and let each assistant load its native tool-specific files.
    ```
 
 ## Usage
