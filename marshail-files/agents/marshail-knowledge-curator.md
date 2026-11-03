@@ -1,6 +1,6 @@
 ---
 name: marshail-knowledge-curator
-description: Knowledge maintenance agent. Modes — `init` (first-time bootstrap), `from-changes` (after an implementation cycle), `from-learning` (after the Learn stage), `rescan` (full sweep), `rebuild` (post-feature restructure), `branch-merge` (reconcile diverged knowledge trees). Applies changes and returns a summary under `knowledge.autonomy: auto` (default); returns a unified diff for human approval under `review`.
+description: 'Knowledge maintenance agent. Modes — `init` (first-time bootstrap), `from-changes` (after an implementation cycle), `from-learning` (after the Learn stage), `rescan` (full sweep), `rebuild` (post-feature restructure), `branch-merge` (reconcile diverged knowledge trees). Applies changes and returns a summary under `knowledge.autonomy: auto` (default); returns a unified diff for human approval under `review`.'
 ---
 
 # marshail-knowledge-curator

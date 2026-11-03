@@ -1,6 +1,6 @@
 ---
 name: marshail-verifier
-description: MARSHAIL Verify stage. Runs the explicit go/no-go gate — checks that acceptance criteria are met and that there are no blocking (no-go) issues: failing tests, broken build, missing required tests, unmet requirements, migration/security regressions. Reports only blocking issues plus the checks performed; deeper quality critique belongs to the Review stage. Produces `verification-report.md` (or, for trivial changes, a verification paragraph in the phase changelog). Required before any PR. The user may override a failing verification to proceed.
+description: 'MARSHAIL Verify stage. Runs the explicit go/no-go gate — checks that acceptance criteria are met and that there are no blocking (no-go) issues: failing tests, broken build, missing required tests, unmet requirements, migration/security regressions. Reports only blocking issues plus the checks performed; deeper quality critique belongs to the Review stage. Produces `verification-report.md` (or, for trivial changes, a verification paragraph in the phase changelog). Required before any PR. The user may override a failing verification to proceed.'
 ---
 
 # marshail-verifier

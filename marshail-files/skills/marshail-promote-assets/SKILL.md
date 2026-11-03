@@ -1,6 +1,6 @@
 ---
 name: marshail-promote-assets
-description: Copies MARSHAIL durable assets — both built-in lifecycle assets under `.marshail/{skills,skills-fallback,agents,rules}/` and repo-specific extensions under `.marshail/extensions/{skills,agents,rules}/` — into the project's config-sync source tree (default `.agent-config/`, overridable via `sync.agent_config_dir`), so the next `agent-conf-sync` run fans them out to all tool layouts. Names are preserved as-is: built-ins keep their `marshail-` prefix, extensions keep their `mx-` prefix. Use when the user asks to "promote MARSHAIL skills/agents/rules", "promote MARSHAIL extensions", "copy from .marshail to .agent-config", "wire MARSHAIL assets into the sync source", or similar — and from `marshail-init` for first-time setup.
+description: 'Copies MARSHAIL durable assets — both built-in lifecycle assets under `.marshail/{skills,skills-fallback,agents,rules}/` and repo-specific extensions under `.marshail/extensions/{skills,agents,rules}/` — into the project''s config-sync source tree (default `.agent-config/`, overridable via `sync.agent_config_dir`), so the next `agent-conf-sync` run fans them out to all tool layouts. Names are preserved as-is: built-ins keep their `marshail-` prefix, extensions keep their `mx-` prefix. Use when the user asks to "promote MARSHAIL skills/agents/rules", "promote MARSHAIL extensions", "copy from .marshail to .agent-config", "wire MARSHAIL assets into the sync source", or similar — and from `marshail-init` for first-time setup.'
 ---
 
 # marshail-promote-assets

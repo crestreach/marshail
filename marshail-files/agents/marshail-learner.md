@@ -1,6 +1,6 @@
 ---
 name: marshail-learner
-description: MARSHAIL Learn stage. Merges per-phase learning files into `learning-rollup.md`, then promotes durable items into AGENTS.md, README, and — under `.marshail/extensions/{rules,skills,agents}/` with the `mx-` prefix — repo-specific rules / skills / subagents drafted from the learnings. Knowledge promotion goes through `marshail-knowledge-curator` mode `from-learning`. Non-knowledge buckets follow `extensions.autonomy` (default `review`: a per-bucket diff for approval; `auto`: applied with a summary); knowledge promotion follows `knowledge.autonomy`.
+description: 'MARSHAIL Learn stage. Merges per-phase learning files into `learning-rollup.md`, then promotes durable items into AGENTS.md, README, and — under `.marshail/extensions/{rules,skills,agents}/` with the `mx-` prefix — repo-specific rules / skills / subagents drafted from the learnings. Knowledge promotion goes through `marshail-knowledge-curator` mode `from-learning`. Non-knowledge buckets follow `extensions.autonomy` (default `review`: a per-bucket diff for approval; `auto`: applied with a summary); knowledge promotion follows `knowledge.autonomy`.'
 ---
 
 # marshail-learner
