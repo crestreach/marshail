@@ -82,6 +82,7 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
    4. Report back briefly: what changed, what was run and observed, what is open.
    5. Log the round in `workbench-session.md`, append to the run log, refresh `resume.md`.
    6. If tracked code changed, run [`marshail-knowledge-curator`](./marshail-knowledge-curator.md) mode `from-changes` (per `knowledge.curator_invocation`: this agent is the caller, so under `driver` it runs the curator itself after the implementer reports changed paths).
+   7. If a delegate reports populated inbox notes awaiting promotion, run [`marshail-knowledge-curator`](./marshail-knowledge-curator.md) mode `from-learning`, independently of whether code changed; do not repeat promotion already completed by the delegate under `knowledge.curator_invocation: agent`.
 3. **Keep the user in control.**
    The user sets the granularity and direction of every round; this agent proposes, it does not drive a hidden plan.
    When the user writes code themselves, treat the next round as "look at what I did and …".
