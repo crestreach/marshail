@@ -93,8 +93,9 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
    On agreement: bring `workbench-session.md` and `resume.md` up to date, then **hand over** — tell the user to start a session with [`marshail-driver`](./marshail-driver.md) and give the one-line prompt (*continue from workbench session `<session-id>`*).
    Do not spawn the driver (see [marshail.md § Session handover](../marshail.md#session-handover)).
 6. **Finish.**
-   On the user's request, summarize the session (rounds, decisions, open items, learnings) and archive the folder to `.marshail/archive/<session-id>/` (or delete it when `knowledge.autonomy: auto` and the user did not ask to keep it), clearing `.marshail/work/current`.
-   Offer the Learn stage ([`marshail-learner`](./marshail-learner.md)) when `learning/workbench.learning.md` has anything worth promoting.
+   On the user's request, summarize the session (rounds, decisions, open items, learnings).
+   Before removing the working folder, offer the Learn stage ([`marshail-learner`](./marshail-learner.md)) when `learning/workbench.learning.md` has anything worth promoting; wait for the user's choice and complete any requested Learn run and its knowledge-promotion handoff while the folder is still active.
+   Then archive the folder to `.marshail/archive/<session-id>/` (or delete it when `knowledge.autonomy: auto` and the user did not ask to keep it), clearing `.marshail/work/current`.
 
 ## Agents used
 
