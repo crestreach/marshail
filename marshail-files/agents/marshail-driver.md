@@ -72,7 +72,8 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
    4. Append entries to the phase changelog and learning file, and update the working folder's **resume notes** (a short `logs/resume.md`: current stage, last artifact, next action, open questions) so any later session can resume cleanly.
 5. **Replanning watch.**
    If new information invalidates an assumption captured at an earlier stage, pause, propose the smallest replanning that covers it, and resume after approval (per [marshail.md replanning rule](../marshail.md)).
-   If a stretch of work turns out to be exploratory rework that does not fit the plan, propose a **session handover** to [`marshail-workbench-driver`](./marshail-workbench-driver.md): bring `resume.md` up to date and tell the user to start a workbench session (one-line prompt), then resume the change afterwards — do not spawn the workbench driver (see [marshail.md § Session handover](../marshail.md#session-handover)).
+   If a stretch of work turns out to be exploratory rework that does not fit the plan, propose a **session handover** to [`marshail-workbench-driver`](./marshail-workbench-driver.md): bring `resume.md` up to date and tell the user to start a workbench session as a detour from this `<change-id>`, with that id named as the return destination in the one-line prompt.
+   The workbench driver records the route and restores `.marshail/work/current` on finish, so this driver resumes the existing change afterwards; do not spawn the workbench driver (see [marshail.md § Session handover](../marshail.md#session-handover)).
 6. **Knowledge upkeep.**
    After each implementation cycle, dispatch [`marshail-knowledge-curator`](./marshail-knowledge-curator.md) mode `from-changes`.
    After the Learn stage (if run), dispatch mode `from-learning`.

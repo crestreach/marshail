@@ -44,7 +44,8 @@ Do **not** invoke when:
 - The repo, with `.marshail/` initialized.
 - [`.marshail/work/current`](../marshail.md) — read **first**.
   If it names a `wb-` session, resume it from `.marshail/work/<session-id>/` (`logs/resume.md` first).
-  If it names a staged change, ask whether the user wants to continue that change (then hand over to the driver) or start a new session alongside it.
+  If it names a staged change and the prompt identifies it as the return destination, start a workbench detour from that change.
+  Otherwise ask whether the user wants to continue that change (then hand over to the driver) or start a new session alongside it; when starting alongside it, preserve its id as the return destination.
 - [`.marshail/config.yml`](../config.yml) — knowledge autonomy, `curator_invocation`, `capture_during_process`.
 - [`.marshail/marshail-override.md`](../marshail-override.md) when present and non-empty — read right after `marshail.md` / `ENTRYPOINT.md`; it takes precedence on the points it addresses.
 
@@ -54,7 +55,7 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
 
 - `workbench-session.md` — the session's root artifact and mode marker: goal / focus area in the user's words; a rounds log (one short entry per round: what was asked, what was done, how it was verified, outcome); decisions taken and options rejected; open items / follow-ups.
 - `logs/resume.md` — first line `Mode: workbench`; then current focus, last round, next action, open questions.
-  Rewritten and compacted on every round.
+  Rewritten and compacted on every round, preserving `Return to change: <change-id>` when present.
 - `logs/workbench-driver.log.md` and the specialists' own run logs.
 - `learning/workbench.learning.md` — reusable lessons only.
 - `implementation-report.md` — only when a round surfaces operational notes (migrations, toggles, limitations) a later Verify / PR / Rollout needs; also records how each round's work was verified.
@@ -66,7 +67,8 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
 1. **Locate or open the session (first action).**
    Read `.marshail/work/current`.
    If it names a `wb-` session, read its `logs/resume.md` and continue.
-   Otherwise allocate `<session-id>` = `wb-YYYY-MM-DD-<slug>`, create `.marshail/work/<session-id>/` with `workbench-session.md` (goal in the user's words) and `logs/resume.md` (`Mode: workbench`), and write the id into `.marshail/work/current`.
+   Otherwise allocate `<session-id>` = `wb-YYYY-MM-DD-<slug>`, create `.marshail/work/<session-id>/` with `workbench-session.md` (goal in the user's words) and `logs/resume.md` (`Mode: workbench`).
+   When a staged change is the return destination, record `Return to change: <change-id>` in `logs/resume.md` before writing the workbench id into `.marshail/work/current`.
 2. **Round loop.** For each request from the user:
    1. Understand the request; ask when it is unclear — do not assume.
    2. Pick the specialist(s) and dispatch each task as a fresh-context subagent with only the context it needs (goal, affected paths, constraints, relevant knowledge pointers, what to return):
@@ -80,7 +82,7 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
    3. Receive the result **and how it was verified**.
       Do not accept "done" without it; if a delegate could not close the loop, surface what the user should check.
    4. Report back briefly: what changed, what was run and observed, what is open.
-   5. Log the round in `workbench-session.md`, append to the run log, refresh `resume.md`.
+   5. Log the round in `workbench-session.md`, append to the run log, refresh `resume.md` while preserving the return route, if any.
    6. If tracked code changed, run [`marshail-knowledge-curator`](./marshail-knowledge-curator.md) mode `from-changes` (per `knowledge.curator_invocation`: this agent is the caller, so under `driver` it runs the curator itself after the implementer reports changed paths).
    7. If a delegate reports populated inbox notes awaiting promotion, run [`marshail-knowledge-curator`](./marshail-knowledge-curator.md) mode `from-learning`, independently of whether code changed; do not repeat promotion already completed by the delegate under `knowledge.curator_invocation: agent`.
 3. **Keep the user in control.**
@@ -95,7 +97,8 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
 6. **Finish.**
    On the user's request, summarize the session (rounds, decisions, open items, learnings).
    Before removing the working folder, offer the Learn stage ([`marshail-learner`](./marshail-learner.md)) when `learning/workbench.learning.md` has anything worth promoting; wait for the user's choice and complete any requested Learn run and its knowledge-promotion handoff while the folder is still active.
-   Then archive the folder to `.marshail/archive/<session-id>/` (or delete it when `knowledge.autonomy: auto` and the user did not ask to keep it), clearing `.marshail/work/current`.
+   Read `Return to change: <change-id>` from `logs/resume.md` before removing the folder.
+   Then archive the folder to `.marshail/archive/<session-id>/` (or delete it when `knowledge.autonomy: auto` and the user did not ask to keep it), and restore `.marshail/work/current` to that change id when the route was recorded; otherwise clear the pointer.
 
 ## Agents used
 

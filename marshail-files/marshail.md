@@ -1026,6 +1026,8 @@ The MARSHAIL core matters here as much as in a staged change:
 
 - `<session-id>` is `wb-YYYY-MM-DD-<slug>`; the `wb-` prefix marks a workbench session.
   `.marshail/work/current` points at it like at any change.
+- When a workbench session is a detour from or starts alongside an active staged change, `logs/resume.md` also records `Return to change: <change-id>`.
+  This route is preserved on every resume update and is used to restore `.marshail/work/current` when the workbench session finishes.
 - `workbench-session.md` is the session's root artifact and the mode marker (it takes the place of `delivery-plan.md`):
   - goal / focus area, in the user's words
   - rounds log: one short entry per round — what was asked, what was done, how it was verified, outcome
@@ -1190,7 +1192,10 @@ When a tight live back-and-forth with one specialist is needed, prefer the direc
 
 Switching between the conversational roles — driver ↔ workbench driver, or a session promoted into a change — is a **session handover**, not a delegation.
 The current agent makes sure `logs/resume.md` and the root artifact (`delivery-plan.md` / `workbench-session.md`) are current, then tells the user to start a session with the other agent and gives a one-line prompt to paste (e.g. *continue change `<change-id>`*, *continue workbench session `<session-id>`*).
-The receiving agent reads `.marshail/work/current` and `resume.md` on activation, so nothing else has to be passed.
+The receiving agent reads `.marshail/work/current` and `resume.md` on activation.
+For a staged-change detour into workbench mode, the driver includes the originating `<change-id>` in the one-line prompt as the return destination.
+The workbench driver records it as `Return to change: <change-id>` in its `logs/resume.md` before replacing `.marshail/work/current` with the workbench session id.
+On finish, it reads that route before archiving or deleting the session, then restores `.marshail/work/current` to the originating change id; without a return route, it clears the pointer as usual.
 Where the tool cannot make the agent the session agent, the user asks the chat agent to run it inline (`marshail-drive` / `marshail-workbench`).
 The handover wording is tool-agnostic.
 
