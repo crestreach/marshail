@@ -26,9 +26,9 @@ Do **not** invoke when:
 
 - `specification.md` if present; otherwise the user prompt.
 - Top-level [`AGENTS.md`](../../AGENTS.md) (project conventions).
-- [`.marshail/knowledge/INDEX.md`](../knowledge/INDEX.md) — only the index, to know what is available; do not pull domain files (that is the Analysis stage).
+- The knowledge **root entry** (named by the active implementation's reading guide; default [`.marshail/knowledge/INDEX.md`](../knowledge/INDEX.md)) — only the root entry, to know what is available; do not pull domain files (that is the Analysis stage).
 
-Load tier: **minimal** (see [activation-protocol](../references/activation-protocol.md)) — plus the knowledge index to know what exists.
+Load tier: **minimal** (see [activation-protocol](../references/activation-protocol.md)) — plus the knowledge root entry to know what exists.
 
 ## Workflow
 

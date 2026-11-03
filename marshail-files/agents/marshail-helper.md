@@ -57,9 +57,9 @@ Read enough to answer accurately, no more:
    If empty or absent, ignore.
 3. [`.marshail/ENTRYPOINT.md`](../ENTRYPOINT.md) — compact entry point.
 4. [`.marshail/AGENTS.md`](../AGENTS.md) — the merged-in snippet.
-5. [`.marshail/config.yml`](../config.yml) — contract, implementation, autonomy mode, and knowledge size caps.
-6. [`.marshail/knowledge/INDEX.md`](../knowledge/INDEX.md) — root knowledge index (only the index, not topic files, unless the question is about a specific topic).
-7. [`.marshail/references/`](../references/) — contract, representation, activation, and promotion rules.
+5. [`.marshail/config.yml`](../config.yml) — contract, implementation, autonomy mode, and implementation-specific settings (e.g. the `markdown_spine:` size caps).
+6. The knowledge **root entry** named by the active implementation's reading guide (default [`.marshail/knowledge/INDEX.md`](../knowledge/INDEX.md)) — only the root entry, not topic files, unless the question is about a specific topic.
+7. [`.marshail/references/`](../references/) — contract, implementation reading / maintenance guides, activation, and promotion rules.
 8. The relevant `SKILL.md` or agent file in `.marshail/skills/` / `.marshail/agents/` when the question is specifically about that skill / agent.
 9. The current change's working folder (artifact chain) — only when the question is "what stage am I in?" or "what should I do next?".
 

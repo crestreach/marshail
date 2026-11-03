@@ -5,7 +5,7 @@ Knowledge is MARSHAIL's mid- and long-term memory: durable repo facts, rationale
 It is also a body of **notes about the code** and a **map that helps narrow down code searches** — pointers from concepts and areas to where the relevant code lives, so agents can find the right files without re-exploring the whole repo each time.
 
 The contract defines what any knowledge representation must provide.
-The active implementation is configured separately by `knowledge.representation_ref` in `.marshail/config.yml`.
+The active implementation is configured separately by `knowledge.representation_ref` in `.marshail/config.yml`, which points at the implementation's reading guide (see *Implementation reference: reading guide and maintenance guide*).
 
 ## Goals
 
@@ -31,12 +31,39 @@ The first two are **config-sync sources**: the cyncia sync fans them out into to
 The knowledge tree is excluded from that sync — it stays under `.marshail/knowledge/` and is read in place.
 Agents reach it as `.marshail/ENTRYPOINT.md` instructs: an always-loaded root slice first, then progressively deeper folder indexes and topic files as a task needs them.
 
+## Implementation reference: reading guide and maintenance guide
+
+`knowledge.representation_ref` points at the implementation's **reading guide** — the document every agent that reads knowledge loads (it is part of the **standard** load tier in [activation-protocol.md](activation-protocol.md)).
+It must be enough on its own to find, read, and understand knowledge, and to write an inbox note (see *Fixed locations and the inbox*):
+
+- it **names the root entry** (the file an agent opens first) and the read order from there;
+- it defines the metadata fields and what they mean, including which field carries the **scope** and which the **freshness marker** (see *Required metadata semantics*);
+- it defines how cross-references are expressed and followed;
+- it states what an agent does when it notices a topic is stale while reading.
+
+Because every standard-tier agent loads it on activation, the reading guide should stay compact — roughly 80 lines is a good target (a suggestion, not a hard limit).
+
+Everything needed only to **maintain** knowledge — organizing / splitting rules, depth and derivation policy, index regeneration, size limits, staleness detection, the update protocol — should live in a separate **maintenance guide**, linked from the reading guide and loaded only as needed (the **full** load tier: the knowledge curator and any agent that writes canonical knowledge).
+A separate maintenance guide is recommended, not mandatory; an implementation may keep both in one file, at the cost of a heavier standard tier.
+
+Other MARSHAIL files (agents, skills, the entry point) refer to knowledge in the **contract's terms** — "the root entry", "a unit's scope", "its freshness marker", "the inbox" — and leave the concrete file names and field names to the active implementation.
+They may show the default implementation's names in parentheses as an example.
+
+## Fixed locations and the inbox
+
+Two locations are fixed by this contract, independent of the implementation, because the MARSHAIL process itself depends on them:
+
+- **`.marshail/knowledge/learn/inbox/`** — the staging area for knowledge-shaped notes that are not yet canonical.
+  Any agent may drop a note here (subject to `knowledge.capture_during_process`); only the curator promotes from it.
+  The reading guide defines the note's shape; by default a note carries the same metadata as a topic, minus whatever the curator fills in on promotion.
+- **Decision records** (lightweight ADRs) must be discoverable from the root entry; the implementation defines their location (the default implementation uses `.marshail/knowledge/decisions/`).
+
 ## Required capabilities
 
 A MARSHAIL knowledge representation must define:
 
 - where canonical knowledge is stored;
-- how agents discover available knowledge from a cheap root entry point;
+- how agents discover available knowledge from a cheap root entry point, and what that root entry is called;
 - how topic files or records expose a stable identity, summary, scope, and freshness metadata;
 - how agents select the smallest useful knowledge slice for a task;
 - how knowledge items **cross-reference** each other — a topic or record may link to related knowledge content (other topics, decisions, indexes) so related knowledge is connected instead of duplicated;
@@ -52,13 +79,14 @@ The representation may use files, records, generated indexes, or a retrieval sid
 
 - stable `id` or equivalent key;
 - `summary` for cheap discovery;
-- scope information, usually repo paths or domain ownership;
+- **scope** — what code or domain the unit covers, usually repo paths or domain ownership; this is what maps changed code to the knowledge it may invalidate, and what points an agent at the right files;
 - importance or loading priority;
 - confidence or verification quality;
-- freshness marker, usually date plus verified commit or equivalent source revision;
+- **freshness marker** — when, and against which source revision (usually a commit), the unit's claims were last verified;
 - links to related knowledge items (cross-references), plus parent/child relationships when knowledge is split.
 
-The exact field names belong to the active implementation reference.
+The exact field names belong to the active implementation's reading guide.
+Agents and skills outside the implementation refer to these semantics by the names above (scope, freshness marker), not by implementation field names.
 
 ## Required update protocol
 
@@ -78,8 +106,9 @@ Knowledge updates must be traceable to one of these sources:
 
 ## Replacing the implementation
 
-To replace the knowledge implementation, add a new implementation reference under `.marshail/references/` (or another path reachable from `.marshail/`) and set `knowledge.representation_ref` to that file.
-The implementation reference must satisfy this contract and describe its storage, metadata, discovery, staleness, update, promotion, split, merge, and rebuild rules.
+To replace the knowledge implementation, add a new reading guide (and, recommended, a maintenance guide it links to) under `.marshail/references/` (or another path reachable from `.marshail/`) and set `knowledge.representation_ref` to the reading guide.
+Together they must satisfy this contract and describe the implementation's storage, metadata, discovery, staleness, update, promotion, split, merge, and rebuild rules.
+Implementation-specific settings (e.g. size caps) belong in their own top-level section of `.marshail/config.yml`, named after the implementation (the default uses `markdown_spine:`), so the shared `knowledge:` section stays implementation-neutral.
 
-Knowledge skills should change only when the workflow changes.
-Pure storage, metadata, indexing, or retrieval changes belong in the implementation reference.
+Knowledge skills and agents should change only when the workflow changes.
+Pure storage, metadata, indexing, or retrieval changes belong in the implementation references.

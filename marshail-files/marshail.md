@@ -1074,12 +1074,15 @@ Key points:
 - **Exchangeable representation.**
   [`.marshail/config.yml`](config.yml) names the general `knowledge.contract_ref` and the active `knowledge.representation_ref`.
   The contract lives at [`references/knowledge-contract.md`](references/knowledge-contract.md).
-  The default implementation is **MARSHAIL Markdown Spine**, defined in [`references/knowledge-markdown-spine.md`](references/knowledge-markdown-spine.md).
-  Agents follow the configured implementation instead of hard-coding a layout.
+  `representation_ref` points at the implementation's **reading guide** — short, loaded by every agent that reads knowledge; it names the root entry, explains layout and metadata, and says how to write an inbox note.
+  The reading guide links a **maintenance guide** (organizing, depth, indexing, size, staleness detection, update protocol) that only knowledge-maintaining agents load; see [`references/activation-protocol.md`](references/activation-protocol.md) for the load tiers.
+  The default implementation is **MARSHAIL Markdown Spine**, defined in [`references/knowledge-markdown-spine.md`](references/knowledge-markdown-spine.md) (reading guide) and [`references/knowledge-markdown-spine-maintenance.md`](references/knowledge-markdown-spine-maintenance.md) (maintenance guide); its own settings live under `markdown_spine:` in `config.yml`.
+  Agents follow the configured implementation instead of hard-coding a layout, and other MARSHAIL files refer to knowledge in the contract's terms (root entry, scope, freshness marker, inbox).
+  Two locations are fixed by the contract: the inbox `knowledge/learn/inbox/` and decision records discoverable from the root entry.
 - **Hierarchical and progressively disclosed.**
-  Knowledge is a recursive tree: an always-loaded root index, then deeper indexes and topic files pulled in only as a task needs them, with no fixed depth.
+  Knowledge is a recursive tree: an always-loaded root entry, then deeper indexes and topic files pulled in only as a task needs them, with no fixed depth.
   How knowledge is grouped at each level (the split dimension) is chosen for what helps agents most and may be revised over time.
-  The exact layout, metadata, size caps, and split / merge mechanics are defined by the active implementation — see [`references/knowledge-markdown-spine.md`](references/knowledge-markdown-spine.md).
+  The exact layout, metadata, size caps, and split / merge mechanics are defined by the active implementation — see the Markdown Spine [reading guide](references/knowledge-markdown-spine.md) and [maintenance guide](references/knowledge-markdown-spine-maintenance.md).
 - **Cross-referenced.**
   Individual knowledge files may cross-reference other knowledge content / files — related topics, decisions, and indexes are linked instead of duplicated, so an agent can follow a reference to the connected knowledge only when it needs it.
   The linking mechanics are defined by the active implementation.
@@ -1099,7 +1102,7 @@ Key points:
   Stage 8 (Learn) feeds promotable items into knowledge via mode `from-learning`.
   Larger reconciliation is handled by modes `branch-merge` and `rebuild`.
 
-Full contract and design rationale: [`references/knowledge-contract.md`](references/knowledge-contract.md); the default implementation: [`references/knowledge-markdown-spine.md`](references/knowledge-markdown-spine.md).
+Full contract and design rationale: [`references/knowledge-contract.md`](references/knowledge-contract.md); the default implementation: [`references/knowledge-markdown-spine.md`](references/knowledge-markdown-spine.md) (reading guide) and [`references/knowledge-markdown-spine-maintenance.md`](references/knowledge-markdown-spine-maintenance.md) (maintenance guide).
 A worked example tree lives under [`examples/snippets-api/`](../examples/snippets-api/).
 
 ### Knowledge write discipline

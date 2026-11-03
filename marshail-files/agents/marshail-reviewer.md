@@ -32,9 +32,8 @@ Do **not** invoke when:
 - `delivery-plan.md` — packets in scope of this PR.
 - `verification-report.md`.
 - `change-brief.md` — for the change summary.
-- Relevant `.marshail/knowledge/` files (invariants, contracts, conventions).
-- Repo conventions in [`.marshail/knowledge/repo/conventions.md`](../knowledge/repo/conventions.md) if present.
-- [`.marshail/config.yml`](../config.yml) for `knowledge.contract_ref` and `knowledge.representation_ref`, then both configured references.
+- Relevant `.marshail/knowledge/` files (invariants, contracts, conventions), including the repo-conventions topic if the knowledge tree has one.
+- [`.marshail/config.yml`](../config.yml) for `knowledge.representation_ref`, then the active implementation's reading guide.
 
 Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
 
@@ -42,8 +41,8 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
 
 1. Confirm the PR boundary matches the plan (whole change / phase / slice / multi-phase / occasional packet group) and note the **target branch** — the final branch (`main` / release) or an **integration branch** (see *Integration branches*).
 2. Walk packets in the plan; map each to PR file changes.
-3. Read the knowledge contract and active implementation.
-4. For each changed area, pull the matching knowledge file(s) by `repo_paths` and check claims.
+3. Read the active knowledge implementation's reading guide and the knowledge root entry.
+4. For each changed area, pull the knowledge unit(s) whose **scope** covers the changed paths (the reading guide names the scope field) and check their claims against the diff.
 5. Walk requirements in `change-brief.md`; verify the PR addresses each.
 6. Check test changes against the testing strategy (marshail.md).
 7. Compose PR description: linked phase(s) / packet(s), change summary, test summary, rollout note pointer, known limitations, follow-up packets.

@@ -10,10 +10,12 @@ Each agent names its own **load tier** below in its own definition; this file de
 - **Minimal** — the tool instruction file (synced from `.marshail/AGENTS.md`), `.marshail/ENTRYPOINT.md`, and `.marshail/marshail-override.md` when present.
   Enough to know the process exists and where things live.
   Used by lightweight / procedural agents.
-- **Standard** — minimal, plus `.marshail/config.yml` and the knowledge entry point (`.marshail/knowledge/INDEX.md`), descending into topic indexes only as needed.
+- **Standard** — minimal, plus `.marshail/config.yml`, the active knowledge implementation's **reading guide** (`knowledge.representation_ref`), and the knowledge **root entry** that guide names (default: `.marshail/knowledge/INDEX.md`), descending into area indexes and topics only as needed.
+  The reading guide is short by design; it tells the agent how the knowledge is laid out, what the metadata means, and how to write an inbox note.
+  Do **not** load the implementation's maintenance guide at this tier — it covers only how the tree is built and kept in shape.
   Used by most stage agents.
-- **Full** — standard, plus the knowledge contract (`knowledge.contract_ref`) and the active knowledge implementation (`knowledge.representation_ref`), and the relevant per-change artifacts from the working folder (`.marshail/work/<change-id>/`).
-  Used by knowledge agents and any agent that writes knowledge.
+- **Full** — standard, plus the knowledge contract (`knowledge.contract_ref`), the implementation's **maintenance guide** (linked from the reading guide), and the relevant per-change artifacts from the working folder (`.marshail/work/<change-id>/`).
+  Used by knowledge agents and any agent that writes canonical knowledge.
 
 An agent loads the **smallest tier** that lets it do its job, then descends into specific knowledge topic files or artifacts on demand.
 If knowledge is missing or stale, it asks the researcher for a fresh note rather than guessing.

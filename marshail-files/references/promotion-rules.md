@@ -32,7 +32,7 @@ Mirrors the rules in [marshail.md](../marshail.md).
 | Anything else that is still reusable | a general / miscellaneous topic in the active knowledge layer — **do not drop reusable knowledge** |
 | Not reusable (see "Do not promote") | drop |
 
-The exact target paths above reflect the default Markdown Spine layout; the active knowledge implementation defines the real destinations (read `knowledge.representation_ref`).
+The exact target paths above reflect the default Markdown Spine layout (see its [maintenance guide](knowledge-markdown-spine-maintenance.md)); the active knowledge implementation defines the real destinations (read `knowledge.representation_ref`).
 The point is the routing intent, not the literal folders.
 
 ## Process
@@ -42,4 +42,4 @@ The point is the routing intent, not the literal folders.
 3. For each cluster, decide promote / drop / out-of-scope (e.g. should be a rule, not knowledge).
    Reusable items that fit no specific bucket go to the general / miscellaneous bucket rather than being dropped.
 4. Apply the promotions per the autonomy mode: in `auto`, write the changes and return a short summary; in `review`, present a summary diff for approval first.
-5. Archive the inbox files (or delete in `auto` mode) and regenerate affected `INDEX.md`.
+5. Archive the inbox files (or delete in `auto` mode) and regenerate the affected indexes as the active implementation's maintenance guide prescribes.

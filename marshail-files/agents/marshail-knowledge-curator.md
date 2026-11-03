@@ -43,7 +43,7 @@ The single source of truth for this capture flow is [ENTRYPOINT](../ENTRYPOINT.m
 The curator reads the rest itself — it does not need them passed in:
 
 - [`.marshail/config.yml`](../config.yml) — autonomy, size policy, and the contract / implementation refs.
-- The general knowledge contract (`knowledge.contract_ref`, default [knowledge-contract](../references/knowledge-contract.md)) and the active knowledge implementation (`knowledge.representation_ref`, default [knowledge-markdown-spine](../references/knowledge-markdown-spine.md)), which define the knowledge's shape, metadata, size policy, and code↔knowledge mapping.
+- The general knowledge contract (`knowledge.contract_ref`, default [knowledge-contract](../references/knowledge-contract.md)) and the active knowledge implementation — its **reading guide** (`knowledge.representation_ref`, default [knowledge-markdown-spine](../references/knowledge-markdown-spine.md)) and the **maintenance guide** it links (default [knowledge-markdown-spine-maintenance](../references/knowledge-markdown-spine-maintenance.md)) — which together define the knowledge's shape, metadata, size policy, and code↔knowledge mapping.
 - The knowledge entry point and the indexes for affected areas.
 - [promotion-rules](../references/promotion-rules.md) for what to promote vs archive vs drop.
 
@@ -51,7 +51,7 @@ Load tier: **full** (see [activation-protocol](../references/activation-protocol
 
 ## Workflow (shared)
 
-1. Read entry point + knowledge contract + active implementation + relevant indexes — including the implementation's **depth and code-derivation policy** (what to scan, from which entrypoints, and how to decide depth per node).
+1. Read entry point + knowledge contract + the active implementation's reading guide **and maintenance guide** + relevant indexes — including the implementation's **depth and code-derivation policy** (what to scan, from which entrypoints, and how to decide depth per node).
 2. Run mode-specific logic (below).
 3. For each touched knowledge unit: refresh its metadata and re-verify its claims against current code, following the field and merge rules of the active knowledge implementation and [promotion-rules](../references/promotion-rules.md).
    Cross-link related knowledge units instead of duplicating their content, and keep existing cross-references valid when units are split, merged, renamed, or archived (see the active implementation's cross-reference rules).
@@ -84,7 +84,7 @@ General rules (the implementation defines the specifics):
 
 ## Depth and code derivation
 
-Knowledge must be the **cached result of a real code scan**, derived by reading the code from the system's entrypoints inward — not by transcribing existing prose docs. Those docs locate the right files fast, but every recorded claim is **verified against the code**, and complex / high-value areas are analyzed in depth. Depth is **decided locally per node** (the active implementation owns the mechanics; the Markdown Spine describes the per-node, recursive decision and entrypoint-driven scanning) — there is no fixed level taxonomy, and for a large repo multiple levels are expected, not exceptional.
+Knowledge must be the **cached result of a real code scan**, derived by reading the code from the system's entrypoints inward — not by transcribing existing prose docs. Those docs locate the right files fast, but every recorded claim is **verified against the code**, and complex / high-value areas are analyzed in depth. Depth is **decided locally per node** (the active implementation owns the mechanics; the Markdown Spine maintenance guide describes the per-node, recursive decision and entrypoint-driven scanning) — there is no fixed level taxonomy, and for a large repo multiple levels are expected, not exceptional.
 
 This applies to **`init` and `rebuild`** as the primary producers of depth, and to **`from-changes` / `rescan`** as verifiers that keep that depth correct (refresh a stale deep topic by re-reading the code, don't just bump the date).
 
@@ -92,7 +92,7 @@ This applies to **`init` and `rebuild`** as the primary producers of depth, and 
 
 The deep reads can be heavy. Isolate them when that helps, but don't fragment analysis that belongs together — use judgment, not a mechanical one-sub-agent-per-area rule:
 
-- **Delegate to read-only sub-agents when it makes sense** — for large or independent areas, or for genuinely unfamiliar ones (use [`marshail-researcher`](./marshail-researcher.md)). Each returns a **tight, source-linked distillation** (purpose, key types, contracts, data / IO, invariants, hotspots, test seams, and the specific files for `repo_paths`), keeping the bulk code out of the curator's context.
+- **Delegate to read-only sub-agents when it makes sense** — for large or independent areas, or for genuinely unfamiliar ones (use [`marshail-researcher`](./marshail-researcher.md)). Each returns a **tight, source-linked distillation** (purpose, key types, contracts, data / IO, invariants, hotspots, test seams, and the specific files for the unit's **scope**), keeping the bulk code out of the curator's context.
 - **Reuse a shared context where areas are related** and the cross-area context matters — when analyzing one area depends on understanding another, or several small related areas are best understood together, do them together rather than splitting them across isolated sub-agents that each lose the shared picture.
 - Run genuinely independent scans concurrently; keep each distillation small enough to compose without re-reading the code. The fan-out width is the curator's call — there is no config knob for it.
 
@@ -109,7 +109,7 @@ The concrete files, folders, metadata, and discovery / split mechanics are defin
 
 1. Detect repo languages, package layout, build tools, and the natural knowledge groupings (subsystems / domains / modules), **and enumerate the system's entrypoints** (deployables, controllers, endpoints, consumers, jobs, CLIs, public APIs).
 2. Decide the **depth each area warrants**, locally per node (see *Depth and code derivation* and the implementation's policy): which modules / capabilities, and which complex components or flows, need their own deeper nodes. Bias toward depth for areas that would otherwise force a costly future code scan; for a large repo, expect multiple levels.
-3. **Scan the code from the entrypoints inward**, reading the actual code — delegating to read-only sub-agents where that isolates heavy reads usefully, and reusing shared context where related areas are better analyzed together (see *Scanning without blowing context*). Capture the specific files for each topic's `repo_paths`.
+3. **Scan the code from the entrypoints inward**, reading the actual code — delegating to read-only sub-agents where that isolates heavy reads usefully, and reusing shared context where related areas are better analyzed together (see *Scanning without blowing context*). Capture the specific files for each topic's **scope** (the implementation's code-mapping field).
 4. Compose the knowledge units the implementation defines — repo-level, per-subsystem, and the deeper per-module / per-capability / per-flow topics each area warranted — **derived from the scan** and stamped with freshness metadata; mark anything not yet verified against code as lower confidence.
 5. Generate the indexes; record each group's split dimension.
 6. Apply the size policy; split where needed (see *Size and structure*).

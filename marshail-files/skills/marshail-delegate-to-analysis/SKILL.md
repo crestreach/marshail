@@ -11,7 +11,7 @@ Do **not** inline the workflow — the agent owns it.
 ## Call contract
 
 - **Subagent:** `marshail-code-archaeologist`
-- **Pass:** `change-brief.md`; pointers to `.marshail/knowledge/INDEX.md` and any topic indexes.
+- **Pass:** `change-brief.md`; pointers to the knowledge root entry (default `.marshail/knowledge/INDEX.md`) and any topic indexes.
   Read-only repo access.
 - **Expect back:** draft `repo-recon.md`, a list of stale/missing knowledge files, plus `logs/stage-3-analysis.changelog.md` and `learning/stage-3-analysis.learning.md`.
 - **On result:** review and save the recon under the change folder; surface the stale-knowledge list (consider [`marshail-delegate-to-knowledge-research`](../marshail-delegate-to-knowledge-research/SKILL.md) or [`marshail-delegate-to-knowledge-maintain`](../marshail-delegate-to-knowledge-maintain/SKILL.md)).

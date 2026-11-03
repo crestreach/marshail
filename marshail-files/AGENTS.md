@@ -17,7 +17,7 @@ This repository uses **MARSHAIL** — an AI-assisted SDLC defined in [marshail.m
 Before doing any repo work:
 
 1. Read [`.marshail/ENTRYPOINT.md`](.marshail/ENTRYPOINT.md) — it explains the process, the knowledge layer, and the available `marshail-*` skills and agents.
-2. Read `.marshail/knowledge/INDEX.md` for the agent-maintained repo knowledge.
+2. Read the knowledge **root entry** named by the active implementation's reading guide (`knowledge.representation_ref` in `.marshail/config.yml`; default `.marshail/knowledge/INDEX.md`) for the agent-maintained repo knowledge.
    Descend into folder / topic / subtopic indexes only as needed.
 3. Honor the autonomy mode in `.marshail/config.yml` — by default (`auto`), knowledge updates are written without per-change approval and a summary of what changed is returned; under `review` every write produces a full diff for human approval first.
 

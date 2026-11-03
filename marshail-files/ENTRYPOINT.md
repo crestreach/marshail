@@ -9,8 +9,8 @@ Reference: [marshail-override.md](marshail-override.md) — **optional** repo-sp
 Read it after `marshail.md`; anything in it takes precedence over the canonical spec on the points it addresses.
 If the file is empty, MARSHAIL behaves as specified in `marshail.md`.
 Knowledge contract: [references/knowledge-contract.md](references/knowledge-contract.md).
-Active implementation: read `knowledge.representation_ref` in [config.yml](config.yml).
-Default: [references/knowledge-markdown-spine.md](references/knowledge-markdown-spine.md).
+Active implementation: read `knowledge.representation_ref` in [config.yml](config.yml) — it points at the implementation's **reading guide**, which names the knowledge root entry and links the implementation's maintenance guide (loaded only by agents that maintain knowledge).
+Default: [references/knowledge-markdown-spine.md](references/knowledge-markdown-spine.md) (reading guide) and [references/knowledge-markdown-spine-maintenance.md](references/knowledge-markdown-spine-maintenance.md) (maintenance guide).
 
 ## What MARSHAIL is (one paragraph)
 
@@ -68,12 +68,16 @@ It is **separate** from the synced skills/rules/agents tree.
 
 Knowledge is MARSHAIL's agent-managed mid- and long-term memory.
 The knowledge contract is separate from the active implementation: read `knowledge.contract_ref` and `knowledge.representation_ref` in `.marshail/config.yml` before assuming a storage layout, metadata fields, indexing strategy, or update protocol.
-The default implementation is **MARSHAIL Markdown Spine**, documented in [`references/knowledge-markdown-spine.md`](references/knowledge-markdown-spine.md) — the single source of truth for the layout, metadata, indexing, splitting, and staleness mechanics.
+`knowledge.representation_ref` points at the implementation's **reading guide** — short, loaded by every agent that reads knowledge; it names the root entry, explains the layout and metadata, and says how to write an inbox note.
+The reading guide links the implementation's **maintenance guide**, which only knowledge-maintaining agents load (see [references/activation-protocol.md](references/activation-protocol.md) → load tiers).
+The default implementation is **MARSHAIL Markdown Spine**: [`references/knowledge-markdown-spine.md`](references/knowledge-markdown-spine.md) (reading guide) and [`references/knowledge-markdown-spine-maintenance.md`](references/knowledge-markdown-spine-maintenance.md) (maintenance guide) — together the single source of truth for the layout, metadata, indexing, splitting, and staleness mechanics.
 
-To use it: start at the always-loaded root `.marshail/knowledge/INDEX.md`, then descend through the area indexes to the specific topic files only as the task needs them — using each file's summary to decide whether to open it.
+To use it: start at the always-loaded **root entry** named by the reading guide (default: `.marshail/knowledge/INDEX.md`), then descend through the area indexes to the specific topic files only as the task needs them — using each file's summary to decide whether to open it.
 The tree is hierarchical and recursive (no fixed depth); the active implementation defines the exact layout and metadata.
 Knowledge files may cross-reference other knowledge content / files; follow those links only when the task needs them.
 Knowledge is the **cached result of a real code scan** — `init` / `rebuild` derive it by reading the code from the entrypoints inward (not from existing docs alone), analyzing each area as deep as it warrants; depth is decided per node and `knowledge.scan_depth` sets the default bias.
+
+Two locations are fixed by the contract regardless of implementation: the inbox `.marshail/knowledge/learn/inbox/` for not-yet-canonical notes, and decision records (ADRs) discoverable from the root entry.
 
 Knowledge content is not limited to code facts — it covers logic, architecture, design rationale, decisions, and conventions.
 
