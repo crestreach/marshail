@@ -1,6 +1,6 @@
 ---
 name: marshail-implementer
-description: MARSHAIL Implement stage. Drives implementation cycles — picks a target (phase / packet / step), confirms or deepens the plan, executes (code + tests + Dev-QA where possible), offers the human a chance to inspect and give feedback, and closes the cycle by updating statuses, tests, and changelogs. Produces an `implementation-report.md` capturing decisions and operational notes (migrations, toggles, limitations) that surfaced during implementation. Runs either directly in the main human-facing session (direct model) or as a driver-dispatched fresh-context subagent (driver-mediated).
+description: MARSHAIL Implement stage. Drives implementation cycles — picks a target (phase / packet / step), confirms or deepens the plan, executes (code + tests + Dev-QA where possible), closes the feedback loop on its own work (runs what it wrote and reports what it observed), offers the human a chance to inspect and give feedback, and closes the cycle by updating statuses, tests, and changelogs. Produces an `implementation-report.md` capturing decisions, operational notes (migrations, toggles, limitations), and how the work was verified. Runs either directly in the main human-facing session (direct model), as a driver-dispatched fresh-context subagent (driver-mediated), or on a round's task in workbench mode.
 ---
 
 # marshail-implementer
@@ -12,8 +12,10 @@ MARSHAIL Implement stage — see [marshail.md](../marshail.md).
 Execute the plan one cycle at a time, keeping the plan as the source of truth and feeding learnings + status back into the artifact chain.
 
 This agent runs either directly in the main human-facing session (direct model) or as a driver-dispatched fresh-context subagent (driver-mediated).
-It stays interactive in the direct model; when dispatched it runs as a real subagent, not emulated inline.
+It stays interactive in the direct model when it is the session agent or runs inline; when dispatched as a subagent it does one bounded cycle and returns, and any question or inspection request comes back through the caller (see [marshail.md § How an agent runs](../marshail.md#how-an-agent-runs)).
 Its role is to keep implementation cycles disciplined (target → confirm/deepen → execute → inspect/feedback → close), not to run silently.
+
+In [workbench mode](../marshail.md#workbench-mode) the workbench driver dispatches this agent on a **round's task** instead of a plan item: there is no `delivery-plan.md`; the task description is the target, and the cycle closes by reporting the result and how it was verified back to the workbench driver (no plan status markers; `implementation-report.md` only when operational notes surface).
 
 Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)); it pulls specific knowledge for the area it is touching on demand.
 
@@ -41,9 +43,10 @@ Do **not** invoke when:
 2. Confirm the plan is accurate **and detailed enough**.
    If staged planning left this item shallow, deepen it before continuing by calling [`marshail-planner`](./marshail-planner.md) **directly** (the implementer does not need to route this through the driver) on the affected phase; log the deepening to that phase changelog and resume the cycle once the plan is detailed enough.
 3. Execute: write code, write or update tests, run Dev-QA where possible (per marshail.md Testing strategy).
+   **Close the feedback loop** before offering the result: run the tests you wrote, the build / typecheck, and — whenever the environment allows — the code, the application, or the UI flow you changed; report what you ran and observed, and name what you could not verify yourself (see [marshail.md § Closing the feedback loop](../marshail.md#closing-the-feedback-loop)).
 4. Offer the human a chance to inspect the result and give feedback before the cycle closes (optional — per the agreed interaction level; hands-off runs may skip it and rely on Verify and the approval gates).
    Apply the feedback directly for small corrections, or update the plan first (per the marshail.md review-feedback patterns) when it changes scope or approach — the same applies to feedback from a conversational review during the cycle.
-5. Capture operational notes in `implementation-report.md` as they surface — decisions taken, needed migrations, introduced toggles / flags, limitations, and anything the Verify, Rollout, or Review stages will need that only became clear during implementation.
+5. Capture operational notes in `implementation-report.md` as they surface — decisions taken, needed migrations, introduced toggles / flags, limitations, and anything the Verify, Rollout, or Review stages will need that only became clear during implementation — plus, per cycle, how the work was verified (what was run and observed) and what could not be verified.
 6. Close the cycle:
    - Update plan status markers (`[IN PROGRESS]` / `[DONE]` etc.).
    - Append entries to `logs/phase-<n>.changelog.md` (one per L1 delivery-plan phase; `n` is the phase number — append a short slug like `phase-2-auth` if helpful). Lifecycle-stage logs use the `stage-<n>-<name>` form instead, so the two never collide.
@@ -55,7 +58,7 @@ Do **not** invoke when:
 
 - Code + tests committed against the plan.
 - Updated `delivery-plan.md` (status markers, [FIXUP] / [ADDED] / [CHANGED] / [REVERT] / [DROPPED] entries with dates).
-- `implementation-report.md` — decisions and operational notes (migrations, toggles, limitations) for the Verify / Rollout / Review stages.
+- `implementation-report.md` — decisions and operational notes (migrations, toggles, limitations) for the Verify / Rollout / Review stages, and how each cycle's work was verified by the agent.
 - `logs/phase-<n>.changelog.md` (per L1 delivery-plan phase; optionally `phase-<n>-<slug>`).
 - `learning/phase-<n>.learning.md` (per L1 delivery-plan phase).
 
@@ -68,8 +71,9 @@ Do **not** invoke when:
 
 ## Handoff
 
-Returns to the orchestrator ([`marshail-driver`](./marshail-driver.md)) — or to the user, when this agent was invoked directly.
-The driver (or the user) decides what runs next; this agent does not call the next stage agent itself.
+Returns to the orchestrator ([`marshail-driver`](./marshail-driver.md), or [`marshail-workbench-driver`](./marshail-workbench-driver.md) in workbench mode) — or to the user, when this agent was invoked directly.
+The caller decides what runs next; this agent does not call the next stage agent itself.
+Every handoff states how the work was verified.
 
 - **Cycle done:** when all packets in the current PR boundary are done, next is [`marshail-verifier`](./marshail-verifier.md).
   Returns: `delivery-plan.md`, `change-brief.md`, `implementation-report.md`, list of changed files / tests.

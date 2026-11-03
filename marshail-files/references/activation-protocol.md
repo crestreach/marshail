@@ -27,10 +27,15 @@ Nested spawning is supported — a spawned agent may itself spawn.
 Only run an agent's source-of-truth file inline when no spawn tool is actually present.
 When unsure, check for the tool first; if it exists, prefer spawning.
 
+This rule is about **bounded tasks**.
+The conversational roles — `marshail-driver` and `marshail-workbench-driver` — run as the session agent or inline (via `marshail-drive` / `marshail-workbench`), because a spawned subagent cannot talk to the user; the driver is spawned only for a hands-off end-to-end run.
+See [marshail.md § How an agent runs](../marshail.md#how-an-agent-runs).
+
 ## Logging and resume
 
 The per-change working folder `.marshail/work/<change-id>/` holds the artifact chain plus a `logs/` folder.
 The working folder is created by whichever component starts the change — the driver in the driver-mediated model, or the first specialist agent / skill in the direct model — and `.marshail/work/current` is written at the same time so the active change never has to be guessed.
+A workbench session uses the same layout with a `wb-`-prefixed id, `workbench-session.md` as the root artifact, and `Mode: workbench` as the first line of `resume.md` (see [marshail.md § Workbench mode](../marshail.md#workbench-mode)).
 
 `logs/` keeps three kinds of file, each with a distinct job so the context stays small:
 

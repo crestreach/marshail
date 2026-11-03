@@ -18,6 +18,7 @@ Knowledge writes go through the curator.
 
 - After the Rollout stage (or the PR / Review stage if rollout was skipped).
 - Whenever phase learning files have accumulated and want promotion.
+- At the end of a [workbench session](../marshail.md#workbench-mode), when `learning/workbench.learning.md` has anything worth promoting.
 
 Do **not** invoke when:
 
@@ -26,7 +27,7 @@ Do **not** invoke when:
 
 ## Inputs
 
-- All `learning/*.learning.md` files for the change (subset of: `stage-1-specification`, `stage-2-intake`, `stage-3-analysis`, `stage-4-architecture`, `stage-5-plan`, `phase-<n>` for each L1 implementation phase, `stage-7-rollout`).
+- All `learning/*.learning.md` files for the change (subset of: `stage-1-specification`, `stage-2-intake`, `stage-3-analysis`, `stage-4-architecture`, `stage-5-plan`, `phase-<n>` for each L1 implementation phase, `stage-7-rollout`) — or `learning/workbench.learning.md` for a workbench session.
 - `architecture-notes.md` if the Architecture stage ran — its durable design decisions and rationale are reviewed here and the promotable ones are routed into the knowledge bucket (decisions / ADRs) via the curator's `from-learning` mode.
 - Targets that may be updated:
   - [`AGENTS.md`](../../AGENTS.md) (snippet to merge into the host repo's root `AGENTS.md`),

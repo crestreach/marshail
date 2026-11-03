@@ -20,6 +20,8 @@ Also composes the PR description and converts review feedback into plan updates 
 - A PR has been opened (or is being prepared) at the PR stage.
 - The author wants a self-review pass before requesting a human review.
 - The Verify stage passed and a coherent integration boundary is ready.
+- In [workbench mode](../marshail.md#workbench-mode): the user asks for a review of the current diff, or a PR comes out of the session (after the verifier has passed it).
+  With no plan, review against the round goals in `workbench-session.md` and the knowledge layer; feedback goes back to the workbench driver as the next round, not as plan updates.
 
 Do **not** invoke when:
 
@@ -45,6 +47,7 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
 4. For each changed area, pull the knowledge unit(s) whose **scope** covers the changed paths (the reading guide names the scope field) and check their claims against the diff.
 5. Walk requirements in `change-brief.md`; verify the PR addresses each.
 6. Check test changes against the testing strategy (marshail.md).
+   Check the verification claims in `implementation-report.md` and `verification-report.md` against the diff — what the implementer and verifier say they ran must match what the code and tests actually exercise (see [marshail.md § Closing the feedback loop](../marshail.md#closing-the-feedback-loop)).
 7. Compose PR description: linked phase(s) / packet(s), change summary, test summary, rollout note pointer, known limitations, follow-up packets.
 8. Compose the structured review.
 9. **On review feedback**, convert it into plan updates:
@@ -86,8 +89,8 @@ This final round obeys the same Verify-before-merge rule as every other round; t
 
 ## Handoff
 
-Returns the PR description + structured review to the orchestrator ([`marshail-driver`](./marshail-driver.md)) — or to the user, when this agent was invoked directly.
-The driver (or the user) decides what runs next; this agent does not edit code or merge.
+Returns the PR description + structured review to the orchestrator ([`marshail-driver`](./marshail-driver.md), or [`marshail-workbench-driver`](./marshail-workbench-driver.md) in workbench mode) — or to the user, when this agent was invoked directly.
+The caller decides what runs next; this agent does not edit code or merge.
 
 - **Next stage on merge (per the MARSHAIL process):** [`marshail-releaser`](./marshail-releaser.md) (Rollout) if rollout is in scope; otherwise [`marshail-learner`](./marshail-learner.md) (Learn) — or end-of-change.
   Pass: merged commit / tag, summary of what was integrated, any rollout-relevant notes from the PR.
