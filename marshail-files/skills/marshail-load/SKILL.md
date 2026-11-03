@@ -25,10 +25,12 @@ Setup skill — runs once per fresh session.
 ## Workflow
 
 1. Read entry point, `marshail-override.md` (if present and non-empty), config, the implementation's reading guide, and the knowledge root entry.
-2. Detect current MARSHAIL stage from the artifact chain present in the working folder, treating every stage as optional except the Plan stage (none → not started; `specification.md` only → the Specification stage done; `…` up to `learning-rollup.md` → the Learn stage done).
-   If `delivery-plan.md` is present, read its `Scope:` line to learn which stages were chosen for this change.
+2. Detect the mode and position from the working folder named by `.marshail/work/current`:
+   - If `logs/resume.md` starts with `Mode: workbench` (or the id is `wb-`-prefixed and `workbench-session.md` exists), this is a **workbench session** — report it as such (focus, last round, next action from `resume.md`); there is no stage to detect.
+   - Otherwise detect the current MARSHAIL stage from the artifact chain present, treating every stage as optional except the Plan stage (none → not started; `specification.md` only → the Specification stage done; `…` up to `learning-rollup.md` → the Learn stage done).
+     If `delivery-plan.md` is present, read its `Scope:` line to learn which stages were chosen for this change.
 3. Emit a short orientation block (≤ ~20 lines):
-   - process: which stage is current, which artifact is next, which stages were skipped per the plan's Scope.
+   - process: mode (staged change / workbench session); for a change, which stage is current, which artifact is next, which stages were skipped per the plan's Scope; for a session, the current focus and next action.
    - **overrides**: one-line note if `marshail-override.md` is present and non-empty ("override active: <one-line gist>"); omit when absent or empty.
    - knowledge: contract reference, implementation reference, autonomy mode, root entry summary line count.
    - skills available: next stage skill + relevant knowledge skills.
@@ -48,8 +50,9 @@ This skill only orients; it does **not** invoke anything itself.
 It reports which step would come next so the user (or the driver) can decide.
 
 - **Likely next:** the stage matching the detected position — typically the Specification stage ([`marshail-delegate-to-specify`](../marshail-delegate-to-specify/SKILL.md) or the [`marshail-specifier`](../../agents/marshail-specifier.md) agent), the Intake stage ([`marshail-delegate-to-intake`](../marshail-delegate-to-intake/SKILL.md)), or, when upstream stages are out of scope, the Plan stage ([`marshail-delegate-to-plan`](../marshail-delegate-to-plan/SKILL.md)).
+- **Workbench session:** continue it with [`marshail-workbench-driver`](../../agents/marshail-workbench-driver.md) (directly, or via [`marshail-workbench`](../marshail-workbench/SKILL.md)).
 - Whatever runs next re-reads its own inputs from disk; this skill passes only the orientation block.
 
 ## Subagent
 
-Used by [`marshail-driver`](../../agents/marshail-driver.md) as its first action.
+Used by [`marshail-driver`](../../agents/marshail-driver.md) and [`marshail-workbench-driver`](../../agents/marshail-workbench-driver.md) as their first action.

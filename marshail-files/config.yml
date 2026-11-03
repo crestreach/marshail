@@ -23,12 +23,13 @@ knowledge:
   autonomy: auto
 
   # Who invokes the knowledge curator after an agent populates the
-  # knowledge inbox (or after a stage / implementation cycle).
+  # knowledge inbox (or after a stage / implementation cycle / workbench
+  # round).
   #   driver = the agent does not call the curator; it reports back to its
-  #            caller (the marshail-driver, or the user when called
-  #            directly) that it populated the inbox, and the caller runs
-  #            marshail-knowledge-curator (default; keeps stage agents
-  #            focused on their own artifact).
+  #            caller (the marshail-driver, the marshail-workbench-driver,
+  #            or the user when called directly) that it populated the
+  #            inbox, and the caller runs marshail-knowledge-curator
+  #            (default; keeps stage agents focused on their own artifact).
   #   agent  = the agent calls marshail-knowledge-curator itself right
   #            after writing the inbox note.
   # Either way the driver may still run the curator after a stage or cycle.

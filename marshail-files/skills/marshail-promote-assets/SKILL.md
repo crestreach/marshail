@@ -95,6 +95,8 @@ MARSHAIL ships two parallel built-in skill flavors:
 
    Which flavor is promoted is controlled by `sync.skill_flavor` in [`config.yml`](../../config.yml) (default `delegate`; set to `fallback` to promote the inline skills instead).
    Both folders intentionally hold sibling names; promote at most **one** flavor per name to avoid conflicts.
+   Skills under `skills/` that have **no** `delegate-to-` prefix and no sibling — `marshail-init`, `marshail-load`, `marshail-promote-assets`, `marshail-drive`, `marshail-workbench` — are main-session skills and are promoted under **both** flavors.
+   Under `fallback`, the `skills/marshail-delegate-to-*` skills are not promoted at all (so `marshail-delegate-to-driver` does not exist there and `marshail-drive` is the only way to run the driver).
    Extensions have no fallback flavor — copy them as-is regardless.
 4. **Show the plan**: list the source files / folders and their destinations (built-ins as `marshail-*`, extensions as `mx-*`), then ask for approval before copying.
    Skip the prompt if the user explicitly said "go ahead", "just do it", or similar.
