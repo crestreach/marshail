@@ -6,7 +6,7 @@ It is intentionally compact so it is cheap to keep in context.
 
 Reference: [marshail.md](marshail.md) — full process spec.
 Reference: [marshail-override.md](marshail-override.md) — **optional** repo-specific overrides on top of `marshail.md`.
-Read it after `marshail.md`; anything in it takes precedence over the canonical spec on the points it addresses.
+Read it after `ENTRYPOINT.md`; anything in it takes precedence over the canonical spec on the points it addresses.
 If the file is empty, MARSHAIL behaves as specified in `marshail.md`.
 Knowledge contract: [references/knowledge-contract.md](references/knowledge-contract.md).
 Active implementation: read `knowledge.representation_ref` in [config.yml](config.yml) — it points at the implementation's **reading guide**, which names the knowledge root entry and links the implementation's maintenance guide (loaded only by agents that maintain knowledge).

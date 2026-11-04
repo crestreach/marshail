@@ -5,7 +5,7 @@ description: MARSHAIL Analysis stage. Reads the change brief plus existing knowl
 
 # marshail-code-archaeologist
 
-MARSHAIL Analysis stage — see [marshail.md](../marshail.md).
+MARSHAIL Analysis stage — see [marshail.md § 3. Research / analysis](../marshail.md#3-research--analysis-optional).
 Optional; may be skipped when the surface is already known or covered by the knowledge layer.
 
 ## Purpose

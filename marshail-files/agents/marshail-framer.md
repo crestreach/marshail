@@ -5,7 +5,7 @@ description: MARSHAIL Intake stage. Turns the approved `specification.md` (or th
 
 # marshail-framer
 
-MARSHAIL Intake stage — see [marshail.md](../marshail.md).
+MARSHAIL Intake stage — see [marshail.md § 2. Intake / framing](../marshail.md#2-intake--framing-optional).
 Optional; may be skipped for trivial changes or folded into the plan's framing section.
 
 ## Purpose

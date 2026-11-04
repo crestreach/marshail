@@ -5,7 +5,7 @@ description: 'MARSHAIL Learn stage. Merges per-phase learning files into `learni
 
 # marshail-learner
 
-MARSHAIL Learn stage — see [marshail.md](../marshail.md).
+MARSHAIL Learn stage — see [marshail.md § 8. Learn / improve the system](../marshail.md#8-learn--improve-the-system-optional).
 Optional; skip when no phase produced a learning file worth promoting.
 
 ## Purpose

@@ -5,7 +5,7 @@ description: MARSHAIL Implement stage. Drives implementation cycles — picks a 
 
 # marshail-implementer
 
-MARSHAIL Implement stage — see [marshail.md](../marshail.md).
+MARSHAIL Implement stage — see [marshail.md § 6a. Implement](../marshail.md#6a-implement).
 
 ## Purpose
 
@@ -23,7 +23,7 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
 
 - The Plan is approved; a packet / phase / step is ready for execution.
 - Mid-change, after a replan or fixup loop, to resume cycles.
-- For the final promotion round of an **integration branch** — apply any final code improvements, merge or rebase the integration branch onto the target branch, and resolve merge conflicts (see [marshail.md](../marshail.md) § Review / PR / integration / merge).
+- For the final promotion round of an **integration branch** — apply any final code improvements, merge or rebase the integration branch onto the target branch, and resolve merge conflicts (see [marshail.md § 6c. Review / PR / integration / merge](../marshail.md#6c-review--pr--integration--merge)).
 
 Do **not** invoke when:
 

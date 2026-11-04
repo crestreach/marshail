@@ -5,7 +5,7 @@ description: 'MARSHAIL Verify stage. Runs the explicit go/no-go gate — checks 
 
 # marshail-verifier
 
-MARSHAIL Verify stage — see [marshail.md](../marshail.md).
+MARSHAIL Verify stage — see [marshail.md § 6b. Verify](../marshail.md#6b-verify).
 Required before any PR. For trivial changes, the report may collapse into a short paragraph in the affected phase changelog — the rule still holds: nothing merges without an explicit verification step recorded somewhere.
 
 ## Purpose

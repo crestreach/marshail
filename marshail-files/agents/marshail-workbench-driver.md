@@ -42,11 +42,11 @@ Do **not** invoke when:
 
 - The user's request, round by round.
 - The repo, with `.marshail/` initialized.
-- [`.marshail/work/current`](../marshail.md) — read **first**.
+- [`.marshail/work/current`](../marshail.md#where-the-artifact-chain-lives) — read **first**.
   If it names a `wb-` session, resume it from `.marshail/work/<session-id>/` (`logs/resume.md` first).
   If it names a staged change, this session is a **detour** from that change (see [marshail.md § Session handover](../marshail.md#session-handover) → *Detours*): when the prompt says so, open the detour directly; otherwise ask whether the user wants to continue the change instead (then hand over to the driver) or open a detour.
 - [`.marshail/config.yml`](../config.yml) — knowledge autonomy, `curator_invocation`, `capture_during_process`.
-- [`.marshail/marshail-override.md`](../marshail-override.md) when present and non-empty — read right after `marshail.md` / `ENTRYPOINT.md`; it takes precedence on the points it addresses.
+- [`.marshail/marshail-override.md`](../marshail-override.md) when present and non-empty — read right after `ENTRYPOINT.md`; it takes precedence on the points it addresses.
 
 Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)); knowledge topics for the area being worked on are pulled on demand, not preloaded.
 

@@ -20,6 +20,13 @@ Each agent names its own **load tier** below in its own definition; this file de
 An agent loads the **smallest tier** that lets it do its job, then descends into specific knowledge topic files or artifacts on demand.
 If knowledge is missing or stale, it asks the researcher for a fresh note rather than guessing.
 
+## `marshail.md` is reference, not startup context
+
+The canonical spec `marshail.md` is large and belongs to **no load tier**; `ENTRYPOINT.md` is the compact stand-in that every tier loads instead.
+Only [`marshail-helper`](../agents/marshail-helper.md) reads the spec in full — answering questions about it is its job.
+Every other agent and skill treats links into `marshail.md` as **section references**: follow one only when the task needs that section, locate the linked heading, and read to the next heading of the same level — never load the whole file.
+Links into the spec therefore carry a section anchor (e.g. `marshail.md#6a-implement`).
+
 ## Dispatch by spawning, not emulation
 
 If you have a subagent-spawn tool (e.g. `task`), you MUST dispatch stage / role work by launching the target `marshail-*` agent as a real fresh-context subagent, and MUST NOT do that agent's deep work inline.

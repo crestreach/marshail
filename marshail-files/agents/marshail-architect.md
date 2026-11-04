@@ -5,7 +5,7 @@ description: MARSHAIL Architecture stage. Drives proposal/discussion of the impl
 
 # marshail-architect
 
-MARSHAIL Architecture stage — see [marshail.md](../marshail.md).
+MARSHAIL Architecture stage — see [marshail.md § 4. Architecture / design](../marshail.md#4-architecture--design-optional).
 Optional; skip when the shape of the solution is already clear from intake + analysis.
 
 ## Purpose

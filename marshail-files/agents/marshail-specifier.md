@@ -5,7 +5,7 @@ description: MARSHAIL Specification stage. Turns a raw user prompt into an agree
 
 # marshail-specifier
 
-MARSHAIL Specification stage — see [marshail.md](../marshail.md).
+MARSHAIL Specification stage — see [marshail.md § 1. Specification / clarify](../marshail.md#1-specification--clarify-optional).
 Optional; skippable for trivial or already-unambiguous prompts.
 
 ## Purpose

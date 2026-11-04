@@ -5,7 +5,7 @@ description: MARSHAIL Plan stage. Synthesizes `delivery-plan.md` from change bri
 
 # marshail-planner
 
-MARSHAIL Plan stage — see [marshail.md](../marshail.md).
+MARSHAIL Plan stage — see [marshail.md § 5. Plan / shape](../marshail.md#5-plan--shape-mandatory).
 **Mandatory.**
 Every change has a plan, even if it is a single phase with a single step; implementation never proceeds without it.
 

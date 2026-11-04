@@ -5,7 +5,7 @@ description: MARSHAIL Rollout stage. Drives creation of `rollout-note.md` coveri
 
 # marshail-releaser
 
-MARSHAIL Rollout stage — see [marshail.md](../marshail.md).
+MARSHAIL Rollout stage — see [marshail.md § 7. Release / rollout](../marshail.md#7-release--rollout-optional).
 Optional; skip for changes with no operational impact.
 
 ## Purpose

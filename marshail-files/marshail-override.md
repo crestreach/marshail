@@ -25,7 +25,7 @@ Use this file only for guidance about **MARSHAIL** (the process and its stage / 
 
 ## How agents pick it up
 
-Every MARSHAIL-aware agent that loads `marshail.md` for guidance also loads this file when present, immediately after `marshail.md`.
+Every MARSHAIL-aware agent loads this file when present, immediately after `ENTRYPOINT.md` (the helper, which reads the full spec, loads it right after `marshail.md`).
 Anything written here **takes precedence** over the canonical spec on the points it addresses.
 The conflict-resolution rule is:
 

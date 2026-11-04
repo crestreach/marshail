@@ -36,18 +36,18 @@ Do **not** invoke when:
 - A user prompt describing the change (feature / bugfix / refactor / tech-debt).
   The driver infers intent from this prompt and asks the user only when it is genuinely ambiguous.
 - The repo, with `.marshail/` initialized.
-- [`.marshail/work/current`](../marshail.md) — read **first**: the one-line pointer to the active `<change-id>`.
+- [`.marshail/work/current`](../marshail.md#where-the-artifact-chain-lives) — read **first**: the one-line pointer to the active `<change-id>`.
   If present, the driver resumes that change from its working folder `.marshail/work/<change-id>/` (artifacts + `logs/` + resume notes) rather than starting fresh.
   If it names a `wb-` workbench session instead, the driver either promotes that session into a change (its `workbench-session.md` becomes input to Intake / Plan) or asks whether the user meant to continue the session with [`marshail-workbench-driver`](./marshail-workbench-driver.md).
 - [`.marshail/config.yml`](../config.yml) (autonomy + any driver-specific flags).
 - [`.marshail/marshail-override.md`](../marshail-override.md) when present and non-empty — optional repo-specific overrides on top of [`marshail.md`](../marshail.md).
-  Read it immediately after `marshail.md` / `ENTRYPOINT.md`; entries here take precedence over the canonical spec on the points they address (stage policy, artifact policy, agent / skill preferences).
+  Read it immediately after `ENTRYPOINT.md`; entries here take precedence over the canonical spec on the points they address (stage policy, artifact policy, agent / skill preferences).
 
 Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
 
 ## Outputs
 
-- The full canonical artifact chain in the working folder (see [marshail.md — Canonical artifact chain](../marshail.md)): `specification.md` → `change-brief.md` → `repo-recon.md` → optional `architecture-notes.md` → `delivery-plan.md` → code + `implementation-report.md` + phase logs + phase learnings → `verification-report.md` → `rollout-note.md` → `learning-rollup.md`.
+- The full canonical artifact chain in the working folder (see [marshail.md § Canonical artifact chain](../marshail.md#canonical-artifact-chain)): `specification.md` → `change-brief.md` → `repo-recon.md` → optional `architecture-notes.md` → `delivery-plan.md` → code + `implementation-report.md` + phase logs + phase learnings → `verification-report.md` → `rollout-note.md` → `learning-rollup.md`.
 - Per-stage approval prompts surfaced to the human.
 - Short stage-summary report back to the parent context.
 
@@ -71,7 +71,7 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
    3. Wait for the human approval gate before moving to the next stage.
    4. Append entries to the phase changelog and learning file, and update the working folder's **resume notes** (a short `logs/resume.md`: current stage, last artifact, next action, open questions) so any later session can resume cleanly.
 5. **Replanning watch.**
-   If new information invalidates an assumption captured at an earlier stage, pause, propose the smallest replanning that covers it, and resume after approval (per [marshail.md replanning rule](../marshail.md)).
+   If new information invalidates an assumption captured at an earlier stage, pause, propose the smallest replanning that covers it, and resume after approval (per [marshail.md § Replanning rule](../marshail.md#replanning-rule)).
    If a stretch of work turns out to be exploratory rework that does not fit the plan, propose a **detour** into workbench mode: bring `resume.md` up to date, then tell the user to start a session with [`marshail-workbench-driver`](./marshail-workbench-driver.md) using a one-line prompt that names this change (*workbench detour from change `<change-id>`*).
    The workbench driver records the change id in its own `resume.md` and points `.marshail/work/current` back at it when the session finishes, so this driver simply resumes the change on its next activation.
    Do not spawn the workbench driver (see [marshail.md § Session handover](../marshail.md#session-handover) → *Detours*).
