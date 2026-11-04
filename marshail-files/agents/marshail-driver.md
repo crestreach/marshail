@@ -79,7 +79,7 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
    After the Learn stage (if run), dispatch mode `from-learning`.
    Whether the stage agents call the curator themselves or the driver does it is governed by `knowledge.curator_invocation` in [`config.yml`](../config.yml); regardless of that setting the driver may run the curator after a stage or cycle.
 7. **Final handoff.**
-   Summarize stages, artifacts, open follow-ups, then **archive** the working folder: move `.marshail/work/<change-id>/` → `.marshail/archive/<change-id>/` (or delete it when `knowledge.autonomy: auto` and the user did not ask to keep it) and clear `.marshail/work/current`.
+   Summarize stages, artifacts, open follow-ups, then **archive** the working folder: move `.marshail/work/<change-id>/` → `.marshail/archive/<change-id>/` and clear `.marshail/work/current`.
    The user may also request this move on demand instead of at final handoff.
 
 ## Stage chain (driver-routed)

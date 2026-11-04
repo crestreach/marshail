@@ -153,7 +153,7 @@ The caller does **not** pass a run id: an agent **marks its run section finished
 Every agent refreshes `resume.md` and appends to its run log before handing back, so the next dispatch continues where the last left off.
 The full contract lives in [`references/activation-protocol.md`](references/activation-protocol.md).
 
-When a change is finalized, the working folder is **archived** to `.marshail/archive/<change-id>/` (retained for reference; deleted instead when `knowledge.autonomy: auto` and the user has not asked to keep it), and `.marshail/work/current` is cleared.
+When a change is finalized, the working folder is **archived** to `.marshail/archive/<change-id>/` (retained for reference), and `.marshail/work/current` is cleared.
 The [`marshail-driver`](agents/marshail-driver.md) performs this move on final handoff by default; the user can also trigger it on demand (or do it manually).
 
 
