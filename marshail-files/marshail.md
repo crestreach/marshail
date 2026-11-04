@@ -1026,14 +1026,13 @@ The MARSHAIL core matters here as much as in a staged change:
 
 - `<session-id>` is `wb-YYYY-MM-DD-<slug>`; the `wb-` prefix marks a workbench session.
   `.marshail/work/current` points at it like at any change.
-- When a workbench session is a detour from or starts alongside an active staged change, `logs/resume.md` also records `Return to change: <change-id>`.
-  This route is preserved on every resume update and is used to restore `.marshail/work/current` when the workbench session finishes.
 - `workbench-session.md` is the session's root artifact and the mode marker (it takes the place of `delivery-plan.md`):
   - goal / focus area, in the user's words
   - rounds log: one short entry per round — what was asked, what was done, how it was verified, outcome
   - decisions taken and options rejected
   - open items / follow-ups
-- `logs/resume.md` starts with `Mode: workbench`, so any agent that opens the folder knows immediately which mode it is in; otherwise it follows the usual resume contract (current focus, last round, next action, open questions).
+- `logs/resume.md` starts with `Mode: workbench`, so any agent that opens the folder knows immediately which mode it is in; for a [detour](#session-handover) from a staged change the second line is `Return to change: <change-id>`.
+  Otherwise it follows the usual resume contract (current focus, last round, next action, open questions).
 - `logs/<agent>.log.md` — per-agent run logs, as in a change.
 - `learning/workbench.learning.md` — reusable lessons only, same rules as phase learning files.
 - `implementation-report.md` is kept when a round surfaces operational notes (migrations, toggles, limitations) that a later Verify / PR / Rollout needs.
@@ -1192,12 +1191,19 @@ When a tight live back-and-forth with one specialist is needed, prefer the direc
 
 Switching between the conversational roles — driver ↔ workbench driver, or a session promoted into a change — is a **session handover**, not a delegation.
 The current agent makes sure `logs/resume.md` and the root artifact (`delivery-plan.md` / `workbench-session.md`) are current, then tells the user to start a session with the other agent and gives a one-line prompt to paste (e.g. *continue change `<change-id>`*, *continue workbench session `<session-id>`*).
-The receiving agent reads `.marshail/work/current` and `resume.md` on activation.
-For a staged-change detour into workbench mode, the driver includes the originating `<change-id>` in the one-line prompt as the return destination.
-The workbench driver records it as `Return to change: <change-id>` in its `logs/resume.md` before replacing `.marshail/work/current` with the workbench session id.
-On finish, it reads that route before archiving or deleting the session, then restores `.marshail/work/current` to the originating change id; without a return route, it clears the pointer as usual.
+The receiving agent reads `.marshail/work/current` and `resume.md` on activation, so nothing else has to be passed.
 Where the tool cannot make the agent the session agent, the user asks the chat agent to run it inline (`marshail-drive` / `marshail-workbench`).
 The handover wording is tool-agnostic.
+
+**Detours.**
+A workbench session can be a **detour** from an active staged change — the driver proposes one for exploratory rework that does not fit the plan, or the user opens a session while a change is active.
+Because `.marshail/work/current` points at one folder at a time, the detour has to remember where to come back to:
+
+- When the workbench driver opens the session, it writes `Return to change: <change-id>` as the second line of its `logs/resume.md` (right after `Mode: workbench`) and then points `.marshail/work/current` at the session.
+  The driver's one-line handover prompt names the change id so the workbench driver knows it is a detour.
+- The return line is kept through every rewrite of `resume.md`.
+- When the session finishes, the workbench driver points `.marshail/work/current` back at that change id instead of clearing it, so the driver's next activation resumes the change exactly where it left off.
+  A session with no return line clears the pointer as usual.
 
 ---
 

@@ -36,7 +36,7 @@ See [marshail.md § How an agent runs](../marshail.md#how-an-agent-runs).
 The per-change working folder `.marshail/work/<change-id>/` holds the artifact chain plus a `logs/` folder.
 The working folder is created by whichever component starts the change — the driver in the driver-mediated model, or the first specialist agent / skill in the direct model — and `.marshail/work/current` is written at the same time so the active change never has to be guessed.
 A workbench session uses the same layout with a `wb-`-prefixed id, `workbench-session.md` as the root artifact, and `Mode: workbench` as the first line of `resume.md` (see [marshail.md § Workbench mode](../marshail.md#workbench-mode)).
-When a staged change is its return destination, `resume.md` also records `Return to change: <change-id>`; the workbench driver restores `.marshail/work/current` to that id when the session finishes.
+A session that is a **detour** from an active staged change adds `Return to change: <change-id>` as the second line of `resume.md`; when the session finishes, `.marshail/work/current` is pointed back at that change (see [marshail.md § Session handover](../marshail.md#session-handover) → *Detours*).
 
 `logs/` keeps three kinds of file, each with a distinct job so the context stays small:
 

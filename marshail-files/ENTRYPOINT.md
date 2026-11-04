@@ -67,7 +67,7 @@ Workbench mode is led by `marshail-workbench-driver`, with the main-session skil
 A specialist reached through its `marshail-delegate-to-*` skill runs as a subagent — one bounded run, questions returned through the chat agent; its interactive parts (e.g. the implementer's inspect-and-feedback step) only happen when it is the session agent or runs inline.
 In the driver-mediated model the human-in-the-loop level ranges from hands-off (return only for key decisions and approval gates) to collaborative (decide together, phase by phase), inferred from the prompt and `config.yml` autonomy and adjustable at any stage boundary.
 Switching between the driver and the workbench driver is a **session handover** (state on disk + a one-line prompt for the user), never a spawn.
-When a workbench detours from or starts alongside an active staged change, its resume notes record the originating change id and restore `.marshail/work/current` on return.
+A workbench session can be a **detour** from an active staged change: its `resume.md` records `Return to change: <change-id>`, and when the session finishes `.marshail/work/current` is pointed back at that change so the driver resumes it.
 See `marshail-driver` and `marshail.md` for the full description and the turn-based mediation tradeoff.
 
 The agent file states the prerequisites, inputs, outputs, and handoff.
