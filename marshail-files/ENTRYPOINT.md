@@ -59,7 +59,7 @@ The Plan stage is the only mandatory stage; all others are optional unless noted
 | Learn | `marshail-learner` | `marshail-delegate-to-learn` | `marshail-learn` | `learning-rollup.md` | optional |
 
 The full end-to-end orchestrator is `marshail-driver`.
-Its skills are `marshail-drive` (main-session: runs the driver inline for collaborative / interactive runs and resumes; asks first when the intent is unclear) and `marshail-delegate-to-driver` (spawns the driver only for a hands-off end-to-end run; not promoted under the fallback flavor).
+Its skills are `marshail-drive` (main-session: runs the driver inline for collaborative / interactive runs and resumes; asks first when the intent is unclear) and `marshail-delegate-to-driver` (spawns the driver only for a hands-off end-to-end run; fallback flavor: `marshail-drive-end-to-end`, which runs that hands-off run inline).
 Workbench mode is led by `marshail-workbench-driver`, with the main-session skill `marshail-workbench` (runs it inline; never spawns it).
 `marshail-drive` and `marshail-workbench` know about each other and offer both when it is unclear whether the user wants a staged change or an iterative session.
 

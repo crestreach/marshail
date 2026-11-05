@@ -72,8 +72,9 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
    4. Append entries to the phase changelog and learning file, and update the working folder's **resume notes** (a short `logs/resume.md`: current stage, last artifact, next action, open questions) so any later session can resume cleanly.
 5. **Replanning watch.**
    If new information invalidates an assumption captured at an earlier stage, pause, propose the smallest replanning that covers it, and resume after approval (per [marshail.md § Replanning rule](../marshail.md#replanning-rule)).
-   If a stretch of work turns out to be exploratory rework that does not fit the plan, propose a **detour** into workbench mode: bring `resume.md` up to date, then tell the user to start a session with [`marshail-workbench-driver`](./marshail-workbench-driver.md) using a one-line prompt that names this change (*workbench detour from change `<change-id>`*).
-   The workbench driver records the change id in its own `resume.md` and points `.marshail/work/current` back at it when the session finishes, so this driver simply resumes the change on its next activation.
+   If a stretch of work turns out to be exploratory rework that does not fit the plan, propose a **detour** into workbench mode.
+   On agreement: add the detour to `delivery-plan.md` under the item it serves (`Workbench detour <session-id> [DETOUR yyyy-mm-dd] [IN PROGRESS]`, one-line purpose), log it to the phase changelog, bring `resume.md` up to date, then tell the user to start a session with [`marshail-workbench-driver`](./marshail-workbench-driver.md) using a one-line prompt that names this change (*workbench detour from change `<change-id>`*).
+   When the session finishes, the workbench driver has the planner update the plan (detour marked done, resulting changes folded in) and points `.marshail/work/current` back at this change, so this driver simply resumes the updated plan on its next activation.
    Do not spawn the workbench driver (see [marshail.md § Session handover](../marshail.md#session-handover) → *Detours*).
 6. **Knowledge upkeep.**
    After each implementation cycle, dispatch [`marshail-knowledge-curator`](./marshail-knowledge-curator.md) mode `from-changes`.

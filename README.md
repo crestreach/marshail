@@ -89,7 +89,7 @@ Why both: a tool loads only the name and description of every agent and skill at
 - **Knowledge:** `marshail-knowledge-curator` (maintenance in all modes) and `marshail-researcher` (read-only, source-linked deep dives).
 - **Orchestration / help:** `marshail-driver` (runs a staged change end to end), `marshail-workbench-driver` (leads a workbench session round by round), and `marshail-helper` (procedural and conceptual questions).
 - **Main-session skills:** `marshail-init`, `marshail-load`, `marshail-promote-assets`, plus `marshail-drive` and `marshail-workbench`, which run the two conversational roles inline when you are not already in a direct session with them (and ask first when the intent is unclear).
-  `marshail-delegate-to-driver` spawns the driver only for a hands-off end-to-end run.
+  `marshail-delegate-to-driver` spawns the driver only for a hands-off end-to-end run (its no-subagent fallback is `marshail-drive-end-to-end`).
 
 Every agent declares a startup **load tier** and follows the shared [`activation-protocol.md`](./marshail-files/references/activation-protocol.md), and every agent hands its result back to the orchestrator (`marshail-driver` or `marshail-workbench-driver`) — or to the user, when invoked directly — stating how it verified its work.
 

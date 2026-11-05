@@ -239,6 +239,7 @@ Use simple inline markers:
 - `[CHANGED yyyy-mm-dd]`
 - `[FIXUP yyyy-mm-dd]`
 - `[REVERT yyyy-mm-dd]`
+- `[DETOUR yyyy-mm-dd]` — a workbench detour taken from this item (see [Session handover → Detours](#session-handover))
 
 ## Parallelism
 
@@ -1105,16 +1106,15 @@ Setup / main-session skills (no subagent counterpart — these are intentionally
 - [`marshail-workbench`](skills/marshail-workbench/SKILL.md) — run a workbench session with [`marshail-workbench-driver`](agents/marshail-workbench-driver.md) **inline** when the user is not already in a direct session with it; asks first when the intent is unclear.
   `marshail-drive` and `marshail-workbench` know about each other: when it is unclear whether the user wants a staged change or an iterative session, the skill that fired offers both.
 
-Skill promotion by flavor: under `sync.skill_flavor: delegate` everything under `.marshail/skills/` is promoted; under `fallback` the `marshail-delegate-to-*` skills are **not** promoted (the `skills-fallback/` siblings take their place) while every other skill under `.marshail/skills/` — `init`, `load`, `promote-assets`, `drive`, `workbench` — is promoted under both flavors.
-So in a no-subagent environment `marshail-delegate-to-driver` simply does not exist and `marshail-drive` is the only way to run the driver.
+Skill promotion by flavor: under `sync.skill_flavor: delegate` everything under `.marshail/skills/` is promoted; under `fallback` the `marshail-delegate-to-*` skills are replaced by their `skills-fallback/` counterparts, while every other skill under `.marshail/skills/` — `init`, `load`, `promote-assets`, `drive`, `workbench` — is promoted under both flavors.
 
 Help / orchestration:
 - [`marshail-helper`](agents/marshail-helper.md) — on-demand MARSHAIL coach: answers procedural and conceptual questions, orients the caller in the current change, and hands off to the right stage agent or to [`marshail-driver`](agents/marshail-driver.md).
   Wrappers: [`marshail-delegate-to-help`](skills/marshail-delegate-to-help/SKILL.md) (delegate) / [`marshail-help`](skills-fallback/marshail-help/SKILL.md) (fallback).
 - [`marshail-driver`](agents/marshail-driver.md) — full end-to-end process orchestrator across stages; a conversational role, best run as the session agent.
   Skills: [`marshail-drive`](skills/marshail-drive/SKILL.md) (main-session; runs the driver inline for collaborative / interactive runs) and [`marshail-delegate-to-driver`](skills/marshail-delegate-to-driver/SKILL.md) (spawns the driver **only** for a hands-off end-to-end run; their triggers are mutually exclusive).
-  No `skills-fallback/` entry — `marshail-drive` already is the inline path.
-- [`marshail-workbench-driver`](agents/marshail-workbench-driver.md) — conversational lead for [workbench mode](#workbench-mode): works with the user round by round and delegates every task to a specialist in fresh context.
+  Fallback for the hands-off run: [`marshail-drive-end-to-end`](skills-fallback/marshail-drive-end-to-end/SKILL.md) (runs the driver inline, returning only at approval gates and key decisions).
+- [`marshail-workbench-driver`](agents/marshail-workbench-driver.md) — interactive orchestrator for [workbench mode](#workbench-mode): works with the user round by round and delegates every task to a specialist in fresh context.
   Skill: [`marshail-workbench`](skills/marshail-workbench/SKILL.md) (main-session; never spawns the agent).
 
 Knowledge agent and skills (see Knowledge):
@@ -1197,12 +1197,14 @@ The handover wording is tool-agnostic.
 
 **Detours.**
 A workbench session can be a **detour** from an active staged change — the driver proposes one for exploratory rework that does not fit the plan, or the user opens a session while a change is active.
-Because `.marshail/work/current` points at one folder at a time, the detour has to remember where to come back to:
+A detour is part of the change, so it is recorded in the plan, and `.marshail/work/current` has to remember where to come back to:
 
+- Before the handover, the driver adds the detour to `delivery-plan.md` under the item it serves — `Workbench detour <session-id> [DETOUR yyyy-mm-dd] [IN PROGRESS]` with a one-line purpose — and logs it to the phase changelog.
+  Its one-line handover prompt names the change id so the workbench driver knows it is a detour.
 - When the workbench driver opens the session, it writes `Return to change: <change-id>` as the second line of its `logs/resume.md` (right after `Mode: workbench`) and then points `.marshail/work/current` at the session.
-  The driver's one-line handover prompt names the change id so the workbench driver knows it is a detour.
-- The return line is kept through every rewrite of `resume.md`.
-- When the session finishes, the workbench driver points `.marshail/work/current` back at that change id instead of clearing it, so the driver's next activation resumes the change exactly where it left off.
+  The return line is kept through every rewrite of `resume.md`.
+- When the session finishes, the workbench driver spawns [`marshail-planner`](agents/marshail-planner.md) with `workbench-session.md` to update the plan: mark the detour item `[DONE]` (or `[DROPPED]`; add it first if the user opened the detour without the driver) and fold in whatever the session changed — new or changed items `[ADDED]` / `[CHANGED]`, obsolete ones `[DROPPED]` — logging the rationale to the phase changelog.
+  Then it points `.marshail/work/current` back at the change id instead of clearing it, so the driver's next activation resumes an up-to-date plan.
   A session with no return line clears the pointer as usual.
 
 ---

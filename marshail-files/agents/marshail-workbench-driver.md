@@ -96,11 +96,12 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
 6. **Finish.**
    On the user's request, summarize the session (rounds, decisions, open items, learnings).
    Before removing the working folder, offer the Learn stage ([`marshail-learner`](./marshail-learner.md)) when `learning/workbench.learning.md` has anything worth promoting; wait for the user's choice and complete any requested Learn run and its knowledge-promotion handoff while the folder is still active.
-   Then archive the folder to `.marshail/archive/<session-id>/` and update `.marshail/work/current`: for a detour, point it back at the `Return to change` id so the driver resumes that change; otherwise clear it.
+   For a detour, first spawn [`marshail-planner`](./marshail-planner.md) with `workbench-session.md` to update the change's `delivery-plan.md`: mark the detour item `[DONE]` (or `[DROPPED]`; add it if missing) and fold in what the session changed (`[ADDED]` / `[CHANGED]` / `[DROPPED]`), logging the rationale to the phase changelog.
+   Then archive the folder to `.marshail/archive/<session-id>/` and update `.marshail/work/current`: for a detour, point it back at the `Return to change` id so the driver resumes the updated plan; otherwise clear it.
 
 ## Agents used
 
-- Task agents: [`marshail-researcher`](./marshail-researcher.md), [`marshail-code-archaeologist`](./marshail-code-archaeologist.md), [`marshail-implementer`](./marshail-implementer.md), [`marshail-verifier`](./marshail-verifier.md), [`marshail-reviewer`](./marshail-reviewer.md), [`marshail-architect`](./marshail-architect.md), [`marshail-learner`](./marshail-learner.md).
+- Task agents: [`marshail-planner`](./marshail-planner.md) (plan update when a detour finishes), [`marshail-researcher`](./marshail-researcher.md), [`marshail-code-archaeologist`](./marshail-code-archaeologist.md), [`marshail-implementer`](./marshail-implementer.md), [`marshail-verifier`](./marshail-verifier.md), [`marshail-reviewer`](./marshail-reviewer.md), [`marshail-architect`](./marshail-architect.md), [`marshail-learner`](./marshail-learner.md).
 - Knowledge agent: [`marshail-knowledge-curator`](./marshail-knowledge-curator.md) (`from-changes`, `from-learning`).
 - Help agent: [`marshail-helper`](./marshail-helper.md).
 
