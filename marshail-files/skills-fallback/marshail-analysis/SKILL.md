@@ -7,8 +7,6 @@ description: MARSHAIL Analysis stage. Fallback skill for environments without su
 
 This skill performs the work that the [`marshail-code-archaeologist`](../../agents/marshail-code-archaeologist.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
 
-**Source of truth:** [`marshail-code-archaeologist.md`](../../agents/marshail-code-archaeologist.md).
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+**Source of truth:** [`marshail-code-archaeologist.md`](../../agents/marshail-code-archaeologist.md) — for the agent's behavior; this skill only describes how it gets activated.
 
 > If subagents *are* available, prefer [`marshail-delegate-to-analysis`](../../skills/marshail-delegate-to-analysis/SKILL.md) so the work runs in fresh context.

@@ -7,8 +7,6 @@ description: MARSHAIL Architecture stage. Fallback skill for environments withou
 
 This skill performs the work that the [`marshail-architect`](../../agents/marshail-architect.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
 
-**Source of truth:** [`marshail-architect.md`](../../agents/marshail-architect.md).
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+**Source of truth:** [`marshail-architect.md`](../../agents/marshail-architect.md) — for the agent's behavior; this skill only describes how it gets activated.
 
 > If subagents *are* available, prefer [`marshail-delegate-to-architecture`](../../skills/marshail-delegate-to-architecture/SKILL.md) so the work runs in fresh context.

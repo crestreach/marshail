@@ -6,8 +6,7 @@ description: Run or resume a staged MARSHAIL change with marshail-driver in the 
 # marshail-drive
 
 Main-session skill for running a staged change with [`marshail-driver`](../../agents/marshail-driver.md).
-The agent file is the source of truth — read it and follow its **Inputs / Workflow / Outputs / Handoff** sections exactly.
-Do not duplicate that content here.
+The agent file is the source of truth for the agent's behavior; this skill only describes how it gets activated.
 
 ## Behavior
 
@@ -20,11 +19,10 @@ Do not duplicate that content here.
 
 Do **not** spawn the driver from this skill.
 Spawning the driver is right only for a hands-off end-to-end run with few interaction points — that is [`marshail-delegate-to-driver`](../marshail-delegate-to-driver/SKILL.md), whose triggers are mutually exclusive with this skill's (see [marshail.md § How an agent runs](../../marshail.md#how-an-agent-runs)).
-In an environment without subagent support `marshail-delegate-to-driver` is not promoted, and this skill is the only way to run the driver.
 
 ## Call contract
 
 - **Agent run inline:** `marshail-driver`.
-- **Pass:** the user's prompt describing the change; the repo with `.marshail/` initialized; `.marshail/config.yml`.
+- **Pass:** the user's prompt describing the change; the repo with `.marshail/` initialized.
 - **Expect:** the canonical artifact chain in `.marshail/work/<change-id>/`; approval gates surfaced in the conversation; a stage-summary at the end.
 - **On handover:** when the driver says a stretch of work fits a workbench session better, the user starts a session with `marshail-workbench-driver` (or runs [`marshail-workbench`](../marshail-workbench/SKILL.md)) with the one-line prompt the driver gives.

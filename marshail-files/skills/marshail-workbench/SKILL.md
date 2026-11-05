@@ -6,8 +6,7 @@ description: Start or continue a MARSHAIL workbench session — iterative, plan-
 # marshail-workbench
 
 Main-session skill for [workbench mode](../../marshail.md#workbench-mode).
-The agent it runs is [`marshail-workbench-driver`](../../agents/marshail-workbench-driver.md); that file is the source of truth — read it and follow its **Inputs / Workflow / Outputs / Handoff** sections exactly.
-Do not duplicate that content here.
+The agent it runs is [`marshail-workbench-driver`](../../agents/marshail-workbench-driver.md); that file is the source of truth for the agent's behavior — this skill only describes how it gets activated.
 
 ## Behavior
 
@@ -23,6 +22,6 @@ The specialists the workbench driver uses *are* spawned, per its workflow.
 ## Call contract
 
 - **Agent run inline:** `marshail-workbench-driver`.
-- **Pass:** the user's request; the repo with `.marshail/` initialized; `.marshail/config.yml`.
+- **Pass:** the user's request; the repo with `.marshail/` initialized.
 - **Expect:** a session working folder `.marshail/work/wb-<date>-<slug>/` with `workbench-session.md`, `logs/resume.md` (`Mode: workbench`), per-agent run logs, `learning/workbench.learning.md`; short per-round reports; knowledge kept in sync.
 - **On handover:** when the agent says the work has outgrown a session, the user starts a session with `marshail-driver` (or runs [`marshail-drive`](../marshail-drive/SKILL.md)) with the one-line prompt the agent gives.

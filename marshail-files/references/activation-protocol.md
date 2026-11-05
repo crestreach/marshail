@@ -27,49 +27,30 @@ Only [`marshail-helper`](../agents/marshail-helper.md) reads the spec in full �
 Every other agent and skill treats links into `marshail.md` as **section references**: follow one only when the task needs that section, locate the linked heading, and read to the next heading of the same level — never load the whole file.
 Links into the spec therefore carry a section anchor (e.g. `marshail.md#6a-implement`).
 
-## Dispatch by spawning, not emulation
-
-If you have a subagent-spawn tool (e.g. `task`), you MUST dispatch stage / role work by launching the target `marshail-*` agent as a real fresh-context subagent, and MUST NOT do that agent's deep work inline.
-Nested spawning is supported — a spawned agent may itself spawn.
-Only run an agent's source-of-truth file inline when no spawn tool is actually present.
-When unsure, check for the tool first; if it exists, prefer spawning.
-
-This rule is about **bounded tasks**.
-The conversational roles — `marshail-driver` and `marshail-workbench-driver` — run as the session agent or inline (via `marshail-drive` / `marshail-workbench`), because a spawned subagent cannot talk to the user; the driver is spawned only for a hands-off end-to-end run.
-See [marshail.md § How an agent runs](../marshail.md#how-an-agent-runs).
-
 ## Logging and resume
 
-The per-change working folder `.marshail/work/<change-id>/` holds the artifact chain plus a `logs/` folder.
-The working folder is created by whichever component starts the change — the driver in the driver-mediated model, or the first specialist agent / skill in the direct model — and `.marshail/work/current` is written at the same time so the active change never has to be guessed.
-A workbench session uses the same layout with a `wb-`-prefixed id, `workbench-session.md` as the root artifact, and `Mode: workbench` as the first line of `resume.md` (see [marshail.md § Workbench mode](../marshail.md#workbench-mode)).
-A session that is a **detour** from an active staged change adds `Return to change: <change-id>` as the second line of `resume.md`; when the session finishes, `.marshail/work/current` is pointed back at that change (see [marshail.md § Session handover](../marshail.md#session-handover) → *Detours*).
+Every change has a working folder `.marshail/work/<change-id>/`, created by whichever component starts the change (the driver, or the first specialist agent / skill in the direct model) together with the one-line pointer `.marshail/work/current`, so the active change never has to be guessed.
+A workbench session uses the same layout with a `wb-`-prefixed id and `workbench-session.md` as its root artifact (see [marshail.md § Workbench mode](../marshail.md#workbench-mode)).
 
-`logs/` keeps three kinds of file, each with a distinct job so the context stays small:
+The folder holds the artifact chain plus `logs/`, which keeps three kinds of file so that resuming stays cheap:
 
-- **`resume.md`** — a single, short "where are we" file: current stage, active phase / cycle, the next action, and open decisions / questions.
-  It is **rewritten (compacted), not appended**, on every update, so it stays cheap to load.
-  This is the only log read by default on resume.
-- **`<agent>.log.md`** — one append-only log per agent role (e.g. `planner.log.md`, `implementer.log.md`).
-  Detailed, not loaded by default; consulted only when the thread for that role must be reconstructed.
-- **`stage-<n>-<name>.changelog.md` / `phase-<n>.changelog.md`** — the changelog of record: one `stage-…` file per lifecycle stage (e.g. `stage-3-analysis`), plus one `phase-…` file per delivery-plan L1 phase during Implement (e.g. `phase-2`, optionally `phase-2-<slug>`).
+- **`resume.md`** — one short "where are we" file: current stage (or, for a session, `Mode: workbench` on the first line and `Return to change: <change-id>` on the second when the session is a detour), active phase / cycle, next action, open decisions / questions.
+  Rewritten and compacted on every update, never appended; the only log read by default on resume.
+- **`<agent>.log.md`** — one append-only log per agent role (e.g. `planner.log.md`).
+  Detailed; read only when that role's thread must be reconstructed.
+- **`stage-<n>-<name>.changelog.md` / `phase-<n>.changelog.md`** — the changelog of record: one per lifecycle stage, plus one per delivery-plan L1 phase during Implement (optionally `phase-<n>-<slug>`).
 
-**Fresh-run vs resume.**
-Because an agent can run many times for one change (replanning, an implementation cycle per phase), each invocation works against a **run section** in its `<agent>.log.md`:
+**Run sections.**
+An agent can run many times for one change, so each invocation works in a run section of its `<agent>.log.md`:
 
 ```
 ## Run <n> — <ISO-8601 timestamp>
 ```
 
-The caller does **not** pass a run id.
-Instead, each agent **marks its run section finished** when it completes its work (and leaves it unmarked while the work is still in progress).
-On the next invocation the agent reads the **last run section** in its `<agent>.log.md` and decides:
+The caller passes no run id.
+An agent marks its section **finished** when its work is done and leaves it open while in progress; on the next invocation it reads the last section — finished → open a fresh run, unfinished → resume that run.
+The prompt overrides this heuristic ("start over", "continue run 2").
+Previous runs may be read for continuity but are never overwritten.
 
-- last section **marked finished** → the previous run is done, so this is a **fresh run**: open a new section.
-- last section **not finished** → the previous run was interrupted, so **resume** it (continue in the same section).
-
-The **prompt takes precedence** over this heuristic: if the caller (or user) explicitly asks to start over / open a new run, or to continue a specific prior run, honor that regardless of the last section's state.
-The agent may read the previous run for continuity but never silently overwrites it.
-
-On resume, an agent reads `resume.md` first (always), then descends into its own `<agent>.log.md` or the phase changelogs only if it needs more detail.
-Every agent that changes state appends to its run section and refreshes `resume.md` before handing back; when it has actually finished its work it **marks the run section finished** (the signal the next invocation uses to tell a fresh run from a resume), so the next dispatch — by the driver or directly by the user — can continue from disk.
+**On activation**, an agent reads `resume.md` first and descends into its own log or the changelogs only if it needs more detail.
+**Before handing back**, every agent that changed state appends to its run section, refreshes `resume.md`, and — when its work is actually complete — marks the section finished, so the next dispatch (by the driver or directly by the user) continues from disk.

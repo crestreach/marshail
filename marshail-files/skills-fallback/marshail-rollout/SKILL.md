@@ -7,8 +7,6 @@ description: MARSHAIL Rollout / release stage. Fallback skill for environments w
 
 This skill performs the work that the [`marshail-releaser`](../../agents/marshail-releaser.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
 
-**Source of truth:** [`marshail-releaser.md`](../../agents/marshail-releaser.md).
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+**Source of truth:** [`marshail-releaser.md`](../../agents/marshail-releaser.md) — for the agent's behavior; this skill only describes how it gets activated.
 
 > If subagents *are* available, prefer [`marshail-delegate-to-rollout`](../../skills/marshail-delegate-to-rollout/SKILL.md) so the work runs in fresh context.

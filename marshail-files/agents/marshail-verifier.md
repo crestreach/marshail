@@ -44,7 +44,7 @@ Do **not** invoke when:
 - `implementation-report.md` — notes the implementer captured during the cycle (migrations, toggles, limitations) that verification should account for.
 - Existing `verification-report.md` if a prior round was run.
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
 
 ## Workflow
 

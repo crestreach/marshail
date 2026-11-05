@@ -7,8 +7,6 @@ description: Maintain the MARSHAIL knowledge layer. Fallback skill for environme
 
 This skill performs the work that the [`marshail-knowledge-curator`](../../agents/marshail-knowledge-curator.md) subagent does in modes `from-changes` / `from-learning` / `rescan`, but inline in the current session, for tools that don't support custom subagents.
 
-**Source of truth:** [`marshail-knowledge-curator.md`](../../agents/marshail-knowledge-curator.md) — sections for those modes.
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+**Source of truth:** [`marshail-knowledge-curator.md`](../../agents/marshail-knowledge-curator.md) (sections for those modes) — for the agent's behavior; this skill only describes how it gets activated.
 
 > If subagents *are* available, prefer [`marshail-delegate-to-knowledge-maintain`](../../skills/marshail-delegate-to-knowledge-maintain/SKILL.md) so the work runs in fresh context.

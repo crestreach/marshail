@@ -49,7 +49,11 @@ Do **not** invoke when:
 
 - A question or request (free text).
 - Optional: the path to the current change's working folder (helps with situational questions like "what stage am I in?").
-- Read-only access to the repo, especially `.marshail/` and the root `marshail.md`.
+
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
+Beyond that tier the helper reads lazily, descending only when the question demands it.
+
+## What it reads
 
 Read enough to answer accurately, no more:
 
@@ -59,16 +63,14 @@ Read enough to answer accurately, no more:
    If empty or absent, ignore.
 3. [`.marshail/ENTRYPOINT.md`](../ENTRYPOINT.md) — compact entry point.
 4. [`.marshail/AGENTS.md`](../AGENTS.md) — the merged-in snippet.
-5. [`.marshail/config.yml`](../config.yml) — contract, implementation, autonomy mode, and implementation-specific settings (e.g. the `markdown_spine:` size caps).
-6. The knowledge **root entry** named by the active implementation's reading guide (default [`.marshail/knowledge/INDEX.md`](../knowledge/INDEX.md)) — only the root entry, not topic files, unless the question is about a specific topic.
+5. [`.marshail/config.yml`](../config.yml) — contract, implementation, autonomy mode, and any implementation-specific settings.
+6. The knowledge **root entry** named by the active implementation's reading guide — only the root entry, not topic files, unless the question is about a specific topic.
 7. [`.marshail/references/`](../references/) — contract, implementation reading / maintenance guides, activation, and promotion rules.
 8. The relevant `SKILL.md` or agent file in `.marshail/skills/` / `.marshail/agents/` when the question is specifically about that skill / agent.
 9. The current change's working folder (artifact chain) — only when the question is "what stage am I in?" or "what should I do next?".
 
 Read lazily: trivial questions only need (1) + (2) + (3).
 Don't load the whole tree.
-
-Load tier: **minimal** (see [activation-protocol](../references/activation-protocol.md)) — the helper reads lazily and only descends when the question demands it.
 
 ## Workflow
 

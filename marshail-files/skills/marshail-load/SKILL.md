@@ -17,9 +17,9 @@ Setup skill — runs once per fresh session.
 - [`.marshail/marshail-override.md`](../../marshail-override.md) when present and non-empty — optional repo-specific overrides on top of `marshail.md`.
   Read it after the entry point; entries here take precedence over the canonical spec on the points they address.
 - [`.marshail/config.yml`](../../config.yml) — note `knowledge.autonomy`, `knowledge.contract_ref`, and `knowledge.representation_ref`.
-- The active knowledge implementation's **reading guide** named by `knowledge.representation_ref` (default [`../../references/knowledge-markdown-spine.md`](../../references/knowledge-markdown-spine.md)) — it names the knowledge root entry.
+- The active knowledge implementation's **reading guide** named by `knowledge.representation_ref` — it names the knowledge root entry.
   Do not load the contract or the implementation's maintenance guide here (standard tier; see [activation-protocol](../../references/activation-protocol.md)).
-- The knowledge **root entry** named by the reading guide (default [`.marshail/knowledge/INDEX.md`](../../knowledge/INDEX.md)).
+- The knowledge **root entry** named by the reading guide.
 - Working folder for the current change, if any (look for the artifact chain: `specification.md`, `change-brief.md`, …).
 
 ## Workflow

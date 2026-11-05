@@ -36,14 +36,9 @@ Do **not** invoke when:
 - A user prompt describing the change (feature / bugfix / refactor / tech-debt).
   The driver infers intent from this prompt and asks the user only when it is genuinely ambiguous.
 - The repo, with `.marshail/` initialized.
-- [`.marshail/work/current`](../marshail.md#where-the-artifact-chain-lives) — read **first**: the one-line pointer to the active `<change-id>`.
-  If present, the driver resumes that change from its working folder `.marshail/work/<change-id>/` (artifacts + `logs/` + resume notes) rather than starting fresh.
-  If it names a `wb-` workbench session instead, the driver either promotes that session into a change (its `workbench-session.md` becomes input to Intake / Plan) or asks whether the user meant to continue the session with [`marshail-workbench-driver`](./marshail-workbench-driver.md).
-- [`.marshail/config.yml`](../config.yml) (autonomy + any driver-specific flags).
-- [`.marshail/marshail-override.md`](../marshail-override.md) when present and non-empty — optional repo-specific overrides on top of [`marshail.md`](../marshail.md).
-  Read it immediately after `ENTRYPOINT.md`; entries here take precedence over the canonical spec on the points they address (stage policy, artifact policy, agent / skill preferences).
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
+Honor [`.marshail/marshail-override.md`](../marshail-override.md) when present and non-empty — it takes precedence on the points it addresses (stage policy, artifact policy, agent / skill preferences).
 
 ## Outputs
 
@@ -56,6 +51,7 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
 1. **Locate the change (first action).**
    Read `.marshail/work/current`.
    If it names an active `<change-id>`, open `.marshail/work/<change-id>/` and read its resume notes + artifacts to pick up where the last session left off.
+   If it names a `wb-` workbench session instead, either promote that session into a change (its `workbench-session.md` becomes input to Intake / Plan) or ask whether the user meant to continue the session with [`marshail-workbench-driver`](./marshail-workbench-driver.md).
    Otherwise allocate a new `<change-id>` (ticket number if the user gives one, else `YYYY-MM-DD-<slug>`), create `.marshail/work/<change-id>/`, and write it into `.marshail/work/current`.
 2. **Scope agreement.**
    Discuss with the user which stages are in scope for this change and which can be skipped (only the Plan stage is mandatory).
@@ -132,7 +128,7 @@ Regardless of level, the driver never bypasses an approval gate.
 **Tradeoff (driver-mediated).**
 There is no portable "live" held-open subagent session that the driver can keep open and stream through: agent dispatch is turn-based, so the driver mediates by *re-dispatching* the relevant agent with the accumulated context each turn.
 "Re-dispatching" means re-invoking the stage subagent (via the subagent-spawn tool) with the accumulated context each turn — never re-implementing the stage inline.
-Emulate a stage inline only if the runtime has no subagent-spawn tool (see [activation-protocol](../references/activation-protocol.md) → *Dispatch by spawning, not emulation*).
+Emulate a stage inline only if the runtime has no subagent-spawn tool (see [`ENTRYPOINT.md`](../ENTRYPOINT.md) → *Dispatch by spawning, not emulation*).
 State is therefore carried on disk through the artifact chain and the working folder's resume notes, **not** in an in-memory conversation.
 This is robust (any session can resume from `.marshail/work/<id>/`) but can be lossy at the margins — nuance from a long back-and-forth that was never written down is not automatically available to the next dispatch.
 To keep mediation faithful, agents must **log everything important** (decisions, open questions, rejected options) into their artifact and the resume notes, so a re-dispatch reconstructs the thread.

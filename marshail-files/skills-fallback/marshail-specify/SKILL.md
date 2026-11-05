@@ -7,8 +7,6 @@ description: MARSHAIL Specification stage. Fallback skill for environments witho
 
 This skill performs the work that the [`marshail-specifier`](../../agents/marshail-specifier.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
 
-**Source of truth:** [`marshail-specifier.md`](../../agents/marshail-specifier.md).
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+**Source of truth:** [`marshail-specifier.md`](../../agents/marshail-specifier.md) — for the agent's behavior; this skill only describes how it gets activated.
 
 > If subagents *are* available, prefer [`marshail-delegate-to-specify`](../../skills/marshail-delegate-to-specify/SKILL.md) so the work runs in fresh context.

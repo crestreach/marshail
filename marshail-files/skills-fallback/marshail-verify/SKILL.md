@@ -7,8 +7,6 @@ description: MARSHAIL Verify stage — REQUIRED before any PR. Fallback skill fo
 
 This skill performs the work that the [`marshail-verifier`](../../agents/marshail-verifier.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
 
-**Source of truth:** [`marshail-verifier.md`](../../agents/marshail-verifier.md).
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+**Source of truth:** [`marshail-verifier.md`](../../agents/marshail-verifier.md) — for the agent's behavior; this skill only describes how it gets activated.
 
 > If subagents *are* available, prefer [`marshail-delegate-to-verify`](../../skills/marshail-delegate-to-verify/SKILL.md) so the work runs in fresh context.

@@ -27,31 +27,29 @@ Do **not** invoke when:
 
 - A topic / question, scoped narrowly (e.g. "how is auth wired through the request pipeline", "what does our `Job` table represent").
 - Optional: a list of likely-relevant paths, or a knowledge-file id to refresh.
-- Read-only access to the repo and `.marshail/knowledge/`.
-- [`.marshail/config.yml`](../config.yml) for `knowledge.representation_ref`, then the active implementation's **reading guide** (it defines the note shape, the scope and freshness fields, and the cross-reference rules; the maintenance guide is not needed here).
+- Read-only access to the repo.
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
 
 ## Workflow
 
-1. Read entry point, config, the active implementation's reading guide, and the knowledge root entry.
-2. Descend into relevant topic indexes for prior knowledge.
-3. Identify the smallest set of code paths needed to answer the question.
+1. Start from the knowledge root entry and descend into the relevant topics for prior knowledge.
+2. Identify the smallest set of code paths needed to answer the question.
    Use semantic-aware tools (grep, file reads, symbol lookups).
    Avoid loading large unrelated files.
-4. Synthesize the research note in the shape the reading guide defines for an inbox note.
-   Cite specific files and (where useful) line ranges; record them as the note's **scope**.
+3. Synthesize the research note in the shape the reading guide defines for an inbox note.
+   Cite specific files and (where useful) line ranges, recording them in the field the reading guide reserves for the code a note covers.
    Cross-reference existing knowledge topics (per the reading guide's cross-reference rules) instead of restating their content.
-5. Stamp the note's **freshness marker** (per the reading guide; for the default Spine, `updated` plus `verified_against_commit` = current short SHA).
-6. **Return** the research note.
+4. Record when and against which commit the note was verified, in the fields the reading guide defines.
+5. **Return** the research note.
    Do not modify **canonical** knowledge.
-7. **Mid-process knowledge capture** (see [ENTRYPOINT](../ENTRYPOINT.md) → *Mid-process knowledge capture*).
+6. **Mid-process knowledge capture** (see [ENTRYPOINT](../ENTRYPOINT.md) → *Mid-process knowledge capture*).
    When `knowledge.capture_during_process` is true (default), also drop the note into `knowledge/learn/inbox/`; then per `knowledge.curator_invocation` either call [`marshail-knowledge-curator`](./marshail-knowledge-curator.md) yourself (`agent`) or report to the caller that the inbox was populated and let them run it (`driver`, default).
    When `knowledge.capture_during_process` is false, do not touch the inbox — hand the note to the caller to file in the current phase's learnings file for promotion in the Learn stage.
 
 ## Outputs
 
-- A single document in the inbox-note shape the active implementation's reading guide defines (default: Markdown Spine frontmatter from [knowledge-markdown-spine](../references/knowledge-markdown-spine.md) → *Writing an inbox note*, typically kind `reference` — or another kind from the Spine taxonomy, e.g. `overview` / `guide`, as fits), ready to drop in.
+- A single document in the inbox-note shape the active implementation's reading guide defines, ready to drop in.
   Body is condensed (target ≤ ~150 lines) and source-linked.
 - A short follow-up list of open questions the repo could not answer.
 
@@ -64,7 +62,7 @@ Returns a single condensed research note to its caller — the orchestrator ([`m
 
 ## References used
 
-- Active knowledge implementation's reading guide from `.marshail/config.yml` (default: [knowledge-markdown-spine](../references/knowledge-markdown-spine.md))
+- The active knowledge implementation's reading guide named by `.marshail/config.yml`
 - [activation-protocol](../references/activation-protocol.md)
 
 ## Out of scope

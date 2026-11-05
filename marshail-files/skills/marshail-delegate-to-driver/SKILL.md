@@ -15,7 +15,7 @@ The two skills' triggers are mutually exclusive.
 ## Call contract
 
 - **Subagent:** `marshail-driver`
-- **Pass:** the user's prompt describing the change and the explicit hands-off instruction; the repo with `.marshail/` initialized; `.marshail/config.yml`.
+- **Pass:** the user's prompt describing the change and the explicit hands-off instruction; the repo with `.marshail/` initialized.
 - **Expect back:** the full canonical artifact chain in the working folder (`change-brief.md` → `repo-recon.md` → optional `architecture-notes.md` → `delivery-plan.md` → code + phase logs + phase learnings → `verification-report.md` → `rollout-note.md` → `learning-rollup.md`); approval requests and open questions to relay; a stage-summary report.
 - **On result:** relay any approval request or question to the user and re-dispatch the driver with the answer; at the end, review the stage summary and pursue any flagged follow-ups.
 

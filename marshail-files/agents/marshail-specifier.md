@@ -30,9 +30,8 @@ Do **not** invoke when:
 
 - The user's prompt (in the conversation).
 - Optional: pointers the user provides to existing context (issues, prior briefs, screenshots).
-- Optional: the knowledge **root entry** (named by the active implementation's reading guide; default [`.marshail/knowledge/INDEX.md`](../knowledge/INDEX.md)) only if the prompt references repo areas the agent does not already know — keep reads minimal; deep recon belongs to the Analysis stage.
 
-Load tier: **minimal** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
 
 ## Behavior rules
 

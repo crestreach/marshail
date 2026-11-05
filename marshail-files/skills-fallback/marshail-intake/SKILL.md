@@ -7,8 +7,6 @@ description: MARSHAIL Intake stage. Fallback skill for environments without suba
 
 This skill performs the work that the [`marshail-framer`](../../agents/marshail-framer.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
 
-**Source of truth:** [`marshail-framer.md`](../../agents/marshail-framer.md).
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+**Source of truth:** [`marshail-framer.md`](../../agents/marshail-framer.md) — for the agent's behavior; this skill only describes how it gets activated.
 
 > If subagents *are* available, prefer [`marshail-delegate-to-intake`](../../skills/marshail-delegate-to-intake/SKILL.md) so the work runs in fresh context.

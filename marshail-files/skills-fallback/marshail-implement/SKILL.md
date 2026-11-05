@@ -7,8 +7,6 @@ description: MARSHAIL Implement stage. Fallback skill for environments without s
 
 This skill performs the work that the [`marshail-implementer`](../../agents/marshail-implementer.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
 
-**Source of truth:** [`marshail-implementer.md`](../../agents/marshail-implementer.md).
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+**Source of truth:** [`marshail-implementer.md`](../../agents/marshail-implementer.md) — for the agent's behavior; this skill only describes how it gets activated.
 
 > If subagents *are* available, prefer [`marshail-delegate-to-implement`](../../skills/marshail-delegate-to-implement/SKILL.md) so the work runs in fresh context.

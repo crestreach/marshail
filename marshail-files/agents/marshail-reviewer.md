@@ -34,17 +34,15 @@ Do **not** invoke when:
 - `delivery-plan.md` — packets in scope of this PR.
 - `verification-report.md`.
 - `change-brief.md` — for the change summary.
-- Relevant `.marshail/knowledge/` files (invariants, contracts, conventions), including the repo-conventions topic if the knowledge tree has one.
-- [`.marshail/config.yml`](../config.yml) for `knowledge.representation_ref`, then the active implementation's reading guide.
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
 
 ## Workflow
 
 1. Confirm the PR boundary matches the plan (whole change / phase / slice / multi-phase / occasional packet group) and note the **target branch** — the final branch (`main` / release) or an **integration branch** (see *Integration branches*).
 2. Walk packets in the plan; map each to PR file changes.
 3. Read the active knowledge implementation's reading guide and the knowledge root entry.
-4. For each changed area, pull the knowledge unit(s) whose **scope** covers the changed paths (the reading guide names the scope field) and check their claims against the diff.
+4. For each changed area, pull the knowledge units that cover the changed paths (the reading guide says how a unit records the code it covers) and check their claims against the diff.
 5. Walk requirements in `change-brief.md`; verify the PR addresses each.
 6. Check test changes against the testing strategy (marshail.md).
    Check the verification claims in `implementation-report.md` and `verification-report.md` against the diff — what the implementer and verifier say they ran must match what the code and tests actually exercise (see [marshail.md § Closing the feedback loop](../marshail.md#closing-the-feedback-loop)).

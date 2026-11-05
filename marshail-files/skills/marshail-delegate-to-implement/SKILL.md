@@ -11,7 +11,7 @@ Do **not** inline the workflow — the agent owns it.
 ## Call contract
 
 - **Subagent:** `marshail-implementer`
-- **Pass:** `delivery-plan.md`; `change-brief.md` (if it exists); the picked target item (phase / packet / step); the knowledge units whose scope covers the affected code paths.
+- **Pass:** `delivery-plan.md`; `change-brief.md` (if it exists); the picked target item (phase / packet / step).
 - **Expect back:** code + tests committed against the plan; updated `delivery-plan.md` (status markers, [FIXUP] / [ADDED] / [CHANGED] / [REVERT] / [DROPPED] entries with dates); `logs/phase-<n>.changelog.md` and `learning/phase-<n>.learning.md` (per L1 phase).
 - **On result:** when the PR boundary is filled, hand off to [`marshail-delegate-to-verify`](../marshail-delegate-to-verify/SKILL.md).
   After the cycle, if tracked code paths changed, hand off to [`marshail-delegate-to-knowledge-maintain`](../marshail-delegate-to-knowledge-maintain/SKILL.md) (mode `from-changes`).

@@ -7,8 +7,6 @@ description: First-time bootstrap of the MARSHAIL knowledge layer. Fallback skil
 
 This skill performs the work that the [`marshail-knowledge-curator`](../../agents/marshail-knowledge-curator.md) subagent does in mode `init`, but inline in the current session, for tools that don't support custom subagents.
 
-**Source of truth:** [`marshail-knowledge-curator.md`](../../agents/marshail-knowledge-curator.md) — section for mode `init`.
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+**Source of truth:** [`marshail-knowledge-curator.md`](../../agents/marshail-knowledge-curator.md) (section for mode `init`) — for the agent's behavior; this skill only describes how it gets activated.
 
 > If subagents *are* available, prefer [`marshail-delegate-to-knowledge-init`](../../skills/marshail-delegate-to-knowledge-init/SKILL.md) so the work runs in fresh context.

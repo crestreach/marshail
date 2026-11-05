@@ -1011,8 +1011,8 @@ The MARSHAIL core matters here as much as in a staged change:
 
 - **Isolated task contexts.**
   Each task in a round — a research question, a coding task, tests, a check, a review — runs in its own fresh context (researcher, implementer, verifier, reviewer, knowledge curator, …) and only the necessary result comes back to the workbench driver.
-  The workbench driver itself never does deep work inline; it is the conversational lead.
-  Limiting context pollution is the main point of MARSHAIL, and it is what keeps a long session cheap and sharp.
+  The workbench driver itself never does deep work inline; it is the interactive orchestrator.
+  Limiting context pollution is the main point of MARSHAIL, and it is what keeps a long session sharp.
 - **Knowledge.**
   Knowledge is loaded the same way (standard load tier, descending into topics on demand) and kept in sync: after any round that changes tracked code, the curator runs `from-changes`, exactly as after an implementation cycle.
   Mid-process knowledge capture follows the same [`config.yml`](config.yml) settings.
@@ -1076,7 +1076,7 @@ Two flavors of stage skill ship for every stage:
 
 **Prefer delegation for bounded tasks when spawning is available.**
 Use the `marshail-delegate-to-<x>` (subagent) flavor whenever a subagent-spawn tool exists; use the `marshail-<x>` fallback (inline) flavor only when spawning is genuinely unavailable.
-Never emulate a stage agent inline when you could spawn it (see [references/activation-protocol.md](references/activation-protocol.md) → *Dispatch by spawning, not emulation*).
+Never emulate a stage agent inline when you could spawn it (see [`ENTRYPOINT.md`](ENTRYPOINT.md) → *Stages, agents, and skills*).
 The conversational roles — [`marshail-driver`](agents/marshail-driver.md) and [`marshail-workbench-driver`](agents/marshail-workbench-driver.md) — are the exception: they run as the session agent or inline, and the driver is spawned only for a hands-off end-to-end run (see [How an agent runs](#how-an-agent-runs)).
 
 Each delegated agent works **independently** and keeps its internals out of the caller's context — it returns only what the caller needs (a summary or an artifact path), not its full working detail.

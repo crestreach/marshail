@@ -7,8 +7,6 @@ description: MARSHAIL Review / PR / integration / merge stage. Fallback skill fo
 
 This skill performs the work that the [`marshail-reviewer`](../../agents/marshail-reviewer.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
 
-**Source of truth:** [`marshail-reviewer.md`](../../agents/marshail-reviewer.md).
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+**Source of truth:** [`marshail-reviewer.md`](../../agents/marshail-reviewer.md) — for the agent's behavior; this skill only describes how it gets activated.
 
 > If subagents *are* available, prefer [`marshail-delegate-to-pr`](../../skills/marshail-delegate-to-pr/SKILL.md) so the work runs in fresh context.

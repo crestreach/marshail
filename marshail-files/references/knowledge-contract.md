@@ -41,13 +41,13 @@ It must be enough on its own to find, read, and understand knowledge, and to wri
 - it defines how cross-references are expressed and followed;
 - it states what an agent does when it notices a topic is stale while reading.
 
-Because every standard-tier agent loads it on activation, the reading guide should stay compact — roughly 80 lines is a good target (a suggestion, not a hard limit).
+Because every standard-tier agent loads it on activation, the reading guide should stay compact — roughly 100 lines is a good target (a suggestion, not a hard limit).
 
 Everything needed only to **maintain** knowledge — organizing / splitting rules, depth and derivation policy, index regeneration, size limits, staleness detection, the update protocol — should live in a separate **maintenance guide**, linked from the reading guide and loaded only as needed (the **full** load tier: the knowledge curator and any agent that writes canonical knowledge).
 A separate maintenance guide is recommended, not mandatory; an implementation may keep both in one file, at the cost of a heavier standard tier.
+Implementation-specific settings (e.g. size caps) belong in their own top-level section of `.marshail/config.yml`, named after the implementation, so the shared `knowledge:` section stays implementation-neutral.
 
 Other MARSHAIL files (agents, skills, the entry point) refer to knowledge in the **contract's terms** — "the root entry", "a unit's scope", "its freshness marker", "the inbox" — and leave the concrete file names and field names to the active implementation.
-They may show the default implementation's names in parentheses as an example.
 
 ## Fixed locations and the inbox
 
@@ -103,12 +103,3 @@ Knowledge updates must be traceable to one of these sources:
 - scheduled or requested freshness checks (`marshail-knowledge-maintain rescan`);
 - branch reconciliation (`marshail-knowledge-branch-merge`);
 - larger structural rebuild (`marshail-knowledge-rebuild`).
-
-## Replacing the implementation
-
-To replace the knowledge implementation, add a new reading guide (and, recommended, a maintenance guide it links to) under `.marshail/references/` (or another path reachable from `.marshail/`) and set `knowledge.representation_ref` to the reading guide.
-Together they must satisfy this contract and describe the implementation's storage, metadata, discovery, staleness, update, promotion, split, merge, and rebuild rules.
-Implementation-specific settings (e.g. size caps) belong in their own top-level section of `.marshail/config.yml`, named after the implementation (the default uses `markdown_spine:`), so the shared `knowledge:` section stays implementation-neutral.
-
-Knowledge skills and agents should change only when the workflow changes.
-Pure storage, metadata, indexing, or retrieval changes belong in the implementation references.

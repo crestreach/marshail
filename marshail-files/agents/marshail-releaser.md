@@ -28,9 +28,8 @@ Do **not** invoke when:
 - `verification-report.md`
 - `implementation-report.md` — operational notes captured during implementation (needed migrations, introduced toggles, limitations) that often only became clear while building.
 - Migration files / config / feature-flag definitions touched by the change.
-- Knowledge describing operational conventions (logging, toggles, deploy) if any.
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
 
 ## Workflow
 

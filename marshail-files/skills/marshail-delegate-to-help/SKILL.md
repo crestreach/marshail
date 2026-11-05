@@ -12,7 +12,6 @@ Do **not** inline the workflow — the agent owns it.
 
 - **Subagent:** `marshail-helper`
 - **Pass:** the user's question (free text); optional working folder path for situational questions like "what stage am I in?".
-  Read-only access to the repo and `.marshail/`.
 - **Expect back:** a single concise answer block (default ≤ ~30 lines), ending with a one-line "next step" pointer.
   No files written.
 - **On result:** if the answer includes a handoff to a stage agent (driver or specific stage), invoke the matching `marshail-delegate-to-*` next.

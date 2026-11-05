@@ -7,8 +7,6 @@ description: MARSHAIL on-demand help. Fallback skill for environments without su
 
 This skill performs the work that the [`marshail-helper`](../../agents/marshail-helper.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
 
-**Source of truth:** [`marshail-helper.md`](../../agents/marshail-helper.md).
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+**Source of truth:** [`marshail-helper.md`](../../agents/marshail-helper.md) — for the agent's behavior; this skill only describes how it gets activated.
 
 > If subagents *are* available, prefer [`marshail-delegate-to-help`](../../skills/marshail-delegate-to-help/SKILL.md) so the work runs in fresh context.

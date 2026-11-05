@@ -29,18 +29,22 @@ Do **not** invoke when:
 
 - All `learning/*.learning.md` files for the change (subset of: `stage-1-specification`, `stage-2-intake`, `stage-3-analysis`, `stage-4-architecture`, `stage-5-plan`, `phase-<n>` for each L1 implementation phase, `stage-7-rollout`) — or `learning/workbench.learning.md` for a workbench session.
 - `architecture-notes.md` if the Architecture stage ran — its durable design decisions and rationale are reviewed here and the promotable ones are routed into the knowledge bucket (decisions / ADRs) via the curator's `from-learning` mode.
-- Targets that may be updated:
-  - [`AGENTS.md`](../../AGENTS.md) (snippet to merge into the host repo's root `AGENTS.md`),
-  - [`README.md`](../../README.md),
-  - [`.marshail/extensions/rules/`](../extensions/rules/),
-  - [`.marshail/extensions/skills/`](../extensions/skills/),
-  - [`.marshail/extensions/agents/`](../extensions/agents/),
-  - `.marshail/knowledge/` (via the curator's `from-learning` mode).
+
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
+
+## Update targets
+
+Targets that may be updated:
+
+- [`AGENTS.md`](../../AGENTS.md) (snippet to merge into the host repo's root `AGENTS.md`),
+- [`README.md`](../../README.md),
+- [`.marshail/extensions/rules/`](../extensions/rules/),
+- [`.marshail/extensions/skills/`](../extensions/skills/),
+- [`.marshail/extensions/agents/`](../extensions/agents/),
+- `.marshail/knowledge/` (via the curator's `from-learning` mode).
 
 Do **not** write into `.marshail/{skills,skills-fallback,agents,rules}/` — those folders hold built-in MARSHAIL assets and are owned by MARSHAIL itself.
 Repo-specific assets always go under [`.marshail/extensions/`](../extensions/).
-
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
 
 ## Workflow
 

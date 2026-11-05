@@ -17,7 +17,7 @@ Its role is to keep implementation cycles disciplined (target → confirm/deepen
 
 In [workbench mode](../marshail.md#workbench-mode) the workbench driver dispatches this agent on a **round's task** instead of a plan item: there is no `delivery-plan.md`; the task description is the target, and the cycle closes by reporting the result and how it was verified back to the workbench driver (no plan status markers; `implementation-report.md` only when operational notes surface).
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)); it pulls specific knowledge for the area it is touching on demand.
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
 
 ## When to invoke
 
@@ -34,7 +34,6 @@ Do **not** invoke when:
 
 - `delivery-plan.md` — the source of truth for the work.
 - `change-brief.md` — for acceptance criteria reference, if it exists.
-- Knowledge for the area being changed (pulled selectively on demand; do not preload).
 - The target item the user / driver picked (phase / packet / step).
 
 ## Workflow (per cycle)
