@@ -37,7 +37,8 @@ The folder holds the artifact chain plus `logs/`, which keeps three kinds of fil
 - **`resume.md`** — one short "where are we" file: current stage (or, for a session, `Mode: workbench` on the first line and `Return to change: <change-id>` on the second when the session is a detour), active phase / cycle, next action, open decisions / questions.
   Rewritten and compacted on every update, never appended; the only log read by default on resume.
 - **`<agent>.log.md`** — one append-only log per agent role (e.g. `planner.log.md`).
-  Detailed; read only when that role's thread must be reconstructed.
+  Besides the run history, this is where an agent caches what a later run should not have to rediscover — research results, findings about the code, decisions and rationale, rejected options, pitfalls — so a fresh-context run can pick them up instead of repeating the research.
+  Not loaded by default: an agent starting a run decides, from the task it was given, whether reading its own log (or another role's) would save work.
 - **`stage-<n>-<name>.changelog.md` / `phase-<n>.changelog.md`** — the changelog of record: one per lifecycle stage, plus one per delivery-plan L1 phase during Implement (optionally `phase-<n>-<slug>`).
 
 **Run sections.**
@@ -51,6 +52,7 @@ The caller passes no run id.
 An agent marks its section **finished** when its work is done and leaves it open while in progress; on the next invocation it reads the last section — finished → open a fresh run, unfinished → resume that run.
 The prompt overrides this heuristic ("start over", "continue run 2").
 Previous runs may be read for continuity but are never overwritten.
+Write into the run section anything a later run would otherwise have to re-research; keep it factual and compact, not a transcript.
 
 **On activation**, an agent reads `resume.md` first and descends into its own log or the changelogs only if it needs more detail.
 **Before handing back**, every agent that changed state appends to its run section, refreshes `resume.md`, and — when its work is actually complete — marks the section finished, so the next dispatch (by the driver or directly by the user) continues from disk.

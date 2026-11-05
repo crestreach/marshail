@@ -145,7 +145,9 @@ It holds three kinds of file, kept separate so resuming stays cheap:
 
 - `resume.md` — a single short "where are we" file (current stage, active phase / cycle, next action, open decisions).
   It is **rewritten and compacted, not appended**, on each update, and is the only log loaded by default on resume.
-- `<agent>.log.md` — one append-only log per agent role (e.g. `planner.log.md`, `implementer.log.md`); detailed history, consulted only when a role's thread must be reconstructed.
+- `<agent>.log.md` — one append-only log per agent role (e.g. `planner.log.md`, `implementer.log.md`).
+  Besides the run history, it is where an agent **caches what the next run should not have to rediscover**: research results, findings about the code, decisions and their rationale, rejected options, pitfalls — anything that would otherwise cost a fresh-context run heavy research to recover.
+  Not loaded by default; an agent starting a run decides, from the task it was given, whether to read its own log (or another role's) first.
 - `stage-<n>-<name>.changelog.md` / `phase-<n>.changelog.md` — the changelog of record: one `stage-…` file per lifecycle stage (e.g. `stage-3-analysis`), plus one `phase-…` file per delivery-plan L1 phase during Implement (e.g. `phase-2`, optionally `phase-2-<slug>`).
 
 Because an agent can run many times for one change (replanning, one implementation cycle per phase), each invocation works against a **run section** (`## Run <n> — <timestamp>`) in its `<agent>.log.md`.
@@ -1034,7 +1036,7 @@ The MARSHAIL core matters here as much as in a staged change:
   - open items / follow-ups
 - `logs/resume.md` starts with `Mode: workbench`, so any agent that opens the folder knows immediately which mode it is in; for a [detour](#session-handover) from a staged change the second line is `Return to change: <change-id>`.
   Otherwise it follows the usual resume contract (current focus, last round, next action, open questions).
-- `logs/<agent>.log.md` — per-agent run logs, as in a change.
+- `logs/<agent>.log.md` — per-agent run logs, as in a change; the place to cache research and findings a later round should not have to redo.
 - `learning/workbench.learning.md` — reusable lessons only, same rules as phase learning files.
 - `implementation-report.md` is kept when a round surfaces operational notes (migrations, toggles, limitations) that a later Verify / PR / Rollout needs.
 - Finalization archives the folder like a change (`.marshail/archive/<session-id>/`).

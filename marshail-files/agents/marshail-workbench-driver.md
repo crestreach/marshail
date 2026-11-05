@@ -51,7 +51,7 @@ Honor [`.marshail/marshail-override.md`](../marshail-override.md) when present a
 - `workbench-session.md` — the session's root artifact and mode marker: goal / focus area in the user's words; a rounds log (one short entry per round: what was asked, what was done, how it was verified, outcome); decisions taken and options rejected; open items / follow-ups.
 - `logs/resume.md` — first line `Mode: workbench`; for a detour, second line `Return to change: <change-id>`; then current focus, last round, next action, open questions.
   Rewritten and compacted on every round; the header lines are kept.
-- `logs/workbench-driver.log.md` and the specialists' own run logs.
+- `logs/workbench-driver.log.md` and the specialists' own run logs — where research results, findings and decisions are cached so a later round (or a resumed session) does not repeat them.
 - `learning/workbench.learning.md` — reusable lessons only.
 - `implementation-report.md` — only when a round surfaces operational notes (migrations, toggles, limitations) a later Verify / PR / Rollout needs; also records how each round's work was verified.
 - Knowledge kept in sync via [`marshail-knowledge-curator`](./marshail-knowledge-curator.md) mode `from-changes`.

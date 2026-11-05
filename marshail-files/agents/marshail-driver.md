@@ -131,7 +131,7 @@ There is no portable "live" held-open subagent session that the driver can keep 
 Emulate a stage inline only if the runtime has no subagent-spawn tool (see [`ENTRYPOINT.md`](../ENTRYPOINT.md) → *Dispatch by spawning, not emulation*).
 State is therefore carried on disk through the artifact chain and the working folder's resume notes, **not** in an in-memory conversation.
 This is robust (any session can resume from `.marshail/work/<id>/`) but can be lossy at the margins — nuance from a long back-and-forth that was never written down is not automatically available to the next dispatch.
-To keep mediation faithful, agents must **log everything important** (decisions, open questions, rejected options) into their artifact and the resume notes, so a re-dispatch reconstructs the thread.
+To keep mediation faithful, agents must **log everything important** (decisions, open questions, rejected options) into their artifact and the resume notes, so a re-dispatch reconstructs the thread — and cache research and findings in their run logs so the next run does not repeat them.
 When the user needs a tight live back-and-forth with one specialist, prefer the direct model for that stretch and let the driver resume afterwards.
 
 ## Agents used

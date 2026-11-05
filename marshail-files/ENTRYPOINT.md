@@ -15,6 +15,7 @@ Each run’s scope is recorded at the top of `delivery-plan.md`.
 Each stage that is run produces durable artifacts that feed the next.
 Phase learnings are captured separately and promoted to durable guidance only when they are reusable.
 Every agent **closes the feedback loop** on its own work — it runs what it produced and reports what it observed, rather than leaving verification to the human (see `marshail.md` § Closing the feedback loop).
+Every agent keeps a run log in the working folder (`logs/<agent>.log.md`), where it stores the history of what it did and caches research, findings and decisions a later fresh-context run should not have to redo; an agent starting a run decides from its task whether to read those logs first (see `references/activation-protocol.md` → Logging and resume).
 
 For iterative, plan-less work (reworking one area, UI polish, many rounds of code → test → check → adjust) there is **workbench mode**: the user works round by round with `marshail-workbench-driver`; there is no `delivery-plan.md` (the session keeps `workbench-session.md` under `.marshail/work/wb-<date>-<slug>/`), but every task still runs in its own fresh context, knowledge is used and kept in sync, and the session is logged and resumable.
 See `marshail.md` § Workbench mode.
