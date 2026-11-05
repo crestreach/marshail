@@ -1,12 +1,19 @@
 ---
 name: marshail-plan
-description: MARSHAIL Plan stage — MANDATORY. Fallback skill for environments without subagent support. Triggers on "produce delivery-plan.md", "plan this change", "break it into phases", "agree scope and depth (L1/L2/L3/L4)", "set timing mode (full/staged/mixed)", "do the planning stage". Runs planning inline in the current session.
+description: 'MARSHAIL Plan / shape stage — MANDATORY for every MARSHAIL change. Fallback skill for environments without subagent support — runs inline in the current session. Use whenever the user asks to "plan this change", "make a delivery plan", "produce delivery-plan.md", "shape the work", "break this into phases / packets / steps", "decide L1 / L2 / L3 / L4 depth", "decide PR boundaries", "decide rollout boundaries", "mark parallelizable work", "deepen the plan for phase X", "replan phase Y", or simply "let''s plan". Also use at the start of any MARSHAIL change once the earlier stages (Specification through Architecture) are agreed (or skipped), and mid-change to deepen a previously high-level phase before its implementation cycle. Run inline, the agent picks the shallowest workable depth unless the user pins a target depth, and chooses a timing mode (full / staged / mixed).'
 ---
 
 # marshail-plan (fallback — no-subagent environments)
 
-This skill performs the work that the [`marshail-planner`](../../agents/marshail-planner.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
+Run the [`marshail-planner`](../../agents/marshail-planner.md) workflow inline in the current session, for tools that don't support custom subagents.
+The agent file is the source of truth for the behavior; this skill only describes how it gets activated.
 
-**Source of truth:** [`marshail-planner.md`](../../agents/marshail-planner.md) — for the agent's behavior; this skill only describes how it gets activated.
+## Call contract
 
-> If subagents *are* available, prefer [`marshail-delegate-to-plan`](../../skills/marshail-delegate-to-plan/SKILL.md) so the work runs in fresh context.
+- **Agent (run inline):** `marshail-planner`
+- **Context needed:** whichever upstream artifacts exist (`specification.md`, `change-brief.md`, `repo-recon.md`, `architecture-notes.md`); planning timing mode (`full` | `staged` | `mixed`) if the user has a preference; target depth if pinned (e.g. "L2", "L4 in P1, L2 elsewhere"); existing `delivery-plan.md` if deepening / amending.
+- **Produces:** approved `delivery-plan.md` (Scope line + Planning mode + Target depth, then phases / packets / steps to the agreed depth), plus `logs/stage-5-plan.changelog.md` and `learning/stage-5-plan.learning.md`.
+- **Then:** confirm approval and hand off to [`marshail-implement`](../marshail-implement/SKILL.md) (Implement stage).
+  For staged deepening, re-invoke this skill before each implementation cycle of a still-shallow phase.
+
+The Plan stage is **mandatory** in MARSHAIL — every change has a plan, even a single phase with one step.

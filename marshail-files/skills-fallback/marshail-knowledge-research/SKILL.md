@@ -1,12 +1,19 @@
 ---
 name: marshail-knowledge-research
-description: Focused research on a topic, codebase area, or library, returning a condensed source-linked markdown delta. Fallback skill for environments without subagent support. Triggers on "research X", "study how Y is wired up", "deep-dive on this module", "answer this narrow question without polluting context", "give me a delta I can promote to the knowledge tree later". Runs research inline in the current session — read-only.
+description: 'Focused research on a topic, codebase area, or library, returning a condensed source-linked research note. Fallback skill for environments without subagent support — runs inline in the current session. Use when the user asks to "research X", "study how Y is wired up", "summarize the auth pipeline", "what does the Job table represent?", "deep-dive on this module", "answer this narrow question without polluting the main context", "find a fresh summary I can drop into the knowledge tree", "give me a research note I can promote later". Also use during the Analysis stage when repo-recon needs depth, during the Implement stage when an unknown surfaces, and any time another agent / skill suggests "research first" rather than guessing. Read-only — does not write to the knowledge tree.'
 ---
 
 # marshail-knowledge-research (fallback — no-subagent environments)
 
-This skill performs the work that the [`marshail-researcher`](../../agents/marshail-researcher.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
+Run the [`marshail-researcher`](../../agents/marshail-researcher.md) workflow inline in the current session, for tools that don't support custom subagents.
+The agent file is the source of truth for the behavior; this skill only describes how it gets activated.
 
-**Source of truth:** [`marshail-researcher.md`](../../agents/marshail-researcher.md) — for the agent's behavior; this skill only describes how it gets activated.
+## Call contract
 
-> If subagents *are* available, prefer [`marshail-delegate-to-knowledge-research`](../../skills/marshail-delegate-to-knowledge-research/SKILL.md) so the work runs in fresh context.
+- **Agent (run inline):** `marshail-researcher`
+- **Context needed (request-specific only):** the **intent** — a narrowly-scoped topic / question — plus optional likely-relevant paths or a knowledge-file id to refresh, and whether the result is intended for promotion to knowledge.
+  The agent reads `.marshail/config.yml`, the active knowledge implementation's reading guide, and the repo / knowledge tree itself — do not pass them.
+- **Produces:** a single condensed, source-linked markdown **research note** (target ≤ ~150 lines body); an "open questions" trailer.
+  When the request says it is for knowledge, the note follows the active knowledge implementation so it can be promoted as-is.
+- **Then:** consume the note inline.
+  For promotion to canonical knowledge, drop it into `.marshail/knowledge/learn/inbox/` and invoke [`marshail-knowledge-maintain`](../marshail-knowledge-maintain/SKILL.md) (`from-learning`).

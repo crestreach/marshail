@@ -27,7 +27,7 @@ The shipped layout is:
 - `.marshail/agents/<name>.md` — the canonical workflow for a stage / role.
   This is the single source of truth.
 - `.marshail/skills/marshail-delegate-to-<x>/SKILL.md` — thin wrapper skills that match user intent (high-recall trigger phrases) and delegate to the matching subagent in fresh context.
-- `.marshail/skills-fallback/marshail-<x>/SKILL.md` — equivalent skills for environments **without** subagent support; they instruct the assistant to follow the agent's source-of-truth file inline in the current session.
+- `.marshail/skills-fallback/marshail-<x>/SKILL.md` — equivalent skills for environments **without** subagent support — same triggers and call contract, but the agent's workflow runs inline in the current session.
   Same names as the full-bodied skills they replace.
 
 **Dispatch by spawning, not emulation.**

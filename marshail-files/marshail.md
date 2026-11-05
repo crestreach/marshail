@@ -1072,7 +1072,7 @@ Two flavors of stage skill ship for every stage:
   High-recall trigger phrases; delegates to the matching subagent in fresh context.
 - `marshail-<x>` (under `.marshail/skills-fallback/`) — for environments **without** subagent support.
   Same name as the full-bodied skills they replace.
-  Instructs the assistant to follow the agent's source-of-truth file inline in the current session.
+  Same triggers and call contract as the delegate flavor; the only difference is that the agent's workflow runs inline in the current session instead of in a spawned subagent.
 
 **Prefer delegation for bounded tasks when spawning is available.**
 Use the `marshail-delegate-to-<x>` (subagent) flavor whenever a subagent-spawn tool exists; use the `marshail-<x>` fallback (inline) flavor only when spawning is genuinely unavailable.

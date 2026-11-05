@@ -5,9 +5,8 @@ description: Run a whole MARSHAIL change end-to-end, hands-off. Fallback skill f
 
 # marshail-drive-end-to-end (fallback — no-subagent environments)
 
-This skill performs the hands-off end-to-end run that [`marshail-delegate-to-driver`](../../skills/marshail-delegate-to-driver/SKILL.md) spawns [`marshail-driver`](../../agents/marshail-driver.md) for, but inline in the current session, for tools that don't support custom subagents.
-
-**Source of truth:** [`marshail-driver.md`](../../agents/marshail-driver.md) — for the agent's behavior; this skill only describes how it gets activated.
+Run the [`marshail-driver`](../../agents/marshail-driver.md) workflow inline in the current session at the hands-off involvement level, for tools that don't support custom subagents.
+The agent file is the source of truth for the behavior; this skill only describes how it gets activated.
 
 ## Behavior
 
@@ -16,4 +15,12 @@ Stage work runs through the fallback stage skills, since no spawn tool is availa
 
 Triggers are mutually exclusive with [`marshail-drive`](../../skills/marshail-drive/SKILL.md), which runs the driver inline for collaborative / interactive runs and resumes; when the user's involvement level is not stated, `marshail-drive` applies.
 
-> If subagents *are* available, prefer [`marshail-delegate-to-driver`](../../skills/marshail-delegate-to-driver/SKILL.md) so the orchestration runs in fresh context.
+## Call contract
+
+- **Agent (run inline):** `marshail-driver`
+- **Context needed:** the user's prompt describing the change and the explicit hands-off instruction; the repo with `.marshail/` initialized.
+- **Produces:** the full canonical artifact chain in the working folder (`change-brief.md` → `repo-recon.md` → optional `architecture-notes.md` → `delivery-plan.md` → code + phase logs + phase learnings → `verification-report.md` → `rollout-note.md` → `learning-rollup.md`); approval requests surfaced in the conversation only at gates and key decisions; a stage-summary report.
+- **Then:** review the stage summary and pursue any flagged follow-ups.
+
+For one-off stage runs, prefer the per-stage fallback `marshail-<x>` skills directly instead of the driver.
+
