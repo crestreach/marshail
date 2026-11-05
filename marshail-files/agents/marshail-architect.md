@@ -5,7 +5,7 @@ description: MARSHAIL Architecture stage. Drives proposal/discussion of the impl
 
 # marshail-architect
 
-MARSHAIL Architecture stage — see [marshail.md](../marshail.md).
+MARSHAIL Architecture stage — see [marshail.md § 4. Architecture / design](../marshail.md#4-architecture--design-optional).
 Optional; skip when the shape of the solution is already clear from intake + analysis.
 
 ## Purpose
@@ -27,10 +27,8 @@ Do **not** invoke when:
 
 - `change-brief.md`
 - `repo-recon.md`
-- Relevant architecture / design knowledge for the affected areas.
-- Existing decision records in the knowledge tree.
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
 
 ## Workflow
 

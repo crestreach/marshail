@@ -30,6 +30,8 @@ MARSHAIL counters each of these with a single canonical flow: focused code analy
   Only **Plan** is mandatory.
 - **Small, reviewable slices** by default; larger PRs only at integration boundaries.
 - **Human approval gates** where they matter — never bypassed, even in autonomous modes.
+- **Close the feedback loop.**
+  An agent that produces something runs it — tests, build, the code, the app, the UI flow — and verifies its own result before handing back; human verification covers only what the agent genuinely cannot reach.
 - **Curated learning.**
   Each phase emits *generalizable* lessons only; durable ones are promoted into rules, skills, agents, and knowledge, and case-specific noise is dropped.
 - **Agent-managed knowledge.**
@@ -58,6 +60,17 @@ The chosen scope is agreed up front and recorded at the top of `delivery-plan.md
 Inside Implement, work runs in small **implementation cycles**; the human can inspect intermediate results and give feedback at any cycle, and the feedback is folded back into the work (and the plan, when it changes scope) before the cycle closes.
 A PR may target the final branch directly or an **integration branch**; in the latter case a final round (Implement → Verify → Review/PR) promotes the integration branch to the release / main branch and reviews the change as a whole.
 The whole per-change **artifact chain** lives in a working folder under `.marshail/work/<change-id>/` (transient, gitignored, archived on finalize); see [`marshail.md`](./marshail-files/marshail.md) for its structure and the resume contract.
+Each agent also keeps its own run log there, where it stores the history of what it did and caches research results, findings and decisions, so the next fresh-context run can decide to read them instead of repeating the work — the price of isolated contexts is paid once, not per run.
+
+## Workbench mode
+
+**Workbench mode — iterative, plan-less sessions.**
+Not every piece of work is a change that can be framed and planned up front: reworking one part of the code, polishing a UI, going through many rounds of code → test → check → adjust.
+For that, the user works **round by round** with `marshail-workbench-driver` and says what to do next; there is no `delivery-plan.md`.
+
+A workbench session is not a pre-framed change, but it drops the stages, not the discipline: every task in a round (research, coding, tests, checks, reviews) still runs in its own fresh context and only the needed result comes back; knowledge is used and kept in sync; the session is logged under `.marshail/work/wb-<date>-<slug>/` (`workbench-session.md`, `resume.md` with `Mode: workbench`) and resumable; every round's result is verified by the agent that produced it; and a PR coming out of a session is still preceded by Verify.
+A session can be **promoted into a staged change** when it outgrows a session — and a change can hand a stretch of exploratory rework to a session.
+See [`marshail.md` § Workbench mode](./marshail-files/marshail.md#workbench-mode).
 
 ## Knowledge
 
@@ -65,27 +78,40 @@ MARSHAIL pairs the process with an agent-managed **knowledge layer** under `.mar
 Where the artifact chain captures *this* change, knowledge captures durable facts about the repo — architecture, logic, conventions, and decisions — that survive across changes.
 It is **derived from the code itself** — scanned from the entrypoints inward and analyzed as deep as each area needs (a trivial module stays one short topic; complex areas expand into deeper, multi-level nodes), so agents don't re-scan the same code each time.
 It is loaded through progressive disclosure (an always-loaded root index → per-folder indexes → topic files), kept in sync after each implementation cycle, and used to narrow code searches instead of re-deriving the same facts every time.
-The representation is exchangeable: the general contract lives in [`knowledge-contract.md`](./marshail-files/references/knowledge-contract.md) and the default implementation, **MARSHAIL Markdown Spine**, in [`knowledge-markdown-spine.md`](./marshail-files/references/knowledge-markdown-spine.md).
+The representation is exchangeable: the general contract lives in [`knowledge-contract.md`](./marshail-files/references/knowledge-contract.md) and the default implementation, **MARSHAIL Markdown Spine**, in [`knowledge-markdown-spine.md`](./marshail-files/references/knowledge-markdown-spine.md) (the short reading guide every agent loads) and [`knowledge-markdown-spine-maintenance.md`](./marshail-files/references/knowledge-markdown-spine-maintenance.md) (the maintenance guide only knowledge-maintaining agents load).
 
 ## Agents and skills
 
 Each stage is owned by a `marshail-*` **subagent** (the single source of truth for that role) with matching **skills** that match user intent and dispatch the work — a `marshail-delegate-to-*` wrapper for tools with subagent support, and a full inline `marshail-*` fallback for tools without it.
 When a subagent-spawn tool is available, stage agents are always launched as real fresh-context subagents — never emulated inline.
+Why both: a tool loads only the name and description of every agent and skill at startup, so an agent's description can route a request to it but cannot carry the **call contract** — what to pass, what to expect back, what to do with the result; that caller-side protocol lives in the skill, the callee-side workflow in the agent.
 
 - **Stage agents:** `marshail-specifier`, `marshail-framer`, `marshail-code-archaeologist`, `marshail-architect`, `marshail-planner`, `marshail-implementer`, `marshail-verifier`, `marshail-reviewer`, `marshail-releaser`, `marshail-learner`.
 - **Knowledge:** `marshail-knowledge-curator` (maintenance in all modes) and `marshail-researcher` (read-only, source-linked deep dives).
-- **Orchestration / help:** `marshail-driver` (runs the process end to end) and `marshail-helper` (procedural and conceptual questions).
+- **Orchestration / help:** `marshail-driver` (runs a staged change end to end), `marshail-workbench-driver` (interactive orchestrator of a workbench session, round by round), and `marshail-helper` (procedural and conceptual questions).
+- **Main-session skills:** `marshail-init`, `marshail-load`, `marshail-promote-assets`, plus `marshail-drive` and `marshail-workbench`, which run the two conversational roles inline when you are not already in a direct session with them (and ask first when the intent is unclear).
+  `marshail-delegate-to-driver` spawns the driver only for a hands-off end-to-end run (its no-subagent fallback is `marshail-drive-end-to-end`).
 
-Every agent declares a startup **load tier** and follows the shared [`activation-protocol.md`](./marshail-files/references/activation-protocol.md), and every agent hands its result back to the orchestrator (`marshail-driver`) — or to the user, when invoked directly.
+Every agent declares a startup **load tier** and follows the shared [`activation-protocol.md`](./marshail-files/references/activation-protocol.md), and every agent hands its result back to the orchestrator (`marshail-driver` or `marshail-workbench-driver`) — or to the user, when invoked directly — stating how it verified its work.
+
+### How an agent runs
+
+An agent runs in one of three ways: as the **session agent** (you select it as your chat agent and talk to it directly — fully interactive), as a **subagent** (spawned by a caller for a bounded task; it runs to completion and returns a result, and cannot talk to you), or **inline** (your chat agent follows the agent's file itself).
+Spawn for bounded tasks, never for a conversation: the conversational roles — `marshail-driver`, `marshail-workbench-driver`, and the implementer in collaborative cycles — belong in a direct session or inline; the task roles are spawned.
+A specialist reached through its `marshail-delegate-to-*` skill is a subagent — one bounded run, questions returned through the chat agent — so its interactive parts (e.g. the implementer's inspect-and-feedback step) only happen as the session agent or inline.
+Switching between the driver and the workbench driver is a **session handover** (state on disk plus a one-line prompt), not a spawn.
+See [`marshail.md` § How an agent runs](./marshail-files/marshail.md#how-an-agent-runs).
 
 ### Communication models
 
-There are two supported ways to drive MARSHAIL, and they can be mixed:
+There are two supported ways to drive a staged change, and they can be mixed:
 
 1. **Direct** — call a specialist agent (or its `marshail-delegate-to-*` skill) for a single stage.
    Best when you know the process and want one focused step.
 2. **Driver-mediated** — talk only to `marshail-driver` as a single point of contact; it coordinates the specialists and keeps you oriented.
    The level of involvement ranges from hands-off (return only for key decisions and approval gates) to collaborative (shape choices together, phase by phase), inferred from your prompt and the autonomy setting and adjustable at any stage boundary.
+
+For iterative, plan-less work, talk to `marshail-workbench-driver` round by round instead — see [Workbench mode](#workbench-mode).
 
 ## Installing MARSHAIL in your repo
 

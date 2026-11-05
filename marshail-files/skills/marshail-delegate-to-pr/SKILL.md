@@ -11,7 +11,7 @@ Do **not** inline the workflow — the agent owns it.
 ## Call contract
 
 - **Subagent:** `marshail-reviewer`
-- **Pass:** PR diff (or branch + base commit range); the **target branch** (final `main` / release, or an integration branch); `delivery-plan.md` (packets in scope); `verification-report.md`; `change-brief.md`; relevant `.marshail/knowledge/` files (invariants, contracts, conventions); `.marshail/config.yml`.
+- **Pass:** PR diff (or branch + base commit range); the **target branch** (final `main` / release, or an integration branch); `delivery-plan.md` (packets in scope); `verification-report.md`; `change-brief.md`; `implementation-report.md`.
 - **Expect back:** PR description; structured review document with sections (Plan alignment, Test coverage, Knowledge conflicts, Risks, Recommendation: `approve` | `request-changes` | `comment`); inline comments; plan updates with `[FIXUP]` / `[CHANGED]` / `[ADDED]` markers; updated phase changelog.
 - **On result (approve):** hand off to [`marshail-delegate-to-rollout`](../marshail-delegate-to-rollout/SKILL.md) (Rollout stage) or [`marshail-delegate-to-learn`](../marshail-delegate-to-learn/SKILL.md) (Learn stage).
   If knowledge upkeep wasn't done in the Implement stage, run [`marshail-delegate-to-knowledge-maintain`](../marshail-delegate-to-knowledge-maintain/SKILL.md) (`from-changes`).

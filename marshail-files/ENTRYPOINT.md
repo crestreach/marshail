@@ -4,13 +4,8 @@ This is the rich entry point for agents working in a MARSHAIL-enabled repo.
 Read this once per fresh session.
 It is intentionally compact so it is cheap to keep in context.
 
-Reference: [marshail.md](marshail.md) — full process spec.
-Reference: [marshail-override.md](marshail-override.md) — **optional** repo-specific overrides on top of `marshail.md`.
-Read it after `marshail.md`; anything in it takes precedence over the canonical spec on the points it addresses.
-If the file is empty, MARSHAIL behaves as specified in `marshail.md`.
-Knowledge contract: [references/knowledge-contract.md](references/knowledge-contract.md).
-Active implementation: read `knowledge.representation_ref` in [config.yml](config.yml).
-Default: [references/knowledge-markdown-spine.md](references/knowledge-markdown-spine.md).
+Reference: [marshail-override.md](marshail-override.md) — **optional** repo-specific overrides on top of the canonical process.
+Read it after `ENTRYPOINT.md`; anything in it takes precedence on the points it addresses.
 
 ## What MARSHAIL is (one paragraph)
 
@@ -19,6 +14,11 @@ Only **the Plan stage** is mandatory — every other stage is optional and may b
 Each run’s scope is recorded at the top of `delivery-plan.md`.
 Each stage that is run produces durable artifacts that feed the next.
 Phase learnings are captured separately and promoted to durable guidance only when they are reusable.
+Every agent **closes the feedback loop** on its own work — it runs what it produced and reports what it observed, rather than leaving verification to the human (see `marshail.md` § Closing the feedback loop).
+Every agent keeps a run log in the working folder (`logs/<agent>.log.md`), where it stores the history of what it did and caches research, findings and decisions a later fresh-context run should not have to redo; an agent starting a run decides from its task whether to read those logs first (see `references/activation-protocol.md` → Logging and resume).
+
+For iterative, plan-less work (reworking one area, UI polish, many rounds of code → test → check → adjust) there is **workbench mode**: the user works round by round with `marshail-workbench-driver`; there is no `delivery-plan.md` (the session keeps `workbench-session.md` under `.marshail/work/wb-<date>-<slug>/`), but every task still runs in its own fresh context, knowledge is used and kept in sync, and the session is logged and resumable.
+See `marshail.md` § Workbench mode.
 
 ## Stages, agents, and skills
 
@@ -28,11 +28,14 @@ The shipped layout is:
 - `.marshail/agents/<name>.md` — the canonical workflow for a stage / role.
   This is the single source of truth.
 - `.marshail/skills/marshail-delegate-to-<x>/SKILL.md` — thin wrapper skills that match user intent (high-recall trigger phrases) and delegate to the matching subagent in fresh context.
-- `.marshail/skills-fallback/marshail-<x>/SKILL.md` — equivalent skills for environments **without** subagent support; they instruct the assistant to follow the agent's source-of-truth file inline in the current session.
+- `.marshail/skills-fallback/marshail-<x>/SKILL.md` — equivalent skills for environments **without** subagent support — same triggers and call contract, but the agent's workflow runs inline in the current session.
   Same names as the full-bodied skills they replace.
 
-Prefer delegation when spawning is available: if a subagent-spawn tool exists, dispatch stage / role work by spawning the target `marshail-*` agent as a real fresh-context subagent — never emulate it inline.
-Fall back to the inline flavor only when spawning is genuinely unavailable (see [references/activation-protocol.md](references/activation-protocol.md) → *Dispatch by spawning, not emulation*).
+**Dispatch by spawning, not emulation.**
+If a subagent-spawn tool exists, dispatch stage / role work by launching the target `marshail-*` agent as a real fresh-context subagent (nested spawning is fine) and never do that agent's deep work inline; when unsure, check for the tool first.
+Use the inline fallback flavor only when spawning is genuinely unavailable.
+The conversational roles (`marshail-driver`, `marshail-workbench-driver`) are the exception: a spawned subagent cannot talk to the user, so they run as the **session agent** (the user selects the agent for the session) or **inline** via `marshail-drive` / `marshail-workbench`; the driver is spawned only for a hands-off end-to-end run (`marshail-delegate-to-driver`).
+See `marshail.md` § How an agent runs.
 
 Each delegated agent is meant to work **independently** and to keep its internals out of the caller's context: it returns only what the caller needs (a summary or an artifact path), not its full working detail.
 This keeps long runs cheap and avoids context pollution (see the general rule "share only what is needed across agent boundaries").
@@ -52,10 +55,16 @@ The Plan stage is the only mandatory stage; all others are optional unless noted
 | Rollout | `marshail-releaser` | `marshail-delegate-to-rollout` | `marshail-rollout` | `rollout-note.md` | optional |
 | Learn | `marshail-learner` | `marshail-delegate-to-learn` | `marshail-learn` | `learning-rollup.md` | optional |
 
-The full end-to-end orchestrator is `marshail-driver` (delegate skill `marshail-delegate-to-driver`); it has no fallback because its value is subagent orchestration with isolated context per stage.
+The full end-to-end orchestrator is `marshail-driver`.
+Its skills are `marshail-drive` (main-session: runs the driver inline for collaborative / interactive runs and resumes; asks first when the intent is unclear) and `marshail-delegate-to-driver` (spawns the driver only for a hands-off end-to-end run; fallback flavor: `marshail-drive-end-to-end`, which runs that hands-off run inline).
+Workbench mode is led by `marshail-workbench-driver`, with the main-session skill `marshail-workbench` (runs it inline; never spawns it).
+`marshail-drive` and `marshail-workbench` know about each other and offer both when it is unclear whether the user wants a staged change or an iterative session.
 
 **Two communication models** (mixable): call a specialist agent **directly** for one stage, or talk only to `marshail-driver` as a **single point of contact** that coordinates the specialists.
+A specialist reached through its `marshail-delegate-to-*` skill runs as a subagent — one bounded run, questions returned through the chat agent; its interactive parts (e.g. the implementer's inspect-and-feedback step) only happen when it is the session agent or runs inline.
 In the driver-mediated model the human-in-the-loop level ranges from hands-off (return only for key decisions and approval gates) to collaborative (decide together, phase by phase), inferred from the prompt and `config.yml` autonomy and adjustable at any stage boundary.
+Switching between the driver and the workbench driver is a **session handover** (state on disk + a one-line prompt for the user), never a spawn.
+A workbench session can be a **detour** from an active staged change: its `resume.md` records `Return to change: <change-id>`, and when the session finishes `.marshail/work/current` is pointed back at that change so the driver resumes it.
 See `marshail-driver` and `marshail.md` for the full description and the turn-based mediation tradeoff.
 
 The agent file states the prerequisites, inputs, outputs, and handoff.
@@ -68,12 +77,15 @@ It is **separate** from the synced skills/rules/agents tree.
 
 Knowledge is MARSHAIL's agent-managed mid- and long-term memory.
 The knowledge contract is separate from the active implementation: read `knowledge.contract_ref` and `knowledge.representation_ref` in `.marshail/config.yml` before assuming a storage layout, metadata fields, indexing strategy, or update protocol.
-The default implementation is **MARSHAIL Markdown Spine**, documented in [`references/knowledge-markdown-spine.md`](references/knowledge-markdown-spine.md) — the single source of truth for the layout, metadata, indexing, splitting, and staleness mechanics.
+`knowledge.representation_ref` points at the implementation's **reading guide** — short, loaded by every agent that reads knowledge; it names the root entry, explains the layout and metadata, and says how to write an inbox note.
+The reading guide links the implementation's **maintenance guide**, which only knowledge-maintaining agents load (see [references/activation-protocol.md](references/activation-protocol.md) → load tiers).
 
-To use it: start at the always-loaded root `.marshail/knowledge/INDEX.md`, then descend through the area indexes to the specific topic files only as the task needs them — using each file's summary to decide whether to open it.
+To use it: start at the always-loaded **root entry** named by the reading guide, then descend through the area indexes to the specific topic files only as the task needs them — using each file's summary to decide whether to open it.
 The tree is hierarchical and recursive (no fixed depth); the active implementation defines the exact layout and metadata.
 Knowledge files may cross-reference other knowledge content / files; follow those links only when the task needs them.
 Knowledge is the **cached result of a real code scan** — `init` / `rebuild` derive it by reading the code from the entrypoints inward (not from existing docs alone), analyzing each area as deep as it warrants; depth is decided per node and `knowledge.scan_depth` sets the default bias.
+
+Two locations are fixed by the contract regardless of implementation: the inbox `.marshail/knowledge/learn/inbox/` for not-yet-canonical notes, and decision records (ADRs) discoverable from the root entry.
 
 Knowledge content is not limited to code facts — it covers logic, architecture, design rationale, decisions, and conventions.
 
@@ -117,7 +129,7 @@ Two `.marshail/config.yml` settings govern what they do with it, and **every** a
   - **false**: do **not** touch the knowledge inbox mid-process; record the finding in the current stage's learning file (`learning/stage-<n>-<name>.learning.md`, or `learning/phase-<n>.learning.md` during implementation) instead, to be promoted only in the Learn stage.
 - `knowledge.curator_invocation` (only relevant when a note was written to the inbox):
   - **agent**: the agent calls [`marshail-knowledge-curator`](agents/marshail-knowledge-curator.md) itself right after writing the note.
-  - **driver** (default): the agent does **not** call the curator; it reports back to its caller (the driver, or the user when invoked directly) that it populated the inbox, and the caller runs the curator.
+  - **driver** (default): the agent does **not** call the curator; it reports back to its caller (the driver or the workbench driver, or the user when invoked directly) that it populated the inbox, and the caller runs the curator.
 
 Agents never edit canonical knowledge directly — promotion always goes through the curator.
 
@@ -130,7 +142,7 @@ Durable assets MARSHAIL comes with, produces, or maintains live under `.marshail
 - `skills/marshail-delegate-to-<x>/SKILL.md` — thin delegate wrappers, one folder per stage / role.
   Each delegates to the matching subagent.
 - `skills-fallback/marshail-<x>/SKILL.md` — fallback skills for environments without subagent support; they point back to the agent file as the source of truth.
-- `skills/marshail-{init,load,promote-assets}/SKILL.md` — main-session skills with no subagent counterpart.
+- `skills/marshail-{init,load,promote-assets,drive,workbench}/SKILL.md` — main-session skills with no subagent counterpart; promoted under both skill flavors.
 - `rules/<name>.md` — one file per rule (frontmatter: `description`, `applies-to`, `always-apply`).
   Built-in MARSHAIL rules.
 - `extensions/{skills,agents,rules}/` — **repo-specific extensions** drafted by [`marshail-learner`](agents/marshail-learner.md) (or hand-authored) on top of the built-ins.

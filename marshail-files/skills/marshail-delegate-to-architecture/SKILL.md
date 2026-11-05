@@ -11,7 +11,7 @@ Do **not** inline the workflow — the agent owns it.
 ## Call contract
 
 - **Subagent:** `marshail-architect`
-- **Pass:** `change-brief.md`, `repo-recon.md`, relevant knowledge files (especially `repo/architecture.md`, affected `domains/<x>/`), existing ADRs under `.marshail/knowledge/decisions/`.
+- **Pass:** `change-brief.md`, `repo-recon.md`.
 - **Expect back:** approved `architecture-notes.md`, optional ADR file(s), plus `logs/stage-4-architecture.changelog.md` and `learning/stage-4-architecture.learning.md`.
 - **On result:** hand off to [`marshail-delegate-to-plan`](../marshail-delegate-to-plan/SKILL.md) (Plan stage).
   If new ADRs were drafted, route them through [`marshail-delegate-to-knowledge-maintain`](../marshail-delegate-to-knowledge-maintain/SKILL.md) for promotion into the canonical knowledge tree.

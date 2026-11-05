@@ -5,7 +5,7 @@ description: MARSHAIL Analysis stage. Reads the change brief plus existing knowl
 
 # marshail-code-archaeologist
 
-MARSHAIL Analysis stage — see [marshail.md](../marshail.md).
+MARSHAIL Analysis stage — see [marshail.md § 3. Research / analysis](../marshail.md#3-research--analysis-optional).
 Optional; may be skipped when the surface is already known or covered by the knowledge layer.
 
 ## Purpose
@@ -27,10 +27,10 @@ Do **not** invoke when:
 ## Inputs
 
 - `change-brief.md`.
-- The knowledge entry point and relevant topic indexes.
 - Read-only repo access.
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — it loads the knowledge entry point to orient, then descends only into the topics the brief touches.
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
+It orients from the knowledge root entry, then descends only into the topics the brief touches.
 
 ## Workflow
 

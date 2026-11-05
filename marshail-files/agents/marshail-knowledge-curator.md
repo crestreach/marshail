@@ -1,6 +1,6 @@
 ---
 name: marshail-knowledge-curator
-description: Knowledge maintenance agent. Modes — `init` (first-time bootstrap), `from-changes` (after an implementation cycle), `from-learning` (after the Learn stage), `rescan` (full sweep), `rebuild` (post-feature restructure), `branch-merge` (reconcile diverged knowledge trees). Applies changes and returns a summary under `knowledge.autonomy: auto` (default); returns a unified diff for human approval under `review`.
+description: 'Knowledge maintenance agent. Modes — `init` (first-time bootstrap), `from-changes` (after an implementation cycle), `from-learning` (after the Learn stage), `rescan` (full sweep), `rebuild` (post-feature restructure), `branch-merge` (reconcile diverged knowledge trees). Applies changes and returns a summary under `knowledge.autonomy: auto` (default); returns a unified diff for human approval under `review`.'
 ---
 
 # marshail-knowledge-curator
@@ -40,18 +40,12 @@ The single source of truth for this capture flow is [ENTRYPOINT](../ENTRYPOINT.m
     When given, it focuses the rebuild on what that change touched; when omitted, the rebuild operates on the whole tree vs current HEAD (like `rescan`, but with restructuring).
   - `branch-merge`: two branch refs or merge base + two heads; optional file focus list.
 
-The curator reads the rest itself — it does not need them passed in:
-
-- [`.marshail/config.yml`](../config.yml) — autonomy, size policy, and the contract / implementation refs.
-- The general knowledge contract (`knowledge.contract_ref`, default [knowledge-contract](../references/knowledge-contract.md)) and the active knowledge implementation (`knowledge.representation_ref`, default [knowledge-markdown-spine](../references/knowledge-markdown-spine.md)), which define the knowledge's shape, metadata, size policy, and code↔knowledge mapping.
-- The knowledge entry point and the indexes for affected areas.
-- [promotion-rules](../references/promotion-rules.md) for what to promote vs archive vs drop.
-
-Load tier: **full** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **full** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier (it includes the knowledge contract and the implementation's maintenance guide); the inputs above are only what the caller passes.
+It also applies [promotion-rules](../references/promotion-rules.md) for what to promote vs archive vs drop.
 
 ## Workflow (shared)
 
-1. Read entry point + knowledge contract + active implementation + relevant indexes — including the implementation's **depth and code-derivation policy** (what to scan, from which entrypoints, and how to decide depth per node).
+1. Read entry point + knowledge contract + the active implementation's reading guide **and maintenance guide** + relevant indexes — including the implementation's **depth and code-derivation policy** (what to scan, from which entrypoints, and how to decide depth per node).
 2. Run mode-specific logic (below).
 3. For each touched knowledge unit: refresh its metadata and re-verify its claims against current code, following the field and merge rules of the active knowledge implementation and [promotion-rules](../references/promotion-rules.md).
    Cross-link related knowledge units instead of duplicating their content, and keep existing cross-references valid when units are split, merged, renamed, or archived (see the active implementation's cross-reference rules).
@@ -63,16 +57,7 @@ Load tier: **full** (see [activation-protocol](../references/activation-protocol
 
 Knowledge units are kept small enough to be cheap to load.
 The **size policy and split mechanics are defined by the active knowledge implementation**, not by this agent — the curator applies whatever limits and structure that implementation prescribes.
-The example below illustrates the idea for the default Markdown Spine implementation; another implementation may group knowledge differently.
-
-```
-example (markdown spine):
-before:
-  domains/payments/logic.md           (over the size limit)
-after:
-  domains/payments/logic/INDEX.md     (sub-index)
-  domains/payments/logic/<sub>.md     (one per subtopic)
-```
+Typically an oversized unit becomes a sub-index plus one unit per subtopic.
 
 General rules (the implementation defines the specifics):
 
@@ -84,7 +69,7 @@ General rules (the implementation defines the specifics):
 
 ## Depth and code derivation
 
-Knowledge must be the **cached result of a real code scan**, derived by reading the code from the system's entrypoints inward — not by transcribing existing prose docs. Those docs locate the right files fast, but every recorded claim is **verified against the code**, and complex / high-value areas are analyzed in depth. Depth is **decided locally per node** (the active implementation owns the mechanics; the Markdown Spine describes the per-node, recursive decision and entrypoint-driven scanning) — there is no fixed level taxonomy, and for a large repo multiple levels are expected, not exceptional.
+Knowledge must be the **cached result of a real code scan**, derived by reading the code from the system's entrypoints inward — not by transcribing existing prose docs. Those docs locate the right files fast, but every recorded claim is **verified against the code**, and complex / high-value areas are analyzed in depth. Depth is **decided locally per node** (the active implementation's maintenance guide owns the mechanics: the per-node, recursive depth decision and the entrypoint-driven scan) — there is no fixed level taxonomy, and for a large repo multiple levels are expected, not exceptional.
 
 This applies to **`init` and `rebuild`** as the primary producers of depth, and to **`from-changes` / `rescan`** as verifiers that keep that depth correct (refresh a stale deep topic by re-reading the code, don't just bump the date).
 
@@ -92,7 +77,7 @@ This applies to **`init` and `rebuild`** as the primary producers of depth, and 
 
 The deep reads can be heavy. Isolate them when that helps, but don't fragment analysis that belongs together — use judgment, not a mechanical one-sub-agent-per-area rule:
 
-- **Delegate to read-only sub-agents when it makes sense** — for large or independent areas, or for genuinely unfamiliar ones (use [`marshail-researcher`](./marshail-researcher.md)). Each returns a **tight, source-linked distillation** (purpose, key types, contracts, data / IO, invariants, hotspots, test seams, and the specific files for `repo_paths`), keeping the bulk code out of the curator's context.
+- **Delegate to read-only sub-agents when it makes sense** — for large or independent areas, or for genuinely unfamiliar ones (use [`marshail-researcher`](./marshail-researcher.md)). Each returns a **tight, source-linked distillation** (purpose, key types, contracts, data / IO, invariants, hotspots, test seams, and the specific files the unit covers), keeping the bulk code out of the curator's context.
 - **Reuse a shared context where areas are related** and the cross-area context matters — when analyzing one area depends on understanding another, or several small related areas are best understood together, do them together rather than splitting them across isolated sub-agents that each lose the shared picture.
 - Run genuinely independent scans concurrently; keep each distillation small enough to compose without re-reading the code. The fan-out width is the curator's call — there is no config knob for it.
 
@@ -109,8 +94,8 @@ The concrete files, folders, metadata, and discovery / split mechanics are defin
 
 1. Detect repo languages, package layout, build tools, and the natural knowledge groupings (subsystems / domains / modules), **and enumerate the system's entrypoints** (deployables, controllers, endpoints, consumers, jobs, CLIs, public APIs).
 2. Decide the **depth each area warrants**, locally per node (see *Depth and code derivation* and the implementation's policy): which modules / capabilities, and which complex components or flows, need their own deeper nodes. Bias toward depth for areas that would otherwise force a costly future code scan; for a large repo, expect multiple levels.
-3. **Scan the code from the entrypoints inward**, reading the actual code — delegating to read-only sub-agents where that isolates heavy reads usefully, and reusing shared context where related areas are better analyzed together (see *Scanning without blowing context*). Capture the specific files for each topic's `repo_paths`.
-4. Compose the knowledge units the implementation defines — repo-level, per-subsystem, and the deeper per-module / per-capability / per-flow topics each area warranted — **derived from the scan** and stamped with freshness metadata; mark anything not yet verified against code as lower confidence.
+3. **Scan the code from the entrypoints inward**, reading the actual code — delegating to read-only sub-agents where that isolates heavy reads usefully, and reusing shared context where related areas are better analyzed together (see *Scanning without blowing context*). Record, for each topic, the specific files it covers.
+4. Compose the knowledge units the implementation defines — repo-level, per-subsystem, and the deeper per-module / per-capability / per-flow topics each area warranted — **derived from the scan** and stamped with the metadata the implementation requires (including when and against which commit each claim was verified); mark anything not yet verified against code as lower confidence.
 5. Generate the indexes; record each group's split dimension.
 6. Apply the size policy; split where needed (see *Size and structure*).
 
@@ -151,7 +136,7 @@ A change (feature branch / commit range) may be passed to focus the rebuild, but
 ### `branch-merge`
 
 1. Compute the knowledge units touched on each side since the merge base.
-2. Reconcile them per the active implementation's field and merge rules (e.g. union code mappings, newest-wins freshness, merge bodies).
+2. Reconcile them per the active implementation's field and merge rules (which fields are unioned, which take the newest value, how bodies are merged).
    Under `knowledge.autonomy: auto` (default) perform the merge directly; under `review` flag genuine conflicts (e.g. both sides created the same unit, or contradictory summaries) for human resolution.
 3. Regenerate the indexes.
 

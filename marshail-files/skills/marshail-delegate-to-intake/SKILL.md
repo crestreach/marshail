@@ -12,6 +12,5 @@ Do **not** inline the workflow — the agent owns it.
 
 - **Subagent:** `marshail-framer`
 - **Pass:** `specification.md` if it exists; otherwise the user prompt.
-  Plus the top-level `AGENTS.md` and `.marshail/knowledge/INDEX.md` paths for context.
 - **Expect back:** approved `change-brief.md` plus `logs/stage-2-intake.changelog.md` and `learning/stage-2-intake.learning.md`.
 - **On result:** hand off to [`marshail-delegate-to-analysis`](../marshail-delegate-to-analysis/SKILL.md) (Analysis stage) or directly to [`marshail-delegate-to-plan`](../marshail-delegate-to-plan/SKILL.md) (Plan stage) per the agreed scope.

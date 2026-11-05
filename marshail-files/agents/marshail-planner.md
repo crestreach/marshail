@@ -5,7 +5,7 @@ description: MARSHAIL Plan stage. Synthesizes `delivery-plan.md` from change bri
 
 # marshail-planner
 
-MARSHAIL Plan stage — see [marshail.md](../marshail.md).
+MARSHAIL Plan stage — see [marshail.md § 5. Plan / shape](../marshail.md#5-plan--shape-mandatory).
 **Mandatory.**
 Every change has a plan, even if it is a single phase with a single step; implementation never proceeds without it.
 
@@ -31,9 +31,8 @@ Do **not** invoke when:
 - Target depth (optional): may be pinned by the user (e.g. "L2", "L4 in P1, L2 elsewhere").
   If not pinned, the planner picks the shallowest depth that still makes the next implementation cycle unambiguous and surfaces the choice for approval.
 - Optional: an existing `delivery-plan.md` to deepen / amend.
-- Relevant knowledge for affected areas.
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
 
 ## Workflow
 

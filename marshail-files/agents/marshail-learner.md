@@ -1,11 +1,11 @@
 ---
 name: marshail-learner
-description: MARSHAIL Learn stage. Merges per-phase learning files into `learning-rollup.md`, then promotes durable items into AGENTS.md, README, and — under `.marshail/extensions/{rules,skills,agents}/` with the `mx-` prefix — repo-specific rules / skills / subagents drafted from the learnings. Knowledge promotion goes through `marshail-knowledge-curator` mode `from-learning`. Non-knowledge buckets follow `extensions.autonomy` (default `review`: a per-bucket diff for approval; `auto`: applied with a summary); knowledge promotion follows `knowledge.autonomy`.
+description: 'MARSHAIL Learn stage. Merges per-phase learning files into `learning-rollup.md`, then promotes durable items into AGENTS.md, README, and — under `.marshail/extensions/{rules,skills,agents}/` with the `mx-` prefix — repo-specific rules / skills / subagents drafted from the learnings. Knowledge promotion goes through `marshail-knowledge-curator` mode `from-learning`. Non-knowledge buckets follow `extensions.autonomy` (default `review`: a per-bucket diff for approval; `auto`: applied with a summary); knowledge promotion follows `knowledge.autonomy`.'
 ---
 
 # marshail-learner
 
-MARSHAIL Learn stage — see [marshail.md](../marshail.md).
+MARSHAIL Learn stage — see [marshail.md § 8. Learn / improve the system](../marshail.md#8-learn--improve-the-system-optional).
 Optional; skip when no phase produced a learning file worth promoting.
 
 ## Purpose
@@ -18,6 +18,7 @@ Knowledge writes go through the curator.
 
 - After the Rollout stage (or the PR / Review stage if rollout was skipped).
 - Whenever phase learning files have accumulated and want promotion.
+- At the end of a [workbench session](../marshail.md#workbench-mode), when `learning/workbench.learning.md` has anything worth promoting.
 
 Do **not** invoke when:
 
@@ -26,20 +27,24 @@ Do **not** invoke when:
 
 ## Inputs
 
-- All `learning/*.learning.md` files for the change (subset of: `stage-1-specification`, `stage-2-intake`, `stage-3-analysis`, `stage-4-architecture`, `stage-5-plan`, `phase-<n>` for each L1 implementation phase, `stage-7-rollout`).
+- All `learning/*.learning.md` files for the change (subset of: `stage-1-specification`, `stage-2-intake`, `stage-3-analysis`, `stage-4-architecture`, `stage-5-plan`, `phase-<n>` for each L1 implementation phase, `stage-7-rollout`) — or `learning/workbench.learning.md` for a workbench session.
 - `architecture-notes.md` if the Architecture stage ran — its durable design decisions and rationale are reviewed here and the promotable ones are routed into the knowledge bucket (decisions / ADRs) via the curator's `from-learning` mode.
-- Targets that may be updated:
-  - [`AGENTS.md`](../../AGENTS.md) (snippet to merge into the host repo's root `AGENTS.md`),
-  - [`README.md`](../../README.md),
-  - [`.marshail/extensions/rules/`](../extensions/rules/),
-  - [`.marshail/extensions/skills/`](../extensions/skills/),
-  - [`.marshail/extensions/agents/`](../extensions/agents/),
-  - `.marshail/knowledge/` (via the curator's `from-learning` mode).
+
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
+
+## Update targets
+
+Targets that may be updated:
+
+- [`AGENTS.md`](../../AGENTS.md) (snippet to merge into the host repo's root `AGENTS.md`),
+- [`README.md`](../../README.md),
+- [`.marshail/extensions/rules/`](../extensions/rules/),
+- [`.marshail/extensions/skills/`](../extensions/skills/),
+- [`.marshail/extensions/agents/`](../extensions/agents/),
+- `.marshail/knowledge/` (via the curator's `from-learning` mode).
 
 Do **not** write into `.marshail/{skills,skills-fallback,agents,rules}/` — those folders hold built-in MARSHAIL assets and are owned by MARSHAIL itself.
 Repo-specific assets always go under [`.marshail/extensions/`](../extensions/).
-
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
 
 ## Workflow
 

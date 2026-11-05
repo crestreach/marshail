@@ -97,7 +97,7 @@ MARSHAIL_SLUG="$(_repo_slug "$MARSHAIL_REPO")"
 
 # ---------------------------------------------------------------------------
 # config.yml schema + nested-YAML reconcile (mirrors cyncia's cyncia.conf
-# logic, adapted for MARSHAIL's two-section nested config).
+# logic, adapted for MARSHAIL's section-nested config: section → key).
 #
 # Each schema entry is "section|key|default|description". The installer:
 #   * creates config.yml from the shipped template when it is missing,
@@ -110,15 +110,15 @@ MARSHAIL_SLUG="$(_repo_slug "$MARSHAIL_REPO")"
 # ---------------------------------------------------------------------------
 MARSHAIL_CONF_SCHEMA=(
   "knowledge|contract_ref|references/knowledge-contract.md|General contract every knowledge implementation must satisfy."
-  "knowledge|representation_ref|references/knowledge-markdown-spine.md|Active knowledge implementation; must satisfy contract_ref. Swap representations by pointing this at another implementation reference."
+  "knowledge|representation_ref|references/knowledge-markdown-spine.md|Active knowledge implementation (its reading guide); must satisfy contract_ref. Swap representations by pointing this at another implementation's reading guide. Implementation-specific settings live in their own top-level section (see markdown_spine)."
   "knowledge|autonomy|auto|auto = agents write knowledge without per-change approval and return a summary (default); review = every write produces a diff for human approval first."
   "knowledge|curator_invocation|driver|Who runs marshail-knowledge-curator after the knowledge inbox is populated: driver = the caller (driver or user) runs it (default); agent = the agent runs it itself."
   "knowledge|capture_during_process|true|Whether knowledge is augmented during the process (true: notes go to knowledge/learn/inbox) or only in the Learn stage (false: findings go to the phase learnings file)."
   "knowledge|scan_depth|standard|How aggressively init / rebuild deepen the knowledge tree from a real entrypoint-driven code scan. shallow = stay near a per-subsystem / per-module map and expand only clearly complex areas; standard = analyze each non-trivial module and capability on its own (default); deep = also give complex components, algorithms, and end-to-end flows their own focused topics. Depth is still decided locally per node, so agents go deeper for complex areas and shallower for trivial ones."
   "knowledge|rescan_period_days|7|Advisory rescan cadence in days. The rescan is still triggered explicitly via marshail-knowledge-maintain (mode: rescan)."
-  "knowledge|root_index_max_lines|150|Cap for the always-loaded root knowledge INDEX.md."
-  "knowledge|subindex_max_lines|150|Cap for any sub-index file (folder index, topic sub-index, etc.)."
-  "knowledge|topic_max_lines|400|Soft cap for an individual topic file; exceeding it makes the curator propose splitting the topic into a folder with a sub-index plus subtopics."
+  "markdown_spine|root_index_max_lines|150|Markdown Spine setting: cap for the always-loaded root knowledge INDEX.md."
+  "markdown_spine|subindex_max_lines|150|Markdown Spine setting: cap for any sub-index file (folder index, topic sub-index, etc.)."
+  "markdown_spine|topic_max_lines|400|Markdown Spine setting: soft cap for an individual topic file; exceeding it makes the curator propose splitting the topic into a folder with a sub-index plus subtopics."
   "extensions|autonomy|review|Approval mode for MARSHAIL extension and guidance assets created or updated outside the knowledge layer (mx-* rules/skills/subagents under .marshail/extensions/, plus Learn-stage AGENTS.md / README updates). review = every create or update produces a diff for human approval first (default); auto = the agent applies it directly and returns a summary. Knowledge writes are governed separately by knowledge.autonomy."
   "sync|agent_config_dir|.agent-config|Config-sync source tree that cyncia consumes. marshail-promote-assets writes promoted assets here."
   "sync|skill_flavor|delegate|Which built-in skill flavor marshail-promote-assets promotes: delegate (thin subagent wrappers; default) or fallback (full inline skills)."

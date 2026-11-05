@@ -12,7 +12,7 @@ Do **not** inline the workflow — the agent owns it.
 
 - **Subagent:** `marshail-researcher`
 - **Pass (request-specific only):** the **intent** — a narrowly-scoped topic / question — plus optional likely-relevant paths or a knowledge-file id to refresh, and whether the result is intended for promotion to knowledge.
-  The agent reads `.marshail/config.yml`, the knowledge contract / implementation, and the repo / knowledge tree itself — do not pass them.
+  The agent reads `.marshail/config.yml`, the active knowledge implementation's reading guide, and the repo / knowledge tree itself — do not pass them.
 - **Expect back:** a single condensed, source-linked markdown **research note** (target ≤ ~150 lines body); an "open questions" trailer.
   When the request says it is for knowledge, the note follows the active knowledge implementation so it can be promoted as-is.
 - **On result:** consume the note inline.

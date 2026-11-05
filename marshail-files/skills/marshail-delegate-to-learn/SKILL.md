@@ -11,7 +11,7 @@ Do **not** inline the workflow — the agent owns it.
 ## Call contract
 
 - **Subagent:** `marshail-learner`
-- **Pass:** all `learning/phase-*.learning.md` files for the change; pointers to update targets (`AGENTS.md`, `README.md`, `.marshail/rules/`, `.marshail/skills/`, `.marshail/agents/`, `.marshail/knowledge/`).
+- **Pass:** all `learning/*.learning.md` files for the change (or `learning/workbench.learning.md` for a workbench session); `architecture-notes.md` if the Architecture stage ran.
 - **Expect back:** `learning-rollup.md`; per-bucket proposed diffs (human-approved before applying); files dropped into `.marshail/knowledge/learn/inbox/` for the knowledge bucket.
 - **On result:** for the knowledge bucket, hand off to [`marshail-delegate-to-knowledge-maintain`](../marshail-delegate-to-knowledge-maintain/SKILL.md) (`from-learning`) with paths to the inbox files just added.
   For new skills / subagents / rules drafted under `.marshail/`, run the agent-config sync afterwards.

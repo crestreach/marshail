@@ -4,8 +4,12 @@ knowledge:
   # General contract every knowledge implementation must satisfy.
   contract_ref: references/knowledge-contract.md
 
-  # Active knowledge implementation. Swap the representation by pointing this
-  # at another implementation reference that satisfies contract_ref.
+  # Active knowledge implementation. Points at the implementation's reading
+  # guide (loaded by every knowledge-reading agent); the guide links its
+  # maintenance guide, which only knowledge-maintaining agents load. Swap the
+  # representation by pointing this at another reading guide that satisfies
+  # contract_ref. Implementation-specific settings live in their own
+  # top-level section (see markdown_spine below).
   representation_ref: references/knowledge-markdown-spine.md
 
   # auto   = agents write knowledge files without per-change approval and
@@ -19,12 +23,13 @@ knowledge:
   autonomy: auto
 
   # Who invokes the knowledge curator after an agent populates the
-  # knowledge inbox (or after a stage / implementation cycle).
+  # knowledge inbox (or after a stage / implementation cycle / workbench
+  # round).
   #   driver = the agent does not call the curator; it reports back to its
-  #            caller (the marshail-driver, or the user when called
-  #            directly) that it populated the inbox, and the caller runs
-  #            marshail-knowledge-curator (default; keeps stage agents
-  #            focused on their own artifact).
+  #            caller (the marshail-driver, the marshail-workbench-driver,
+  #            or the user when called directly) that it populated the
+  #            inbox, and the caller runs marshail-knowledge-curator
+  #            (default; keeps stage agents focused on their own artifact).
   #   agent  = the agent calls marshail-knowledge-curator itself right
   #            after writing the inbox note.
   # Either way the driver may still run the curator after a stage or cycle.
@@ -68,6 +73,10 @@ knowledge:
   # marshail-knowledge-maintain (mode: rescan). No hooks, no daemons.
   rescan_period_days: 7
 
+# Settings owned by the default knowledge implementation, MARSHAIL Markdown
+# Spine (references/knowledge-markdown-spine-maintenance.md). Another
+# implementation brings its own top-level section and may ignore this one.
+markdown_spine:
   # Cap for the always-loaded root INDEX.md.
   root_index_max_lines: 150
 

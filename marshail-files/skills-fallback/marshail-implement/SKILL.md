@@ -1,14 +1,18 @@
 ---
 name: marshail-implement
-description: MARSHAIL Implement stage. Fallback skill for environments without subagent support. Triggers on "implement the next phase", "do the next packet", "code this packet", "apply the plan", "drive the implement-verify-pr cycle", "write the code for delivery-plan.md phase N". Runs implementation cycles inline in the current session.
+description: 'MARSHAIL Implement stage. Fallback skill for environments without subagent support — runs inline in the current session. Use when the user asks to "implement phase X", "work on packet Y", "code this packet", "execute the plan", "start the next implementation cycle", "do the work for the current target", "write the code + tests for this", "run a Dev-QA pass", "close this cycle". Also use after the Plan stage (plan approved) to drive each implementation cycle, and after a verifier failure or reviewer fixup loop to resume coding. Run inline, the agent picks the cycle target, confirms / deepens the plan, executes (code + tests + Dev-QA where possible), offers the human a chance to inspect and give feedback, and closes the cycle by updating plan status, changelog, and learning files.'
 ---
 
 # marshail-implement (fallback — no-subagent environments)
 
-This skill performs the work that the [`marshail-implementer`](../../agents/marshail-implementer.md) subagent does, but inline in the current session, for tools that don't support custom subagents.
+Run the [`marshail-implementer`](../../agents/marshail-implementer.md) workflow inline in the current session, for tools that don't support custom subagents.
+The agent file is the source of truth for the behavior; this skill only describes how it gets activated.
 
-**Source of truth:** [`marshail-implementer.md`](../../agents/marshail-implementer.md).
-Read it and follow its **Inputs / Workflow / Outputs / Exit criteria / Handoff** sections exactly.
-Do not duplicate that content here.
+## Call contract
 
-> If subagents *are* available, prefer [`marshail-delegate-to-implement`](../../skills/marshail-delegate-to-implement/SKILL.md) so the work runs in fresh context.
+- **Agent (run inline):** `marshail-implementer`
+- **Context needed:** `delivery-plan.md`; `change-brief.md` (if it exists); the picked target item (phase / packet / step).
+- **Produces:** code + tests committed against the plan; updated `delivery-plan.md` (status markers, [FIXUP] / [ADDED] / [CHANGED] / [REVERT] / [DROPPED] entries with dates); `logs/phase-<n>.changelog.md` and `learning/phase-<n>.learning.md` (per L1 phase).
+- **Then:** when the PR boundary is filled, hand off to [`marshail-verify`](../marshail-verify/SKILL.md).
+  After the cycle, if tracked code paths changed, hand off to [`marshail-knowledge-maintain`](../marshail-knowledge-maintain/SKILL.md) (mode `from-changes`).
+  If assumptions break, hand back to [`marshail-plan`](../marshail-plan/SKILL.md) for the affected phase.

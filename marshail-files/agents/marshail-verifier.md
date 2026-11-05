@@ -1,11 +1,11 @@
 ---
 name: marshail-verifier
-description: MARSHAIL Verify stage. Runs the explicit go/no-go gate — checks that acceptance criteria are met and that there are no blocking (no-go) issues: failing tests, broken build, missing required tests, unmet requirements, migration/security regressions. Reports only blocking issues plus the checks performed; deeper quality critique belongs to the Review stage. Produces `verification-report.md` (or, for trivial changes, a verification paragraph in the phase changelog). Required before any PR. The user may override a failing verification to proceed.
+description: 'MARSHAIL Verify stage. Runs the explicit go/no-go gate — checks that acceptance criteria are met and that there are no blocking (no-go) issues: failing tests, broken build, missing required tests, unmet requirements, migration/security regressions. Reports only blocking issues plus the checks performed; deeper quality critique belongs to the Review stage. Produces `verification-report.md` (or, for trivial changes, a verification paragraph in the phase changelog). Required before any PR. The user may override a failing verification to proceed.'
 ---
 
 # marshail-verifier
 
-MARSHAIL Verify stage — see [marshail.md](../marshail.md).
+MARSHAIL Verify stage — see [marshail.md § 6b. Verify](../marshail.md#6b-verify).
 Required before any PR. For trivial changes, the report may collapse into a short paragraph in the affected phase changelog — the rule still holds: nothing merges without an explicit verification step recorded somewhere.
 
 ## Purpose
@@ -27,6 +27,8 @@ The user may **override** a failing verification when there is a reason to proce
 
 - The Implement stage delivered work that fills a coherent PR boundary.
 - A re-verification round is needed after fixups.
+- In [workbench mode](../marshail.md#workbench-mode): the user asks to "run the checks" / wants a go / no-go on the current diff, or a PR is about to come out of the session.
+  With no `change-brief.md` or plan, walk the round's stated goal from `workbench-session.md` as the acceptance criteria.
 
 Do **not** invoke when:
 
@@ -42,7 +44,7 @@ Do **not** invoke when:
 - `implementation-report.md` — notes the implementer captured during the cycle (migrations, toggles, limitations) that verification should account for.
 - Existing `verification-report.md` if a prior round was run.
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
 
 ## Workflow
 
@@ -50,12 +52,13 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
    Walk every requirement in `change-brief.md` (or the plan's acceptance criteria); confirm it is implemented, including corner and error cases.
    Flag any unmet requirement as a no-go.
 2. **Build / tests / static checks.**
-   Run build, tests, lint, typecheck, and (where applicable) migration / observability / security checks.
+   Run build, tests, lint, typecheck, and (where applicable) migration / observability / security checks — actually run them; do not rely on the implementer's report alone.
    Any failure is a no-go.
 3. **Required-tests check.**
    Confirm the tests the change needs exist (e.g. a regression test for a bugfix; unit as primary; integration for cross-component; E2E only for critical journeys).
    A missing required test is a no-go.
 4. **Dev-QA.** AI runs the code / app where possible; the human handles UX and unreachable environments.
+   This is the Verify stage's part of [closing the feedback loop](../marshail.md#closing-the-feedback-loop): record what was run and observed, and name explicitly what could not be reached so the human knows what to check.
    Capture results.
 5. Record the **go/no-go decision**, the blocking issues (if any), and the checks performed in `verification-report.md` (or, for trivial changes, a verification paragraph in the affected phase changelog).
    Do **not** turn this into a full code review — defer that to the reviewer.
@@ -75,8 +78,8 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
 
 ## Handoff
 
-Returns its result to the orchestrator ([`marshail-driver`](./marshail-driver.md)) — or to the user, when this agent was invoked directly.
-The driver (or the user) decides what runs next; this agent does not call the next agent itself.
+Returns its result to the orchestrator ([`marshail-driver`](./marshail-driver.md), or [`marshail-workbench-driver`](./marshail-workbench-driver.md) in workbench mode) — or to the user, when this agent was invoked directly.
+The caller decides what runs next; this agent does not call the next agent itself.
 
 - **On go (or user override):** next is [`marshail-reviewer`](./marshail-reviewer.md), or [`marshail-releaser`](./marshail-releaser.md) if PR/Review is skipped.
   Returns: `verification-report.md`, `delivery-plan.md`, packets in scope.

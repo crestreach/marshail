@@ -11,6 +11,6 @@ Do **not** inline the workflow — the agent owns it.
 ## Call contract
 
 - **Subagent:** `marshail-releaser`
-- **Pass:** `change-brief.md`; `delivery-plan.md` (rollout boundary on phases); `verification-report.md`; migration / config / feature-flag files touched; operational-conventions knowledge files (logging / toggles / deploy) if any.
+- **Pass:** `change-brief.md`; `delivery-plan.md` (rollout boundary on phases); `verification-report.md`; `implementation-report.md`; migration / config / feature-flag files touched.
 - **Expect back:** `rollout-note.md` (toggles, properties, log changes, migrations, rollback path, porting instructions, user-visible docs); `logs/stage-7-rollout.changelog.md`; `learning/stage-7-rollout.learning.md`.
 - **On result:** hand off to [`marshail-delegate-to-learn`](../marshail-delegate-to-learn/SKILL.md) (Learn stage) with the rollout note plus pointers to all phase learning files.

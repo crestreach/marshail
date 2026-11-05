@@ -11,7 +11,7 @@ Do **not** inline the workflow — the agent owns it.
 ## Call contract
 
 - **Subagent:** `marshail-verifier`
-- **Pass:** `change-brief.md` (if it exists); `delivery-plan.md` (packets in scope); the diff / changed files for the PR boundary; any prior `verification-report.md`.
+- **Pass:** `change-brief.md` (if it exists); `delivery-plan.md` (packets in scope); the diff / changed files for the PR boundary; `implementation-report.md`; any prior `verification-report.md`.
 - **Expect back:** `verification-report.md` (or, for trivial changes, a verification paragraph appended to the affected phase changelog); appended results to `logs/phase-<n>.changelog.md`; reusable lessons in `learning/phase-<n>.learning.md`.
 - **On result (pass):** hand off to [`marshail-delegate-to-pr`](../marshail-delegate-to-pr/SKILL.md) (PR stage) or directly to [`marshail-delegate-to-rollout`](../marshail-delegate-to-rollout/SKILL.md) (Rollout stage) if PR is skipped.
 - **On result (fail):** hand back to [`marshail-delegate-to-implement`](../marshail-delegate-to-implement/SKILL.md) with failing items as plan updates ([FIXUP] / [CHANGED] / [ADDED]).

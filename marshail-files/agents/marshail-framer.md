@@ -5,7 +5,7 @@ description: MARSHAIL Intake stage. Turns the approved `specification.md` (or th
 
 # marshail-framer
 
-MARSHAIL Intake stage — see [marshail.md](../marshail.md).
+MARSHAIL Intake stage — see [marshail.md § 2. Intake / framing](../marshail.md#2-intake--framing-optional).
 Optional; may be skipped for trivial changes or folded into the plan's framing section.
 
 ## Purpose
@@ -25,10 +25,8 @@ Do **not** invoke when:
 ## Inputs
 
 - `specification.md` if present; otherwise the user prompt.
-- Top-level [`AGENTS.md`](../../AGENTS.md) (project conventions).
-- [`.marshail/knowledge/INDEX.md`](../knowledge/INDEX.md) — only the index, to know what is available; do not pull domain files (that is the Analysis stage).
 
-Load tier: **minimal** (see [activation-protocol](../references/activation-protocol.md)) — plus the knowledge index to know what exists.
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
 
 ## Workflow
 

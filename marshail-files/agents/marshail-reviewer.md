@@ -5,7 +5,7 @@ description: MARSHAIL Review / PR / integration / merge stage. Composes the PR d
 
 # marshail-reviewer
 
-MARSHAIL Review / PR / integration / merge stage — see [marshail.md](../marshail.md).
+MARSHAIL Review / PR / integration / merge stage — see [marshail.md § 6c. Review / PR / integration / merge](../marshail.md#6c-review--pr--integration--merge).
 Optional; skip for non-shared work or trunk-direct workflows.
 The Verify rule still applies before any code is shared.
 
@@ -20,6 +20,8 @@ Also composes the PR description and converts review feedback into plan updates 
 - A PR has been opened (or is being prepared) at the PR stage.
 - The author wants a self-review pass before requesting a human review.
 - The Verify stage passed and a coherent integration boundary is ready.
+- In [workbench mode](../marshail.md#workbench-mode): the user asks for a review of the current diff, or a PR comes out of the session (after the verifier has passed it).
+  With no plan, review against the round goals in `workbench-session.md` and the knowledge layer; feedback goes back to the workbench driver as the next round, not as plan updates.
 
 Do **not** invoke when:
 
@@ -32,20 +34,18 @@ Do **not** invoke when:
 - `delivery-plan.md` — packets in scope of this PR.
 - `verification-report.md`.
 - `change-brief.md` — for the change summary.
-- Relevant `.marshail/knowledge/` files (invariants, contracts, conventions).
-- Repo conventions in [`.marshail/knowledge/repo/conventions.md`](../knowledge/repo/conventions.md) if present.
-- [`.marshail/config.yml`](../config.yml) for `knowledge.contract_ref` and `knowledge.representation_ref`, then both configured references.
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
 
 ## Workflow
 
 1. Confirm the PR boundary matches the plan (whole change / phase / slice / multi-phase / occasional packet group) and note the **target branch** — the final branch (`main` / release) or an **integration branch** (see *Integration branches*).
 2. Walk packets in the plan; map each to PR file changes.
-3. Read the knowledge contract and active implementation.
-4. For each changed area, pull the matching knowledge file(s) by `repo_paths` and check claims.
+3. Read the active knowledge implementation's reading guide and the knowledge root entry.
+4. For each changed area, pull the knowledge units that cover the changed paths (the reading guide says how a unit records the code it covers) and check their claims against the diff.
 5. Walk requirements in `change-brief.md`; verify the PR addresses each.
 6. Check test changes against the testing strategy (marshail.md).
+   Check the verification claims in `implementation-report.md` and `verification-report.md` against the diff — what the implementer and verifier say they ran must match what the code and tests actually exercise (see [marshail.md § Closing the feedback loop](../marshail.md#closing-the-feedback-loop)).
 7. Compose PR description: linked phase(s) / packet(s), change summary, test summary, rollout note pointer, known limitations, follow-up packets.
 8. Compose the structured review.
 9. **On review feedback**, convert it into plan updates:
@@ -87,8 +87,8 @@ This final round obeys the same Verify-before-merge rule as every other round; t
 
 ## Handoff
 
-Returns the PR description + structured review to the orchestrator ([`marshail-driver`](./marshail-driver.md)) — or to the user, when this agent was invoked directly.
-The driver (or the user) decides what runs next; this agent does not edit code or merge.
+Returns the PR description + structured review to the orchestrator ([`marshail-driver`](./marshail-driver.md), or [`marshail-workbench-driver`](./marshail-workbench-driver.md) in workbench mode) — or to the user, when this agent was invoked directly.
+The caller decides what runs next; this agent does not edit code or merge.
 
 - **Next stage on merge (per the MARSHAIL process):** [`marshail-releaser`](./marshail-releaser.md) (Rollout) if rollout is in scope; otherwise [`marshail-learner`](./marshail-learner.md) (Learn) — or end-of-change.
   Pass: merged commit / tag, summary of what was integrated, any rollout-relevant notes from the PR.

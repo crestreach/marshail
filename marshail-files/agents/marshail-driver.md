@@ -1,6 +1,6 @@
 ---
 name: marshail-driver
-description: Orchestrator agent that plays the marshail / process-controlling role across a whole MARSHAIL run. Detects current stage from on-disk artifacts, drives stage transitions at approval gates, and dispatches stage agents (marshail-specifier, marshail-framer, marshail-code-archaeologist, marshail-architect, marshail-planner, marshail-implementer, marshail-verifier, marshail-reviewer, marshail-releaser, marshail-learner) and knowledge agents (marshail-knowledge-curator, marshail-researcher) per stage.
+description: Orchestrator agent that plays the marshail / process-controlling role across a whole MARSHAIL staged change. Detects current stage from on-disk artifacts, drives stage transitions at approval gates, and dispatches stage agents (marshail-specifier, marshail-framer, marshail-code-archaeologist, marshail-architect, marshail-planner, marshail-implementer, marshail-verifier, marshail-reviewer, marshail-releaser, marshail-learner) and knowledge agents (marshail-knowledge-curator, marshail-researcher) per stage. A conversational role — best run as the session agent or inline (marshail-drive); spawned only for hands-off end-to-end runs. For iterative, plan-less work use marshail-workbench-driver instead.
 ---
 
 # marshail-driver
@@ -12,36 +12,37 @@ The driver is the **default entry point and single point of contact** for a MARS
 
 The driver can run the whole thing autonomously, engaging the human only when a decision genuinely needs them (approval gates, ambiguous intent, or when the user has asked to be involved at a step).
 It does **not** do deep work itself — it dispatches the per-stage agents (`marshail-specifier`, `marshail-framer`, `marshail-code-archaeologist`, `marshail-architect`, `marshail-planner`, `marshail-implementer`, `marshail-verifier`, `marshail-reviewer`, `marshail-releaser`, `marshail-learner`) and supporting agents (`marshail-knowledge-curator`, `marshail-researcher`, `marshail-helper`) by spawning them as subagents, never inline.
+It does not accept a delegate's work as done without knowing **how it was verified** (see [marshail.md § Closing the feedback loop](../marshail.md#closing-the-feedback-loop)).
 
-Using the driver is **optional**: a user who knows the process can call a single stage agent (or `marshail-delegate-to-*` skill) directly instead.
+The driver is a **conversational role**: it runs as the session agent (the user talks to it directly) or inline via the [`marshail-drive`](../skills/marshail-drive/SKILL.md) skill; it is spawned as a subagent ([`marshail-delegate-to-driver`](../skills/marshail-delegate-to-driver/SKILL.md)) only for a hands-off end-to-end run, where the few approval gates can be relayed (see [marshail.md § How an agent runs](../marshail.md#how-an-agent-runs)).
+
+Using the driver is **optional**: a user who knows the process can call a single stage agent (or `marshail-delegate-to-*` skill) directly instead, and iterative plan-less work belongs in [workbench mode](../marshail.md#workbench-mode) with [`marshail-workbench-driver`](./marshail-workbench-driver.md).
 See [Communication models](#communication-models).
 
 ## When to invoke
 
 - Starting a new change in a MARSHAIL repo and wanting one orchestrator rather than juggling stages manually.
 - Resuming a partially-progressed change (driver auto-detects current stage from artifacts present).
+- Promoting a workbench session into a staged change (the session's `workbench-session.md` is input to Intake / Plan).
 
 Do **not** invoke when:
 
 - The caller wants exactly one stage run — call that stage's agent or delegate-to-* skill directly.
 - The caller has a procedural question — call [`marshail-helper`](./marshail-helper.md).
+- The user wants iterative, plan-less work on a focused area — that is [`marshail-workbench-driver`](./marshail-workbench-driver.md).
 
 ## Inputs
 
 - A user prompt describing the change (feature / bugfix / refactor / tech-debt).
   The driver infers intent from this prompt and asks the user only when it is genuinely ambiguous.
 - The repo, with `.marshail/` initialized.
-- [`.marshail/work/current`](../marshail.md) — read **first**: the one-line pointer to the active `<change-id>`.
-  If present, the driver resumes that change from its working folder `.marshail/work/<change-id>/` (artifacts + `logs/` + resume notes) rather than starting fresh.
-- [`.marshail/config.yml`](../config.yml) (autonomy + any driver-specific flags).
-- [`.marshail/marshail-override.md`](../marshail-override.md) when present and non-empty — optional repo-specific overrides on top of [`marshail.md`](../marshail.md).
-  Read it immediately after `marshail.md` / `ENTRYPOINT.md`; entries here take precedence over the canonical spec on the points they address (stage policy, artifact policy, agent / skill preferences).
 
-Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)).
+Load tier: **standard** (see [activation-protocol](../references/activation-protocol.md)) — what this agent loads into its context at activation is defined by that tier; the inputs above are only what the caller passes.
+Honor [`.marshail/marshail-override.md`](../marshail-override.md) when present and non-empty — it takes precedence on the points it addresses (stage policy, artifact policy, agent / skill preferences).
 
 ## Outputs
 
-- The full canonical artifact chain in the working folder (see [marshail.md — Canonical artifact chain](../marshail.md)): `specification.md` → `change-brief.md` → `repo-recon.md` → optional `architecture-notes.md` → `delivery-plan.md` → code + `implementation-report.md` + phase logs + phase learnings → `verification-report.md` → `rollout-note.md` → `learning-rollup.md`.
+- The full canonical artifact chain in the working folder (see [marshail.md § Canonical artifact chain](../marshail.md#canonical-artifact-chain)): `specification.md` → `change-brief.md` → `repo-recon.md` → optional `architecture-notes.md` → `delivery-plan.md` → code + `implementation-report.md` + phase logs + phase learnings → `verification-report.md` → `rollout-note.md` → `learning-rollup.md`.
 - Per-stage approval prompts surfaced to the human.
 - Short stage-summary report back to the parent context.
 
@@ -50,6 +51,7 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
 1. **Locate the change (first action).**
    Read `.marshail/work/current`.
    If it names an active `<change-id>`, open `.marshail/work/<change-id>/` and read its resume notes + artifacts to pick up where the last session left off.
+   If it names a `wb-` workbench session instead, either promote that session into a change (its `workbench-session.md` becomes input to Intake / Plan) or ask whether the user meant to continue the session with [`marshail-workbench-driver`](./marshail-workbench-driver.md).
    Otherwise allocate a new `<change-id>` (ticket number if the user gives one, else `YYYY-MM-DD-<slug>`), create `.marshail/work/<change-id>/`, and write it into `.marshail/work/current`.
 2. **Scope agreement.**
    Discuss with the user which stages are in scope for this change and which can be skipped (only the Plan stage is mandatory).
@@ -65,13 +67,17 @@ Load tier: **standard** (see [activation-protocol](../references/activation-prot
    3. Wait for the human approval gate before moving to the next stage.
    4. Append entries to the phase changelog and learning file, and update the working folder's **resume notes** (a short `logs/resume.md`: current stage, last artifact, next action, open questions) so any later session can resume cleanly.
 5. **Replanning watch.**
-   If new information invalidates an assumption captured at an earlier stage, pause, propose the smallest replanning that covers it, and resume after approval (per [marshail.md replanning rule](../marshail.md)).
+   If new information invalidates an assumption captured at an earlier stage, pause, propose the smallest replanning that covers it, and resume after approval (per [marshail.md § Replanning rule](../marshail.md#replanning-rule)).
+   If a stretch of work turns out to be exploratory rework that does not fit the plan, propose a **detour** into workbench mode.
+   On agreement: add the detour to `delivery-plan.md` under the item it serves (`Workbench detour <session-id> [DETOUR yyyy-mm-dd] [IN PROGRESS]`, one-line purpose), log it to the phase changelog, bring `resume.md` up to date, then tell the user to start a session with [`marshail-workbench-driver`](./marshail-workbench-driver.md) using a one-line prompt that names this change (*workbench detour from change `<change-id>`*).
+   When the session finishes, the workbench driver has the planner update the plan (detour marked done, resulting changes folded in) and points `.marshail/work/current` back at this change, so this driver simply resumes the updated plan on its next activation.
+   Do not spawn the workbench driver (see [marshail.md § Session handover](../marshail.md#session-handover) → *Detours*).
 6. **Knowledge upkeep.**
    After each implementation cycle, dispatch [`marshail-knowledge-curator`](./marshail-knowledge-curator.md) mode `from-changes`.
    After the Learn stage (if run), dispatch mode `from-learning`.
    Whether the stage agents call the curator themselves or the driver does it is governed by `knowledge.curator_invocation` in [`config.yml`](../config.yml); regardless of that setting the driver may run the curator after a stage or cycle.
 7. **Final handoff.**
-   Summarize stages, artifacts, open follow-ups, then **archive** the working folder: move `.marshail/work/<change-id>/` → `.marshail/archive/<change-id>/` (or delete it when `knowledge.autonomy: auto` and the user did not ask to keep it) and clear `.marshail/work/current`.
+   Summarize stages, artifacts, open follow-ups, then **archive** the working folder: move `.marshail/work/<change-id>/` → `.marshail/archive/<change-id>/` and clear `.marshail/work/current`.
    The user may also request this move on demand instead of at final handoff.
 
 ## Stage chain (driver-routed)
@@ -97,15 +103,21 @@ When a stage is skipped, the next in-scope stage receives only the artifacts the
 
 ## Communication models
 
+See [marshail.md § Communication models](../marshail.md#communication-models) for the full description, including [How an agent runs](../marshail.md#how-an-agent-runs) (session agent / subagent / inline) and [Session handover](../marshail.md#session-handover).
+
 The user can interact with MARSHAIL in two ways; both are supported and the choice is the user's:
 
 1. **Direct.**
    The user calls a specialist agent (or its `marshail-delegate-to-*` skill) directly for a single stage.
    Best when the user knows the process and wants one focused step.
    If a specialist is called directly it answers directly; it still writes its artifact into the working folder so the driver can pick the change up later.
+   A specialist reached through its `marshail-delegate-to-*` skill runs as a subagent — one bounded run, questions returned to the user through the chat agent; its interactive parts (e.g. the implementer's inspect-and-feedback step) only happen when it runs as the session agent or inline.
 2. **Driver-mediated (single point of contact).**
    The user talks only to the driver, which coordinates the specialists, keeps the user oriented, and relays questions/answers.
    Best when the user does not want to track the process.
+   The driver itself should be the session agent or run inline (`marshail-drive`); it is spawned only for hands-off end-to-end runs (`marshail-delegate-to-driver`).
+
+Iterative, plan-less work is a third way of working — [workbench mode](../marshail.md#workbench-mode) with [`marshail-workbench-driver`](./marshail-workbench-driver.md); the driver and the workbench driver hand over to each other by session handover, never by spawning.
 
 **How much the user is involved (human-in-the-loop level).**
 In the driver-mediated model the amount of interaction is not fixed — it ranges from *hands-off* (the driver runs the process end-to-end and comes back only for important decisions or at approval gates) to *collaborative* (the driver and user shape the specification, plan, and key choices together, phase by phase).
@@ -116,10 +128,10 @@ Regardless of level, the driver never bypasses an approval gate.
 **Tradeoff (driver-mediated).**
 There is no portable "live" held-open subagent session that the driver can keep open and stream through: agent dispatch is turn-based, so the driver mediates by *re-dispatching* the relevant agent with the accumulated context each turn.
 "Re-dispatching" means re-invoking the stage subagent (via the subagent-spawn tool) with the accumulated context each turn — never re-implementing the stage inline.
-Emulate a stage inline only if the runtime has no subagent-spawn tool (see [activation-protocol](../references/activation-protocol.md) → *Dispatch by spawning, not emulation*).
+Emulate a stage inline only if the runtime has no subagent-spawn tool (see [`ENTRYPOINT.md`](../ENTRYPOINT.md) → *Dispatch by spawning, not emulation*).
 State is therefore carried on disk through the artifact chain and the working folder's resume notes, **not** in an in-memory conversation.
 This is robust (any session can resume from `.marshail/work/<id>/`) but can be lossy at the margins — nuance from a long back-and-forth that was never written down is not automatically available to the next dispatch.
-To keep mediation faithful, agents must **log everything important** (decisions, open questions, rejected options) into their artifact and the resume notes, so a re-dispatch reconstructs the thread.
+To keep mediation faithful, agents must **log everything important** (decisions, open questions, rejected options) into their artifact and the resume notes, so a re-dispatch reconstructs the thread — and cache research and findings in their run logs so the next run does not repeat them.
 When the user needs a tight live back-and-forth with one specialist, prefer the direct model for that stretch and let the driver resume afterwards.
 
 ## Agents used
